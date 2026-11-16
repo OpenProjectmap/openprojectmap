@@ -101,7 +101,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.3.0-D4 | **Agent integration**: `skills/openprojectmap/SKILL.md`, the AGENTS.md snippet, a Cursor rule; `init --agents claude,cursor,codex` installs them | todo | spec 06 §5 |
 | 0.3.0-D5 | **`doctor`**: checks the Node version, git, config, doc paths and format marker; prints a fix for each problem | todo | spec 04 §2 |
 | 0.3.0-D6 | **Demo and README**: the tidepool map published on GitHub Pages, a screenshot/GIF in the README | todo | |
-| 0.3.0-D7 | **Launch**: issue and PR templates, `good first issue` labels on 10 or more roadmap rows, announcement posts (Show HN, r/SideProject, X) | todo | |
+| 0.3.0-D7 | **Launch**: issue and PR templates, `good first issue` labels on 10 or more roadmap rows, announcement posts (Show HN, r/SideProject, X) | todo | PR template added early, 2026-11-16; issue templates still to do |
 
 ## Phase 3 — Daily driver
 
