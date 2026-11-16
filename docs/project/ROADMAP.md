@@ -36,6 +36,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.0.1-D4 | **Skeleton**: the `src/core`, `src/node`, `src/render`, `src/cli` folders per spec 01 §3, each with an `index.ts` and one passing test; ESLint `no-restricted-imports` forbids `node:*` in `src/core` and `innerHTML` patterns in `src/render/client` | done | spec 01 §3, AGENTS §4. 81f6300 (#5); both lint rules checked with a deliberately bad file |
 | 0.0.1-D5 | **Seed commit**: commit `docs/`, `templates/`, `examples/`, `skills/`, `opmap.config.json`, `CHANGELOG.md`; check every doc renders on GitHub (tables, links) | review | Committed in c9fe7d9; rendering on GitHub not yet checked (repo is private; check in the web UI) |
 | 0.0.1-D6 | **Branch model**: `beta` (preview) and `main` (production), both protected; task PRs squash into `beta`, a release PR from `beta` to `main` per completed version (D19); CI runs on both and a `branch flow` check rejects other PRs to `main`; Dependabot targets `beta` | doing | AGENTS.md §6, spec 08 §5. GitHub settings (create and protect `beta`, enable merge commits, drop linear history on `main`) are applied alongside the PR |
+| 0.0.1-D7 | **Cheap sub-agents**: AGENTS.md §9 and CLAUDE.md say small tasks (docs updates, search, easy edits) go to Claude Haiku 5.5 sub-agents to cut cost | doing | Founder request, 2026-11-16 |
 
 ### v0.1.0 — Core parser, build and check
 
