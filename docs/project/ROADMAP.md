@@ -26,6 +26,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-16:** D2 and D4 done; D3 written, awaiting a first run on GitHub; D5 committed, GitHub rendering unchecked; D1 and D3 (GitHub home) are decided by the founder; the repo stays private under `alkomy` until it is ready to open. Work is on stacked local branches 0.0.1-D1 to D4, unmerged.
 **Status 2026-11-16:** PRs #1 and #5 squash-merged into `main` (CI green on 6 legs). D2, D3, D4 done. Open: D1 (branch protection, private vulnerability reporting and squash-only wait on D14, repo visibility) and D5 (GitHub rendering check). The npm name is not yet claimed (needs `npm login`).
 **Status 2026-11-16:** `main` is protected and the CI workflow now has a quality report job and a `CI result` gate (format, lint, typecheck, coverage, audit, build, summarised in the run summary). Only private vulnerability reporting is left of D1, waiting on D14.
+**Status 2026-11-16:** the founder set a two-branch model (D19, 0.0.1-D6): work branches go into `beta` for testing; `main` only gets a release PR from `beta` when a version is complete.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -34,6 +35,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.0.1-D3 | **CI**: `.github/workflows/ci.yml`, matrix {ubuntu, macos, windows} × Node {20, 22}; jobs typecheck, lint, test, build; `permissions: contents: read`; third-party actions pinned by commit SHA; Dependabot for actions and dev deps | done | spec 08 §4. 81f6300 (#5); ran green on ubuntu, macOS and Windows on Node 20 and 22 for PR #5 |
 | 0.0.1-D4 | **Skeleton**: the `src/core`, `src/node`, `src/render`, `src/cli` folders per spec 01 §3, each with an `index.ts` and one passing test; ESLint `no-restricted-imports` forbids `node:*` in `src/core` and `innerHTML` patterns in `src/render/client` | done | spec 01 §3, AGENTS §4. 81f6300 (#5); both lint rules checked with a deliberately bad file |
 | 0.0.1-D5 | **Seed commit**: commit `docs/`, `templates/`, `examples/`, `skills/`, `opmap.config.json`, `CHANGELOG.md`; check every doc renders on GitHub (tables, links) | review | Committed in c9fe7d9; rendering on GitHub not yet checked (repo is private; check in the web UI) |
+| 0.0.1-D6 | **Branch model**: `beta` (preview) and `main` (production), both protected; task PRs squash into `beta`, a release PR from `beta` to `main` per completed version (D19); CI runs on both and a `branch flow` check rejects other PRs to `main`; Dependabot targets `beta` | doing | AGENTS.md §6, spec 08 §5. GitHub settings (create and protect `beta`, enable merge commits, drop linear history on `main`) are applied alongside the PR |
 
 ### v0.1.0 — Core parser, build and check
 

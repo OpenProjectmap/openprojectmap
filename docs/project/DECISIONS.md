@@ -26,6 +26,7 @@ proceeds with the default: set Status to `defaulted` and write the date in Outco
 | D16 | Code signing for the desktop app (0.8.0-D7) | sign on all 3 OSes · unsigned builds | Buy an Apple Developer account (about $99 a year) and a Windows signing certificate before v0.8.0; unsigned installers scare the non-technical users the app is for | 2027-05-10 | open | |
 | D17 | Package layout for the MCP server, VS Code extension and desktop app | one monorepo with pnpm workspaces · separate repos | One monorepo, one package each (`@openprojectmap/mcp`, `/vscode`, `/desktop`); the `openprojectmap` CLI keeps zero runtime dependencies (D5) | 2027-03-08 | open | |
 | D18 | Desktop app updates (0.8.0-D7), against AGENTS.md §4 "no update checks, ever" | no checks, manual download · a "Check for updates" button the user clicks · automatic background checks | A button the user clicks, no background checks; if accepted, AGENTS.md §4 gets one line allowing user-started update checks in the desktop app only | 2027-05-10 | open | |
+| D19 | Branch model | trunk on `main` · `beta` (preview) and `main` (production) | `beta` and `main`, both protected. Task branches are squashed into `beta`; `main` only gets a release PR from `beta` when a version is complete, merged with a merge commit | 2026-11-16 | decided | 2026-11-16, founder: `beta` and `main` as described in AGENTS.md §6. Merge commits are enabled for the release PR, and `main` drops the linear-history rule, because squashing `beta` into `main` would make the two diverge |
 
 ## Risks
 

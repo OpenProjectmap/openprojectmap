@@ -38,6 +38,7 @@ pnpm build && node dist/cli.js check --strict
 
 ## Checklist
 
+- [ ] This PR targets `beta`. Only a maintainer opens `beta` → `main` release PRs, once a version is complete
 - [ ] The branch is named `<deliverable-id>/<slug>` and the PR title starts with the deliverable ID
 - [ ] The work is a row in `docs/project/ROADMAP.md`, and its Status cell and Status line are updated
 - [ ] `CHANGELOG.md` has an entry under `[Unreleased]` for any user-visible change
