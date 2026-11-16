@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Pull request template (summary, motivation, related issue, changes, security, verification, checklist).
 - Seed documents: roadmap, open decisions and risks, doc format v1 spec, architecture, CLI,
   renderer, integrations, security and release specs.
 - Founder Handbook (plain-language guide to versions, milestones, decisions and risks).
