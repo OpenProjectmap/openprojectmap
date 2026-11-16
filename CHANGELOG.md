@@ -12,3 +12,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   renderer, integrations, security and release specs.
 - Founder Handbook (plain-language guide to versions, milestones, decisions and risks).
 - Init templates, the fictional Tidepool example project, and the OpenProjectMap agent skill.
+- Toolchain: TypeScript strict, ESLint flat config, Prettier, Vitest and an esbuild build script.
+- Source skeleton (`src/core`, `src/node`, `src/render`, `src/cli`) with one test each, and lint
+  rules that keep Node imports out of `src/core` and HTML-string sinks out of `src/render/client`.
+- CI workflow (Linux, macOS, Windows on Node 20 and 22) with SHA-pinned actions, and Dependabot.
+- Code of Conduct (Contributor Covenant 2.1).

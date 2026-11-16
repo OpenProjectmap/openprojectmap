@@ -8,9 +8,9 @@ proceeds with the default: set Status to `defaulted` and write the date in Outco
 
 | ID | Decision | Options | Default | Needed by | Status | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
-| D1 | npm package and binary names | `openprojectmap` · `@openprojectmap/cli` · other | Package `openprojectmap`, bins `openprojectmap` and `opmap` (check `npm view openprojectmap` and `npm view opmap` first) | 2026-11-23 | open | |
-| D2 | Licence | MIT · Apache-2.0 | MIT | 2026-11-23 | open | |
-| D3 | GitHub home | personal account · `openprojectmap` org | Create the `openprojectmap` org (keeps the Action name `openprojectmap/action@v1` possible) | 2026-11-23 | open | |
+| D1 | npm package and binary names | `openprojectmap` · `@openprojectmap/cli` · other | Package `openprojectmap`, bins `openprojectmap` and `opmap` (check `npm view openprojectmap` and `npm view opmap` first) | 2026-11-23 | decided | 2026-11-16, founder: `openprojectmap`, `opmap` and `open-project-map` are all free on npm (404 on 2026-11-16). Package `openprojectmap`, bins `openprojectmap` and `opmap`. Not yet published, so the name is unclaimed |
+| D2 | Licence | MIT · Apache-2.0 | MIT | 2026-11-23 | decided | 2026-11-16, founder: MIT |
+| D3 | GitHub home | personal account · `openprojectmap` org | Create the `openprojectmap` org (keeps the Action name `openprojectmap/action@v1` possible) | 2026-11-23 | decided | 2026-11-16, founder: the `openprojectmap` org on GitHub is ours. The repo stays private under `alkomy/openprojectmap` until it is ready to open (2026-11-16, founder); then it moves into the org |
 | D4 | Date syntax in format v1 | ISO only · ISO + English ranges | ISO only: `2026-11-24 → 2026-12-13`, `2027-01`, `2027-Q2`, `2027`. English ranges go to Parked | 2026-11-30 | open | |
 | D5 | Runtime dependencies | zero · small set (micromark, yaml, commander) | Zero runtime deps in `openprojectmap`; the MCP server is a separate package and may depend on the MCP SDK | 2026-11-30 | open | |
 | D6 | Release-history source | own `HISTORY.md` · Keep a Changelog `CHANGELOG.md` | `CHANGELOG.md` (Keep a Changelog 1.1); many repos already have one | 2026-11-30 | open | |
