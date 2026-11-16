@@ -22,6 +22,10 @@ proceeds with the default: set Status to `defaulted` and write the date in Outco
 | D12 | npm dist-tag for 0.x | `latest` · `next` | `latest` (0.x semver already signals instability) | 2026-12-13 | open | |
 | D13 | Config file format | JSON · JSONC · JS/TS | Plain JSON with `$schema` (zero deps, editor autocomplete) | 2026-11-30 | open | |
 | D14 | Repository visibility | private until ready · public now | Stay private under `alkomy` until the repo is ready to open; then make it public, move it into the `openprojectmap` org and turn on branch protection, private vulnerability reporting and squash-only merges (the free plan blocks branch protection on private repos) | 2026-11-23 | open | Founder asked on 2026-11-16 to keep it private for now |
+| D15 | Desktop app shell (0.8.0-D1) | Tauri · Electron | Tauri, with the Node core as a sidecar: installers about 10× smaller than Electron and the same core as the CLI | 2027-04-12 | open | |
+| D16 | Code signing for the desktop app (0.8.0-D7) | sign on all 3 OSes · unsigned builds | Buy an Apple Developer account (about $99 a year) and a Windows signing certificate before v0.8.0; unsigned installers scare the non-technical users the app is for | 2027-05-10 | open | |
+| D17 | Package layout for the MCP server, VS Code extension and desktop app | one monorepo with pnpm workspaces · separate repos | One monorepo, one package each (`@openprojectmap/mcp`, `/vscode`, `/desktop`); the `openprojectmap` CLI keeps zero runtime dependencies (D5) | 2027-03-08 | open | |
+| D18 | Desktop app updates (0.8.0-D7), against AGENTS.md §4 "no update checks, ever" | no checks, manual download · a "Check for updates" button the user clicks · automatic background checks | A button the user clicks, no background checks; if accepted, AGENTS.md §4 gets one line allowing user-started update checks in the desktop app only | 2027-05-10 | open | |
 
 ## Risks
 
@@ -35,3 +39,4 @@ proceeds with the default: set Status to `defaulted` and write the date in Outco
 | R6 | Windows path and line-ending bugs | M | M | Windows in the CI matrix; CRLF/BOM normalised at read; display paths with `/` | maintainer |
 | R7 | Users publish private roadmaps by accident (Pages on a private repo, hub without auth) | M | H | Warnings in the Action and self-host docs; `serve` binds 127.0.0.1 by default; the output dir is gitignored by `init` | maintainer |
 | R8 | Parser regex blow-up (ReDoS) from a crafted doc | L | M | Only linear regexes in `src/core`; fuzz with time budgets; a cap on the length of the `idPattern` config value | maintainer |
+| R9 | The desktop app (3 OSes, signing, notarisation, updates) eats one maintainer's time | M | H | Tauri, one CI pipeline for all three builds, a separate package (D17), built after the format settles; drop Linux .deb before cutting scope elsewhere | maintainer |
