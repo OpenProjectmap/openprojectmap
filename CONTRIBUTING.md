@@ -28,3 +28,9 @@ Report unacceptable behaviour to the maintainers through the contact in SECURITY
 ## Security issues
 
 Don't open a public issue. See [SECURITY.md](SECURITY.md).
+
+## Branches and pull requests
+
+- Branch from `beta`, one task, feature or bug per branch: `<deliverable-id>/<slug>`.
+- Open your PR against **`beta`**. We test it there. PRs to `main` are release PRs from `beta`
+  only, opened by a maintainer when a whole version is complete.

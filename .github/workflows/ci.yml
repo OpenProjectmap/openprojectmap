@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, beta]
   pull_request:
 permissions:
   contents: read
@@ -86,10 +86,31 @@ jobs:
           done
           exit $fail
 
+  branch-flow:
+    name: branch flow
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: A PR to main must come from beta
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$HEAD_REF" != "beta" ] || [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::PRs to main must come from the beta branch of this repo, once a version is complete. Open your PR against beta instead."
+            exit 1
+          fi
+      - name: A PR to beta must not come from main
+        if: github.event_name == 'pull_request' && github.base_ref == 'beta' && github.head_ref == 'main'
+        run: |
+          echo "::error::Do not merge main into beta through a PR; open a task branch instead."
+          exit 1
+
   ci-result:
     name: CI result
     if: always()
-    needs: [test, quality]
+    needs: [test, quality, branch-flow]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

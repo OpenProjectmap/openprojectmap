@@ -36,7 +36,7 @@ temporary repo with fixed `GIT_COMMITTER_DATE`.
 
 ```yaml
 name: CI
-on: { push: { branches: [main] }, pull_request: {} }
+on: { push: { branches: [main, beta] }, pull_request: {} }
 permissions: { contents: read }
 jobs:
   test:
@@ -89,16 +89,20 @@ jobs:
 
 - **SemVer.** 0.x minors may break; patch = fixes only. From 1.0: format v1, config v1, ProjectData
   v1, CLI flags and exit codes are covered.
-- **Branching**: trunk-based on `main`; feature branches `<deliverable-id>/<slug>`; squash merges.
+- **Branching**: two protected environments, `beta` (preview) and `main` (production). Work
+  branches `<deliverable-id>/<slug>` are cut from `beta` and squash-merged into it. `main` only
+  receives a release PR from `beta`, once a version is complete, merged with a merge commit
+  (decision D19).
 - **Cutting `vX.Y.Z`:**
-  1. Open a PR titled `vX.Y.Z — <Version title>` that:
+  1. Finish and test the version on `beta`. Open a PR from `beta` to `main` titled
+     `vX.Y.Z — <Version title>` that:
      - moves `## [Unreleased]` items to `## [X.Y.Z] - <date>` in CHANGELOG.md,
      - sets the roadmap version's deliverables to `done`/`parked`, adds a final status line, and
        sets `**State:** shipped` (optional, since the changelog already implies it),
      - updates the Now block (Current version → the next version, Next step, Updated),
      - bumps `package.json` version.
   2. CI green, including `check --strict`.
-  3. Merge, then tag `vX.Y.Z` on the merge commit.
+  3. Merge with a merge commit, then tag `vX.Y.Z` on the `main` merge commit.
   4. `.github/workflows/release.yml` (on tag): builds, runs tests, `npm publish --provenance --access public`
      via trusted publishing, creates a GitHub Release with the changelog section, builds and pushes
      the Docker image (from 0.5), and redeploys the demo map to Pages.
