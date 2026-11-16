@@ -2,7 +2,13 @@
 // The client/template pipeline from spec 01 §5 arrives with v0.1.0-D11.
 import { build } from 'esbuild';
 
-const common = { bundle: true, platform: 'node', format: 'esm', target: 'node20', logLevel: 'info' };
+const common = {
+  bundle: true,
+  platform: 'node',
+  format: 'esm',
+  target: 'node20',
+  logLevel: 'info',
+};
 
 await build({
   ...common,
