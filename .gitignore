@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.opmap/
+src/render/assets.generated.ts
+test-results/
+playwright-report/
+reference/
+*.log
+.DS_Store

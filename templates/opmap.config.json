@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openprojectmap.dev/schema/config.v1.json",
+  "format": 1,
+  "name": "{{name}}",
+  "docs": {
+    "roadmap": "{{docsDir}}/ROADMAP.md",
+    "decisions": "{{docsDir}}/DECISIONS.md",
+    "changelog": "CHANGELOG.md"
+  },
+  "git": { "enabled": true, "branches": { "live": "main" } },
+  "output": { "dir": ".opmap" }
+}
