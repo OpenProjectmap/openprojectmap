@@ -21,6 +21,7 @@ proceeds with the default: set Status to `defaulted` and write the date in Outco
 | D11 | Domain | openprojectmap.dev · .org · none | Register `openprojectmap.dev` if free; it hosts `$schema` URLs and the demo | 2026-11-30 | open | |
 | D12 | npm dist-tag for 0.x | `latest` · `next` | `latest` (0.x semver already signals instability) | 2026-12-13 | open | |
 | D13 | Config file format | JSON · JSONC · JS/TS | Plain JSON with `$schema` (zero deps, editor autocomplete) | 2026-11-30 | open | |
+| D14 | Repository visibility | private until ready · public now | Stay private under `alkomy` until the repo is ready to open; then make it public, move it into the `openprojectmap` org and turn on branch protection, private vulnerability reporting and squash-only merges (the free plan blocks branch protection on private repos) | 2026-11-23 | open | Founder asked on 2026-11-16 to keep it private for now |
 
 ## Risks
 
