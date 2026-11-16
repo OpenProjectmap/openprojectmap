@@ -58,6 +58,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.1.0-D11 | **Minimal renderer**: Overview, Versions and Decisions views, built with the safe DOM helper (no `innerHTML`, so v0.2 is not a rewrite); data embedded as escaped JSON; `<noscript>` summary | todo | spec 05 §1–2 |
 | 0.1.0-D12 | **Fixtures and snapshots**: `test/fixtures/**` incl. one per diagnostic, tidepool and a generated 1,000-deliverable stress fixture; JSON snapshots of ProjectData | todo | spec 08 §2 |
 | 0.1.0-D13 | **Dogfood and publish**: CI runs `check --strict` on this repo's docs; npm trusted publishing with provenance (D12); `0.1.0` tagged and released | todo | spec 08 §5 |
+| 0.1.0-D14 | **Map prototype as reference**: the `.project-map/` parser, template and build script (written 2026-11-16, gitignored) move to `prototype/project-map/` as the reference for D3, D10 and D11; deleted when D11 ships | todo | Excluded from lint and format checks |
 
 ## Phase 2 — Public alpha
 
@@ -135,7 +136,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.5.0-D5 | **Self-host guide**: docker compose + Caddy (TLS, basic auth or forward-auth), notes for a VPS or Coder workspace, private repos via read-only deploy keys | todo | spec 06 §4 |
 | 0.5.0-D6 | **Other CI and hosts**: GitLab CI template; Netlify, Cloudflare Pages and Vercel static recipes | todo | |
 
-## Phase 4 — Ecosystem and 1.0
+## Phase 4 — Ecosystem, editor and desktop
 
 ### v0.6.0 — Tracks, MCP server, importers
 
@@ -143,6 +144,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** Plan more than code (business, marketing), and let agents drive the map through MCP.
 **Exit:** Claude Code completes a full session close-out using only the MCP tools; a two-track project (product + business) renders both tracks.
 **Status 2026-11-16:** planned.
+**Status 2026-11-16:** 0.6.0-D5 (feature intake) added in the editor and desktop re-plan.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -150,14 +152,49 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.6.0-D2 | **MCP server**: separate package `@openprojectmap/mcp` (keeps the core zero-dependency); stdio; tools `now`, `list`, `get`, `check`, `set_status`, `log`, `decide`; writes go through the 0.4.0-D2 editor; `--read-only` | todo | spec 06 §6 |
 | 0.6.0-D3 | **Importers**: `import github` (milestones and issues via `gh api`) and `import csv`; always writes a draft file for review, never edits the roadmap directly | todo | spec 04 §2 |
 | 0.6.0-D4 | **i18n**: UI strings in a catalogue, English first, contributor-driven languages; RTL layout (`dir="rtl"`) | todo | spec 05 §8 |
+| 0.6.0-D5 | **Feature intake**: MCP tool `propose` returns, for a plain-language idea, the candidate versions (by goal and deliverables), related rows, open decisions and Parked items, so the agent can place it without conflicts; `opmap propose --check <row>` validates a drafted row (ID free, version not shipped, no duplicate of a Parked item). Drafts go to `docs/project/proposals/`; it never edits the roadmap. No LLM in the tool: the agent does the reasoning | todo | spec 06 §6 |
+
+### v0.7.0 — VS Code extension
+
+**Window:** 2027-04-12 → 2027-05-09
+**Goal:** A developer sees the map, the format problems and the next step without leaving VS Code, and edits statuses through commands instead of by hand.
+**Exit:** In the tidepool repo, a full session close-out done only from VS Code leaves zero warnings; the extension installs from the Marketplace and Open VSX on Windows, macOS and Linux.
+**Status 2026-11-16:** planned. Moved out of Parked in the editor and desktop re-plan.
+
+| ID | Deliverable | Status | Notes |
+| --- | --- | --- | --- |
+| 0.7.0-D1 | **Extension package** `@openprojectmap/vscode` (separate package, D17): activates when `opmap.config.json` exists; bundles the core; no network requests | todo | D17 |
+| 0.7.0-D2 | **Map panel**: webview showing the v0.2 renderer under its CSP; refreshes on save | todo | spec 05 |
+| 0.7.0-D3 | **Diagnostics**: `check` results in the Problems panel with file, line and the fix hint | todo | spec 02 §9 |
+| 0.7.0-D4 | **Commands**: set status, add deliverable, add status line, record a decision, all through the 0.4.0-D2 editor with a diff preview | todo | spec 04 §5 |
+| 0.7.0-D5 | **Agent bridge**: registers the MCP server (0.6.0-D2) so agents in VS Code use the same tools | todo | spec 06 §6 |
+
+### v0.8.0 — Desktop app
+
+**Window:** 2027-05-10 → 2027-06-27
+**Milestone:** M4
+**Goal:** Someone who never opens a terminal opens their project folder and sees a live, correct map, and keeps it current with buttons instead of markdown edits.
+**Exit:** In 3 moderated tests with people who don't use a terminal, each installs the signed app on their OS, opens or creates a project and reaches a map with zero warnings in 10 minutes or less; updating from v0.8.0 to a test v0.8.1 works on Windows, macOS and Linux.
+**Status 2026-11-16:** planned. Moved out of Parked in the editor and desktop re-plan.
+
+| ID | Deliverable | Status | Notes |
+| --- | --- | --- | --- |
+| 0.8.0-D1 | **App shell** per D15 (default Tauri with the Node core as a sidecar); separate package `@openprojectmap/desktop` (D17); no telemetry | todo | D15, D17 |
+| 0.8.0-D2 | **Open a project**: folder picker, recent projects, finds `opmap.config.json`; the same path containment rules as the CLI | todo | spec 07 §3 |
+| 0.8.0-D3 | **Guided setup**: the `init` interview as a form for a folder with no docs; templates and the tidepool example | todo | 0.3.0-D1 |
+| 0.8.0-D4 | **Live map**: watches the docs, re-renders, lists diagnostics with an "Open in editor" button | todo | 0.4.0-D1 |
+| 0.8.0-D5 | **Simple editing**: change a status, add a deliverable, add a status line, record a decision, through the 0.4.0-D2 editor with a preview of the change | todo | spec 04 §5 |
+| 0.8.0-D6 | **Git panel**: branch, last commit, uncommitted doc changes; commit the docs with one button; git only through `execFile` | todo | spec 06 §1 |
+| 0.8.0-D7 | **Signed builds and updates**: Windows (signed installer), macOS (notarised, universal), Linux (AppImage and .deb); update behaviour per D18; built in CI | todo | D16, D18 |
 
 ### v1.0.0 — Stable format
 
-**Window:** 2027-Q2
-**Milestone:** M4
+**Window:** 2027-Q3
+**Milestone:** M5
 **Goal:** Format v1, config v1, JSON schema v1 and the CLI flags are frozen with a semver promise.
 **Exit:** The conformance suite is published; 25 or more public repos use OpenProjectMap; no open high-severity security issue.
 **Status 2026-11-16:** planned.
+**Status 2026-11-16:** window moved from 2027-Q2 to 2027-Q3 and milestone renamed M4 → M5, because v0.7.0 and v0.8.0 now come first. The desktop app and VS Code extension are part of the stable surface.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -173,17 +210,16 @@ the newest status line in a version goes last; windows live only on the version 
 | M1 | Works on one repo | v0.1.0 is on npm; tidepool and this repo pass `check --strict` | |
 | M2 | Public alpha | v0.3.0 shipped; 3 new-to-roadmaps users reached a map in 30 minutes or less; announced | |
 | M3 | Team ready | v0.5.0 shipped; the Action, hub and Docker self-host are used by 3 or more external repos | |
-| M4 | Stable | v1.0.0 shipped; the format is frozen; 25 or more public repos use it | |
+| M4 | Desktop ready | v0.8.0 shipped; signed builds for Windows, macOS and Linux; 3 people who don't use a terminal reached a map in 10 minutes or less | |
+| M5 | Stable | v1.0.0 shipped; the format is frozen; 25 or more public repos use it | |
 
 ## Parked
 
 | Item | Why | Revisit when |
 | --- | --- | --- |
-| Hosted SaaS (accounts, cloud storage) | It would hold other people's private roadmaps: accounts, storage and security work forever, for a static file | 100 or more self-host users ask for it and there is a maintainer team |
-| Desktop app (Tauri/Electron) | The browser already opens the file; code-signing and updates on 3 OSes cost more than they give | Non-coders keep asking after M3 |
-| VS Code extension | `serve` + the editor preview covers it | After v0.4, if asked |
+| Hosted SaaS (accounts, cloud storage) | It would hold other people's private roadmaps: accounts, storage and security work forever, for a static file | Desktop and self-host users ask for it after v0.8.0, and there is a maintainer team |
 | Real-time collaborative editing | Git is the collaboration model | Not planned |
-| Two-way Jira / Linear sync | A large surface with conflict resolution; one-way import is enough | After M4 |
+| Two-way Jira / Linear sync | A large surface with conflict resolution; one-way import is enough | After M5 |
 | Sprint boards, burndown, story points | Team ceremony; solo founders need versions and milestones | Teams adopt it after M3 |
-| Task dependencies / critical path | Windows and milestones are enough for the target users | After M4 |
+| Task dependencies / critical path | Windows and milestones are enough for the target users | After M5 |
 | English date ranges ("Nov 3 – 14") | Ambiguous across locales and years; ISO only in format v1 (D4) | Format v2 |

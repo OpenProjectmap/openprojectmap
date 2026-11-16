@@ -19,3 +19,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Code of Conduct (Contributor Covenant 2.1).
 - CI quality report (format, lint, typecheck, coverage, dependency audit, build) written to the run summary, and a single `CI result` check that gates merges.
 - CODEOWNERS; `main` requires a PR with a passing `CI result`, and only squash merges are allowed.
+
+### Changed
+
+- Roadmap: a VS Code extension (v0.7.0) and a desktop app for Windows, macOS and Linux (v0.8.0) are now planned, moved out of Parked; a feature-intake tool for agents is added to v0.6.0; v1.0.0 moves to 2027-Q3.
