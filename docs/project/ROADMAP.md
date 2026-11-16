@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-16
 **Current version:** v0.0.1
-**Next step:** Settle D1–D3 (name, licence, GitHub home) by 2026-11-23, create the GitHub repo, push the branches and confirm CI is green on all six legs (0.0.1-D1, D3, D5), then start the block scanner (0.1.0-D1).
+**Next step:** Transfer the repo into the `openprojectmap` org (D1–D3 are decided), push the branches and confirm CI is green on all six legs (0.0.1-D1, D3, D5), then start the block scanner (0.1.0-D1).
 **Why:** The toolchain, skeleton and CI file now exist locally, but nothing can be reviewed in public or proven on all OSes until the repo exists. The format, data model and CLI are already specified in docs/spec/.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet
@@ -23,11 +23,11 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** A public repo with toolchain, CI and these planning docs, ready for parser work.
 **Exit:** `pnpm install && pnpm test && pnpm lint && pnpm typecheck` pass on Linux, macOS and Windows in CI on Node 20 and 22; the repo is public with licence, README, SECURITY and CONTRIBUTING.
 **Status 2026-11-16:** planned. Roadmap, spec, handbook, templates, example and agent skill written; repo not created.
-**Status 2026-11-16:** D2 and D4 done; D3 written, awaiting a first run on GitHub; D5 committed, GitHub rendering unchecked; D1 blocked on D3 (GitHub home), whose Needed-by date is 2026-11-23, so no default applied yet. Work is on stacked local branches 0.0.1-D1 to D4, unmerged.
+**Status 2026-11-16:** D2 and D4 done; D3 written, awaiting a first run on GitHub; D5 committed, GitHub rendering unchecked; D1 and D3 (GitHub home) are decided by the founder; the repo transfer into the org is still to do. Work is on stacked local branches 0.0.1-D1 to D4, unmerged.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.0.1-D1 | **Repository**: create the GitHub repo per D3, add LICENSE (D2), README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT (Contributor Covenant 2.1); enable private vulnerability reporting, branch protection on `main` (PR + green CI required), squash-merge only | blocked | spec 08 §5. Local files done (LICENSE, README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT in 3dc5526). Creating the repo and branch protection waits on D3 (GitHub home), needed by 2026-11-23 |
+| 0.0.1-D1 | **Repository**: create the GitHub repo per D3, add LICENSE (D2), README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT (Contributor Covenant 2.1); enable private vulnerability reporting, branch protection on `main` (PR + green CI required), squash-merge only | doing | spec 08 §5. Local files done (LICENSE, README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT in 3dc5526). D3 is decided (the `openprojectmap` org); the repo transfer, private vulnerability reporting and branch protection are still to do |
 | 0.0.1-D2 | **Toolchain**: `package.json` (`type: module`, `engines.node >=20.11`, `packageManager: pnpm@10`), TypeScript 5 `strict` + `noUncheckedIndexedAccess`, ESLint flat config + typescript-eslint, Prettier, Vitest, esbuild (D7); scripts `build`, `test`, `lint`, `typecheck`, `format` | done | spec 01 §5. 5e4017e, f5398fe; typecheck, lint, test, build pass locally on Linux/Node 22 |
 | 0.0.1-D3 | **CI**: `.github/workflows/ci.yml`, matrix {ubuntu, macos, windows} × Node {20, 22}; jobs typecheck, lint, test, build; `permissions: contents: read`; third-party actions pinned by commit SHA; Dependabot for actions and dev deps | review | spec 08 §4. f156ca0; not yet run on GitHub (no remote), so the macOS/Windows and Node 20 legs are unverified |
 | 0.0.1-D4 | **Skeleton**: the `src/core`, `src/node`, `src/render`, `src/cli` folders per spec 01 §3, each with an `index.ts` and one passing test; ESLint `no-restricted-imports` forbids `node:*` in `src/core` and `innerHTML` patterns in `src/render/client` | done | spec 01 §3, AGENTS §4. 7e7d241; both lint rules checked with a deliberately bad file |
