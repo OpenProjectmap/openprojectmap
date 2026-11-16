@@ -8,3 +8,4 @@ playwright-report/
 reference/
 *.log
 .DS_Store
+.project-map/
