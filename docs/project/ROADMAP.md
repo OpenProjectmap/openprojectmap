@@ -10,8 +10,8 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-16
 **Current version:** v0.0.1
-**Next step:** Squash-merge PRs #1 to #4 in order (the repo stays private under `alkomy` until it is ready to open; D1–D3 are decided), confirm CI on `main`, decide D-PUBLIC, then start the block scanner (0.1.0-D1).
-**Why:** The toolchain, skeleton and CI file now exist locally, but nothing can be reviewed in public or proven on all OSes until the repo exists. The format, data model and CLI are already specified in docs/spec/.
+**Next step:** Decide D14 (repo visibility) and check that the docs render on GitHub (0.0.1-D5), then start the block scanner (0.1.0-D1). Claiming the npm name needs `npm login` first.
+**Why:** The toolchain, skeleton, CI and branch protection are on `main`. What is left of v0.0.1 waits on D14: private vulnerability reporting needs the repo to be public, and the exit criteria say the repo is public.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet
 
