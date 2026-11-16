@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Agent rules for cost: small tasks (docs updates, search, easy edits) go to Haiku 5.5 sub-agents.
 - Branch model: a protected `beta` preview branch and the protected `main` production branch. CI runs on both and a `branch flow` check allows only `beta` to open PRs into `main`.
 - Pull request template (summary, motivation, related issue, changes, security, verification, checklist).
 - Seed documents: roadmap, open decisions and risks, doc format v1 spec, architecture, CLI,

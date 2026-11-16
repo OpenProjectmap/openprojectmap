@@ -95,3 +95,15 @@ node dist/cli.js build -C examples/tidepool
 
 Follow the checklist in `docs/spec/08-quality-release.md` §6 (Definition of Done), then open the
 release PR from `beta` to `main` (§6 above).
+
+## 9. Cost: which model does the work
+
+Use the cheapest model that can do the job well.
+
+- **Small models** (Claude Haiku 5.5) take small, well-defined, low-risk tasks: updating docs and
+  status lines, the CHANGELOG, searching and reading the repo, listing or summarising files,
+  renaming, formatting, simple mechanical edits, and checking CI or PR status.
+- **The main model** keeps the work that needs judgement: parser, renderer and security code,
+  architecture, decisions, reviewing a finished change, and anything a small model got wrong.
+- Give a small-model agent a self-contained prompt (the files, the exact change, what to report),
+  and read its result before you rely on it. Its output is still your responsibility.
