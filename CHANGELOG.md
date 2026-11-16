@@ -17,3 +17,5 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   rules that keep Node imports out of `src/core` and HTML-string sinks out of `src/render/client`.
 - CI workflow (Linux, macOS, Windows on Node 20 and 22) with SHA-pinned actions, and Dependabot.
 - Code of Conduct (Contributor Covenant 2.1).
+- CI quality report (format, lint, typecheck, coverage, dependency audit, build) written to the run summary, and a single `CI result` check that gates merges.
+- CODEOWNERS; `main` requires a PR with a passing `CI result`, and only squash merges are allowed.
