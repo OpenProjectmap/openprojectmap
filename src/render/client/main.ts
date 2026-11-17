@@ -6,6 +6,8 @@ import { formatHash, parseHash, VIEWS } from './router.js';
 import type { State, View } from './router.js';
 import { loadMode, nextMode, saveMode } from './theme.js';
 import { renderDecisions } from './views/decisions.js';
+import { renderHistory } from './views/history.js';
+import { renderParked } from './views/parked.js';
 import { renderOverview } from './views/overview.js';
 import { renderVersions } from './views/versions.js';
 
@@ -13,6 +15,8 @@ const LABELS: Record<View, string> = {
   overview: 'Overview',
   versions: 'Versions',
   decisions: 'Decisions',
+  history: 'History',
+  parked: 'Parked',
 };
 
 export function readData(doc: Document): ProjectData {
@@ -27,6 +31,10 @@ function renderView(data: ProjectData, state: State, onChange: (s: State) => voi
       return renderVersions(data, state, onChange);
     case 'decisions':
       return renderDecisions(data);
+    case 'history':
+      return renderHistory(data);
+    case 'parked':
+      return renderParked(data);
     default:
       return renderOverview(data);
   }

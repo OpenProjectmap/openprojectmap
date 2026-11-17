@@ -1,8 +1,8 @@
 // View state in the URL hash: `#/versions/v0.2.0?status=doing,blocked&q=timeline`.
 import type { Status } from '../../core/types.js';
 
-export type View = 'overview' | 'versions' | 'decisions';
-export const VIEWS: readonly View[] = ['overview', 'versions', 'decisions'];
+export type View = 'overview' | 'versions' | 'decisions' | 'history' | 'parked';
+export const VIEWS: readonly View[] = ['overview', 'versions', 'decisions', 'history', 'parked'];
 export const STATUS_LIST: readonly Status[] = [
   'todo',
   'doing',

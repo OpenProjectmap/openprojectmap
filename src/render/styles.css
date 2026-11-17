@@ -326,10 +326,42 @@ details summary {
   cursor: pointer;
   margin: 6px 0;
 }
+h2.section {
+  margin: 16px 0 8px;
+}
+h4 {
+  margin: 8px 0 4px;
+  font-size: 0.95rem;
+}
+.areas li {
+  display: grid;
+  grid-template-columns: minmax(8ch, 22ch) 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.area-bar {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  width: calc(var(--w, 0) * 1%);
+  min-width: 2px;
+}
 footer {
   margin-top: 24px;
   color: var(--muted);
   font-size: 0.85rem;
+}
+html[data-density='compact'] body {
+  font-size: 15px;
+  line-height: 1.4;
+}
+html[data-density='compact'] .card {
+  padding: 10px;
+}
+html[data-density='compact'] th,
+html[data-density='compact'] td {
+  padding: 4px 8px;
 }
 @media (prefers-reduced-motion: no-preference) {
   button {
