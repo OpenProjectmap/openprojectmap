@@ -362,8 +362,13 @@ describe('dogfood', () => {
       },
       { today: '2026-11-17' },
     );
-    expect(r.derived.currentVersionId).toBe('v0.0.1');
-    expect(r.derived.nextVersionId).toBe('v0.1.0');
+    // These follow the project's own progress, so check the rules rather than fixed ids.
+    expect(r.derived.currentVersionId).toBe(resolveCurrentVersion(roadmap.now, roadmap.versions));
+    const ids = r.versions.map((v) => v.id);
+    const next = r.derived.nextVersionId;
+    expect(next === null || ids.indexOf(next) > ids.indexOf(r.derived.currentVersionId ?? '')).toBe(
+      true,
+    );
     expect(r.derived.needsYourCall).toHaveLength(
       decisions.decisions.filter((d) => d.status === 'open').length,
     );

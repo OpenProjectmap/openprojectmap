@@ -122,7 +122,8 @@ Intro text.
   it('parses this repo and the tidepool changelog', () => {
     const own = parse(readFileSync('CHANGELOG.md', 'utf8'));
     expect(own[0]).toMatchObject({ unreleased: true });
-    expect(own[0]?.sections.length).toBeGreaterThan(0);
+    expect(own.some((r) => r.version === '0.1.0' && r.date === '2026-11-17')).toBe(true);
+    expect(own.find((r) => r.version === '0.1.0')?.sections[0]?.items.length).toBeGreaterThan(3);
     const t = parse(readFileSync('examples/tidepool/CHANGELOG.md', 'utf8'));
     expect(t.map((x) => x.version)).toEqual([null, '0.1.0']);
   });
