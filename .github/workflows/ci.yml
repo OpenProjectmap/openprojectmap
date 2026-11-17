@@ -144,7 +144,14 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           fail=0
           for c in format lint typecheck coverage audit build dogfood; do
-            [ "$(cat $c.rc)" = "0" ] || fail=1
+            if [ "$(cat $c.rc)" != "0" ]; then
+              fail=1
+              # Also print the failure in the job log, so it can be read without the run summary.
+              echo "::group::$c failed"
+              tail -60 "$c.log"
+              echo "::endgroup::"
+              echo "::error::$c failed"
+            fi
           done
           exit $fail
 
