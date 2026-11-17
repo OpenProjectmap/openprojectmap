@@ -1,0 +1,569 @@
+{
+  "schema": "openprojectmap/project-data@1",
+  "tool": {
+    "name": "openprojectmap",
+    "version": "0.0.0-snapshot"
+  },
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "today": "2026-11-17",
+  "project": {
+    "name": "Full: Roadmap",
+    "title": "Full: Roadmap",
+    "formatVersion": 1
+  },
+  "now": {
+    "updated": "2026-11-16",
+    "currentVersion": "v0.2.0",
+    "nextStep": "Finish the **timeline** (0.2.0-D2).",
+    "why": "It blocks the alpha. See [the plan](https://example.com/plan).",
+    "target": "Alpha (M2) by 2027-02",
+    "facts": [
+      {
+        "key": "Live",
+        "value": "v0.1.0 on npm"
+      },
+      {
+        "key": "Users",
+        "value": "12"
+      }
+    ],
+    "source": {
+      "file": "ROADMAP.md",
+      "line": 4
+    }
+  },
+  "phases": [
+    {
+      "id": "1",
+      "title": "Foundations",
+      "versionIds": ["v0.1.0"],
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 14
+      }
+    },
+    {
+      "id": "2",
+      "title": "Public alpha",
+      "versionIds": ["v0.2.0", "v0.3.0"],
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 31
+      }
+    }
+  ],
+  "versions": [
+    {
+      "id": "v0.1.0",
+      "semver": "0.1.0",
+      "title": "Core",
+      "phaseId": "1",
+      "window": {
+        "start": "2026-10-01",
+        "end": "2026-10-31",
+        "raw": "2026-10-01 → 2026-10-31",
+        "tentative": false
+      },
+      "milestoneId": "M1",
+      "goal": "Parse the docs.",
+      "exit": "Tests pass.",
+      "state": "shipped",
+      "stateExplicit": false,
+      "statusLines": [
+        {
+          "date": "2026-10-15",
+          "text": "scanner done.",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 22
+          }
+        },
+        {
+          "date": "2026-10-30",
+          "text": "everything done.",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 23
+          }
+        }
+      ],
+      "deliverables": [
+        {
+          "id": "0.1.0-D1",
+          "title": "Scanner",
+          "detail": "**Scanner**: line based",
+          "status": "done",
+          "statusRaw": "done 2026-10-15 (#4)",
+          "statusDate": "2026-10-15",
+          "owner": "ana",
+          "ref": "#4",
+          "notes": "spec 02",
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 27
+          }
+        },
+        {
+          "id": "0.1.0-D2",
+          "title": "Dates",
+          "detail": "**Dates**",
+          "status": "done",
+          "statusRaw": "shipped",
+          "statusDate": null,
+          "owner": "ana",
+          "ref": "#5",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 28
+          }
+        },
+        {
+          "id": "0.1.0-D3",
+          "title": "Fancy extras",
+          "detail": "Fancy extras",
+          "status": "parked",
+          "statusRaw": "parked",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "cut for time",
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 29
+          }
+        }
+      ],
+      "progress": {
+        "done": 2,
+        "total": 2,
+        "parked": 1,
+        "byStatus": {
+          "todo": 0,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 2,
+          "parked": 1
+        },
+        "pct": 100
+      },
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 16
+      }
+    },
+    {
+      "id": "v0.2.0",
+      "semver": "0.2.0",
+      "title": "Views",
+      "phaseId": "2",
+      "window": {
+        "start": "2026-11-01",
+        "end": "2027-01-31",
+        "raw": "2026-11-01 → 2027-01 (tentative)",
+        "tentative": true,
+        "note": "tentative"
+      },
+      "milestoneId": "M2",
+      "goal": "Views people can use.",
+      "exit": "`axe` reports 0 serious problems.",
+      "state": "active",
+      "stateExplicit": false,
+      "statusLines": [
+        {
+          "date": "2026-11-10",
+          "text": "DOM helper merged.",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 39
+          }
+        }
+      ],
+      "deliverables": [
+        {
+          "id": "0.2.0-D1",
+          "title": "DOM helper",
+          "detail": "**DOM helper**: allow-listed attributes",
+          "status": "done",
+          "statusRaw": "done 2026-11-10 (#41)",
+          "statusDate": "2026-11-10",
+          "owner": null,
+          "ref": "#41",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 43
+          }
+        },
+        {
+          "id": "0.2.0-D2",
+          "title": "Timeline",
+          "detail": "**Timeline** view",
+          "status": "doing",
+          "statusRaw": "doing",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "spec 05 §4.2",
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 44
+          }
+        },
+        {
+          "id": "0.2.0-D3",
+          "title": "Filters",
+          "detail": "Filters",
+          "status": "blocked",
+          "statusRaw": "blocked",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "waits for D2",
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 45
+          }
+        },
+        {
+          "id": "0.2.0-D4",
+          "title": "Print stylesheet",
+          "detail": "Print stylesheet",
+          "status": "review",
+          "statusRaw": "in review",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 46
+          }
+        }
+      ],
+      "progress": {
+        "done": 1,
+        "total": 4,
+        "parked": 0,
+        "byStatus": {
+          "todo": 0,
+          "doing": 1,
+          "review": 1,
+          "blocked": 1,
+          "done": 1,
+          "parked": 0
+        },
+        "pct": 25
+      },
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 33
+      }
+    },
+    {
+      "id": "v0.3.0",
+      "semver": "0.3.0",
+      "title": "Onboarding",
+      "phaseId": "2",
+      "window": {
+        "start": "2027-01-01",
+        "end": "2027-03-31",
+        "raw": "2027-Q1",
+        "tentative": false
+      },
+      "milestoneId": null,
+      "goal": "`init` and the agent skill.",
+      "exit": "A new project is set up in under 5 minutes.",
+      "state": "planned",
+      "stateExplicit": false,
+      "statusLines": [],
+      "deliverables": [
+        {
+          "id": "0.3.0-D1",
+          "title": "`init`",
+          "detail": "`init`",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.3.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 56
+          }
+        },
+        {
+          "id": "0.3.0-D2",
+          "title": "Agent skill",
+          "detail": "Agent skill",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.3.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 57
+          }
+        }
+      ],
+      "progress": {
+        "done": 0,
+        "total": 2,
+        "parked": 0,
+        "byStatus": {
+          "todo": 2,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 0,
+          "parked": 0
+        },
+        "pct": 0
+      },
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 48
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "id": "M1",
+      "name": "Works on one repo",
+      "reachedWhen": "v0.1.0 on npm",
+      "reachedOn": "2026-10-31",
+      "dependsOn": null,
+      "versionIds": ["v0.1.0"],
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 63
+      }
+    },
+    {
+      "id": "M2",
+      "name": "Public alpha",
+      "reachedWhen": "v0.2.0 released",
+      "reachedOn": null,
+      "dependsOn": null,
+      "versionIds": ["v0.2.0"],
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 64
+      }
+    }
+  ],
+  "parked": [
+    {
+      "item": "Hosted version",
+      "why": "Needs accounts",
+      "revisitWhen": "After 1.0",
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 70
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "Which licence?",
+      "options": ["MIT", "Apache-2.0"],
+      "default": "MIT",
+      "neededBy": "2026-10-01",
+      "status": "decided",
+      "outcome": "MIT, 2026-09-30",
+      "overdue": false,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 8
+      }
+    },
+    {
+      "id": "D2",
+      "question": "Ship a hosted version?",
+      "options": ["yes", "no"],
+      "default": "No",
+      "neededBy": "2026-11-10",
+      "status": "open",
+      "outcome": null,
+      "overdue": true,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 9
+      }
+    },
+    {
+      "id": "D3",
+      "question": "Which docs site?",
+      "options": ["Starlight", "VitePress"],
+      "default": "Starlight",
+      "neededBy": "2027-03-01",
+      "status": "open",
+      "outcome": null,
+      "overdue": false,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 10
+      }
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "risk": "Format feels too strict",
+      "likelihood": "M",
+      "impact": "H",
+      "score": 6,
+      "mitigation": "Hints and templates",
+      "owner": "maintainer",
+      "open": true,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 16
+      }
+    },
+    {
+      "id": "R2",
+      "risk": "Maintainer bandwidth",
+      "likelihood": "H",
+      "impact": "H",
+      "score": 9,
+      "mitigation": "Small versions",
+      "owner": "maintainer",
+      "open": true,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 17
+      }
+    },
+    {
+      "id": "R3",
+      "risk": "Name clash",
+      "likelihood": "L",
+      "impact": "M",
+      "score": 2,
+      "mitigation": "Check early",
+      "owner": "maintainer",
+      "open": true,
+      "source": {
+        "file": "DECISIONS.md",
+        "line": 18
+      }
+    }
+  ],
+  "releases": [
+    {
+      "version": null,
+      "date": null,
+      "title": null,
+      "unreleased": true,
+      "sections": [
+        {
+          "heading": "Added",
+          "items": ["DOM helper with an attribute allow-list."]
+        }
+      ],
+      "versionId": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "line": 3
+      }
+    },
+    {
+      "version": "0.1.0",
+      "date": "2026-10-31",
+      "title": null,
+      "unreleased": false,
+      "sections": [
+        {
+          "heading": "Added",
+          "items": [
+            "Scanner and dates.",
+            "Status vocabulary, with `done`, `shipped` and `merged` as aliases."
+          ]
+        }
+      ],
+      "versionId": "v0.1.0",
+      "source": {
+        "file": "CHANGELOG.md",
+        "line": 9
+      }
+    }
+  ],
+  "tracks": [],
+  "git": null,
+  "derived": {
+    "currentVersionId": "v0.2.0",
+    "nextVersionId": "v0.3.0",
+    "overall": {
+      "done": 3,
+      "total": 8,
+      "parked": 1,
+      "byStatus": {
+        "todo": 2,
+        "doing": 1,
+        "review": 1,
+        "blocked": 1,
+        "done": 3,
+        "parked": 1
+      },
+      "pct": 38
+    },
+    "needsYourCall": ["D2", "D3"],
+    "topRisks": ["R2", "R1"],
+    "stale": {
+      "isStale": false,
+      "days": 1,
+      "commitsSince": null,
+      "reason": null
+    },
+    "timeline": {
+      "start": "2026-10-01",
+      "end": "2027-03-31"
+    },
+    "milestoneProgress": [
+      {
+        "id": "M1",
+        "reached": true,
+        "pct": 100
+      },
+      {
+        "id": "M2",
+        "reached": false,
+        "pct": 50
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "OPM-W501",
+      "severity": "warning",
+      "message": "Decision D2 was needed by 2026-11-10 and is still open",
+      "file": "DECISIONS.md",
+      "line": 9,
+      "hint": "Decide, or set Status `defaulted`"
+    }
+  ]
+}
