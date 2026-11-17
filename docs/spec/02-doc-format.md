@@ -257,6 +257,7 @@ Severity: **E** error (build fails), **W** warning (fails only with `--strict`),
 | OPM-W502 | W | Decision without a default | Every open question needs a default |
 | OPM-W503 | W | Duplicate decision or risk ID | Renumber |
 | OPM-W504 | W | Risk level not L/M/H | Use L, M or H |
+| OPM-W505 | W | Decision status not open, decided or defaulted | Use open, decided or defaulted |
 | OPM-I601 | I | `State: shipped` with no changelog release | Add `## [x.y.z] - date` to CHANGELOG.md |
 | OPM-I602 | I | Changelog release with no version block | Add the version to the roadmap |
 | OPM-W701 | W | Table missing a required column | The message names the column |
