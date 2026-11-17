@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-17
 **Current version:** v0.2.0
-**Next step:** Build the timeline (0.2.0-D5), then accessibility with axe (0.2.0-D8). The founder: merge the v0.1.0 release PR, publish to npm after 2026-11-20, look at the docs on github.com (0.0.1-D5).
+**Next step:** Accessibility with axe-core and Playwright (0.2.0-D8), then responsive and print (0.2.0-D9) and the size budget (0.2.0-D10). The founder: merge the v0.1.0 release PR, publish to npm after 2026-11-20, look at the docs on github.com (0.0.1-D5).
 **Why:** v0.1.0 is complete on `beta`. Most of 0.2.0-D1 to D4 and D6 to D7 already shipped inside it, so what is left of v0.2.0 is the timeline, the missing views, accessibility, responsive layout and the size and visual checks.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** v0.1.0 is on `beta`, not on npm yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -78,15 +78,15 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** A map that is pleasant on a phone and a laptop, readable in light and dark, accessible, and impossible to script-inject.
 **Exit:** axe-core reports 0 serious or critical violations on every view; the XSS corpus renders inert in every field; template + client are 60 KB gzipped or less; there is no horizontal scroll at 360 px.
 **Status 2026-11-16:** planned.
-**Status 2026-11-17:** v0.1.0's renderer already covers D1 to D3, D6 and most of D4 and D7. History and Parked views and compact density added in PR #35. Left: Timeline (D5), accessibility with axe and keyboard checks (D8), responsive and print polish (D9), size budget (D10), visual regression (D11).
+**Status 2026-11-17:** v0.1.0's renderer already covers D1 to D3, D6 and most of D4 and D7. History and Parked views and compact density added in PR #35. Timeline done in PR #36. Left: accessibility with axe and keyboard checks (D8), responsive and print polish (D9), size budget (D10), visual regression (D11).
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
 | 0.2.0-D1 | **DOM helper `h()`**: an allow-listed attribute set (no `on*`, no `style`, `href` only via `safeHref`); a lint rule bans the HTML-string sinks in `src/render/client` | done | spec 05 §2, spec 07 §2. Shipped with 0.1.0-D11 (PR #27): `h()` allow-lists tags and attributes, `style`, `title` and string handlers throw; the lint rules were in 0.0.1-D4 |
 | 0.2.0-D2 | **Inline rich text `rich()`**: tokenizer for bold, italic, code, links and autolinks producing DOM nodes; anything else stays literal text | done | spec 05 §3. Shipped with 0.1.0-D11 (PR #27): `core/inline.ts` and `client/rich.ts` |
 | 0.2.0-D3 | **CSP by hash**: build-time SHA-256 of the inline script and style; meta CSP `default-src 'none'`; the accent colour validated as `#rrggbb` | done | spec 05 §6, spec 07 §2. Shipped with 0.1.0-D11 (PR #27): `render.ts` hashes the inline script and style; the accent is validated by the config loader (0.1.0-D8) |
-| 0.2.0-D4 | **Views and router**: Overview, Timeline, Versions, Decisions & Risks, History, Parked; hash routes (`#/versions/v0.2.0?status=doing`) | doing | spec 05 §4. Overview, Versions, Decisions (0.1.0-D11), History and Parked (PR #35) are in; the Timeline tab arrives with D5. Hash routes and ARIA tabs are in |
-| 0.2.0-D5 | **Timeline**: hand-written SVG Gantt; phase groups, version bars with a progress fill, milestone diamonds, today line, month/quarter zoom, an "Unscheduled" list | todo | spec 05 §4.2 |
+| 0.2.0-D4 | **Views and router**: Overview, Timeline, Versions, Decisions & Risks, History, Parked; hash routes (`#/versions/v0.2.0?status=doing`) | done | spec 05 §4. Overview, Timeline, Versions, Decisions (with risks), History and Parked are all in (PRs #27, #35, #36); hash routes and ARIA tabs with arrow, Home and End keys |
+| 0.2.0-D5 | **Timeline**: hand-written SVG Gantt; phase groups, version bars with a progress fill, milestone diamonds, today line, month/quarter zoom, an "Unscheduled" list | done | spec 05 §4.2. PR #36: `views/timeline-layout.ts` (pure layout, unit-tested) and `views/timeline.ts`. Phase groups, bars with progress fill, state colours, dashed tentative windows, milestone diamonds, today line, month and quarter zoom in the URL, keyboard-focusable bars, an Unscheduled list and a legend. The 3x3 risk matrix of spec 05 §4.4 is not drawn yet (risks are a table) |
 | 0.2.0-D6 | **Filters and search**: status chips, text search over IDs, titles and notes; state kept in the URL | done | spec 05 §4.3. Shipped with 0.1.0-D11 (PR #27): status chips and text search, kept in the URL |
 | 0.2.0-D7 | **Theming**: CSS custom-property tokens, light/dark auto + toggle (localStorage with try/catch), config accent, compact density; system font stack, no web fonts | done | spec 05 §5. Tokens, light and dark auto with a toggle (try/catch around localStorage), config accent with a contrast-picked text colour, compact density (PR #35), system fonts |
 | 0.2.0-D8 | **Accessibility**: WCAG 2.2 AA; ARIA tabs pattern, keyboard navigation, visible focus, `prefers-reduced-motion`; Playwright + axe-core in CI | todo | spec 05 §7 |

@@ -187,8 +187,15 @@ describe('router', () => {
       versionId: 'v0.2.0',
       status: ['doing', 'blocked'],
       q: 'timeline',
+      zoom: 'month',
     });
-    expect(parseHash('')).toEqual({ view: 'overview', versionId: null, status: [], q: '' });
+    expect(parseHash('')).toEqual({
+      view: 'overview',
+      versionId: null,
+      status: [],
+      q: '',
+      zoom: 'month',
+    });
     expect(parseHash('#/nonsense/x')).toMatchObject({ view: 'overview', versionId: null });
     expect(parseHash('#/versions/not-a-version')).toMatchObject({
       view: 'versions',
@@ -198,13 +205,22 @@ describe('router', () => {
   });
   it('formats a hash that parses back to the same state', () => {
     for (const state of [
-      { view: 'overview', versionId: null, status: [], q: '' },
-      { view: 'versions', versionId: 'v1.0.0-rc.1', status: ['todo', 'done'], q: 'a b&c' },
-      { view: 'decisions', versionId: null, status: [], q: 'x' },
+      { view: 'overview', versionId: null, status: [], q: '', zoom: 'month' },
+      {
+        view: 'versions',
+        versionId: 'v1.0.0-rc.1',
+        status: ['todo', 'done'],
+        q: 'a b&c',
+        zoom: 'month',
+      },
+      { view: 'decisions', versionId: null, status: [], q: 'x', zoom: 'month' },
+      { view: 'timeline', versionId: null, status: [], q: '', zoom: 'quarter' },
     ] as const) {
       expect(parseHash(formatHash({ ...state, status: [...state.status] }))).toEqual(state);
     }
-    expect(formatHash({ view: 'overview', versionId: null, status: [], q: '' })).toBe('#/overview');
+    expect(
+      formatHash({ view: 'overview', versionId: null, status: [], q: '', zoom: 'month' }),
+    ).toBe('#/overview');
   });
 });
 

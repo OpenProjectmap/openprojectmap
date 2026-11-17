@@ -49,6 +49,7 @@ describe('boot and the overview', () => {
     expect(document.querySelector('h1')?.textContent).toBe('Tidepool');
     expect([...document.querySelectorAll('[role=tab]')].map((t) => t.textContent)).toEqual([
       'Overview',
+      'Timeline',
       'Versions',
       'Decisions',
       'History',
@@ -149,8 +150,8 @@ describe('navigation', () => {
       await tick();
     };
     await press('ArrowRight');
-    expect(window.location.hash).toBe('#/versions');
-    for (let i = 0; i < 4; i++) await press('ArrowRight');
+    expect(window.location.hash).toBe('#/timeline');
+    for (let i = 0; i < 5; i++) await press('ArrowRight');
     expect(window.location.hash).toBe('#/overview'); // wraps after Parked
     await press('ArrowLeft');
     expect(window.location.hash).toBe('#/parked');

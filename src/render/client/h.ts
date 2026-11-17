@@ -80,6 +80,8 @@ const ATTRS = new Set([
   'cx',
   'cy',
   'r',
+  'rx',
+  'ry',
   'x1',
   'x2',
   'y1',

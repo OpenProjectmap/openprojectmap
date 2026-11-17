@@ -1,8 +1,15 @@
 // View state in the URL hash: `#/versions/v0.2.0?status=doing,blocked&q=timeline`.
 import type { Status } from '../../core/types.js';
 
-export type View = 'overview' | 'versions' | 'decisions' | 'history' | 'parked';
-export const VIEWS: readonly View[] = ['overview', 'versions', 'decisions', 'history', 'parked'];
+export type View = 'overview' | 'timeline' | 'versions' | 'decisions' | 'history' | 'parked';
+export const VIEWS: readonly View[] = [
+  'overview',
+  'timeline',
+  'versions',
+  'decisions',
+  'history',
+  'parked',
+];
 export const STATUS_LIST: readonly Status[] = [
   'todo',
   'doing',
@@ -17,6 +24,7 @@ export interface State {
   versionId: string | null;
   status: Status[];
   q: string;
+  zoom: 'month' | 'quarter';
 }
 
 export function parseHash(hash: string): State {
@@ -32,6 +40,7 @@ export function parseHash(hash: string): State {
     versionId: /^v\d+\.\d+\.\d+[0-9A-Za-z.-]*$/.test(versionId) ? versionId : null,
     status,
     q: (params.get('q') ?? '').slice(0, 200),
+    zoom: params.get('zoom') === 'quarter' ? 'quarter' : 'month',
   };
 }
 
@@ -39,6 +48,7 @@ export function formatHash(state: State): string {
   const params = new URLSearchParams();
   if (state.status.length > 0) params.set('status', state.status.join(','));
   if (state.q !== '') params.set('q', state.q);
+  if (state.zoom === 'quarter') params.set('zoom', 'quarter');
   const query = params.toString();
   const path = state.versionId ? `${state.view}/${state.versionId}` : state.view;
   return `#/${path}${query === '' ? '' : `?${query}`}`;

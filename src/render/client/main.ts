@@ -8,12 +8,14 @@ import { loadMode, nextMode, saveMode } from './theme.js';
 import { renderDecisions } from './views/decisions.js';
 import { renderHistory } from './views/history.js';
 import { renderParked } from './views/parked.js';
+import { renderTimeline } from './views/timeline.js';
 import { renderOverview } from './views/overview.js';
 import { renderVersions } from './views/versions.js';
 
 const LABELS: Record<View, string> = {
   overview: 'Overview',
   versions: 'Versions',
+  timeline: 'Timeline',
   decisions: 'Decisions',
   history: 'History',
   parked: 'Parked',
@@ -31,6 +33,8 @@ function renderView(data: ProjectData, state: State, onChange: (s: State) => voi
       return renderVersions(data, state, onChange);
     case 'decisions':
       return renderDecisions(data);
+    case 'timeline':
+      return renderTimeline(data, state);
     case 'history':
       return renderHistory(data);
     case 'parked':
@@ -112,6 +116,7 @@ export function boot(doc: Document = document): () => void {
                   versionId: null,
                   status: [],
                   q: '',
+                  zoom: 'month',
                 });
             },
           },
@@ -145,7 +150,13 @@ export function boot(doc: Document = document): () => void {
     ev.preventDefault();
     const view = VIEWS[(move + VIEWS.length) % VIEWS.length] ?? 'overview';
     if (doc.defaultView)
-      doc.defaultView.location.hash = formatHash({ view, versionId: null, status: [], q: '' });
+      doc.defaultView.location.hash = formatHash({
+        view,
+        versionId: null,
+        status: [],
+        q: '',
+        zoom: 'month',
+      });
   });
 
   app.replaceChildren();

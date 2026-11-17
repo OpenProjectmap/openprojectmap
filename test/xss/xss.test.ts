@@ -153,6 +153,8 @@ function pageAfter(data: ProjectData): HTMLElement[] {
     '#/overview',
     '#/versions',
     '#/decisions',
+    '#/timeline',
+    '#/timeline?zoom=quarter',
     '#/history',
     '#/parked',
     `#/versions/${data.versions[0]?.id}?q=a&status=todo,doing`,
