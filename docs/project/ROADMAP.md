@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-17
 **Current version:** v0.0.1
-**Next step:** Start the block scanner (0.1.0-D1). Open for the founder only: look at the docs on github.com (0.0.1-D5).
+**Next step:** Dates (0.1.0-D2). Open for the founder only: look at the docs on github.com (0.0.1-D5).
 **Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -47,10 +47,11 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** `npx openprojectmap build` turns the three docs into one HTML map, and `check` lists every format problem with file:line and a fix hint.
 **Exit:** On a clean clone, `npx openprojectmap@0.1.0 check` exits 0 on `examples/tidepool` and on this repo; `build` finishes in under 1 s for the 1,000-deliverable stress fixture; `src/core` line coverage is 95% or higher.
 **Status 2026-11-16:** planned.
+**Status 2026-11-17:** D1 (block scanner) done in PR #17.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.1.0-D1 | **Block scanner** (`core/scan.ts`): line-based scan into headings, fields (`**Key:** value`), GFM pipe tables (escaped `\|`, pipes inside backticks), paragraphs; fenced code and HTML comments skipped; CRLF and BOM normalised; every node carries `{line, column}` | todo | spec 02 §2, spec 01 §4 |
+| 0.1.0-D1 | **Block scanner** (`core/scan.ts`): line-based scan into headings, fields (`**Key:** value`), GFM pipe tables (escaped `\|`, pipes inside backticks), paragraphs; fenced code and HTML comments skipped; CRLF and BOM normalised; every node carries `{line, column}` | done | spec 02 §2, spec 01 §4. PR #17: `core/scan.ts`, 99% line coverage |
 | 0.1.0-D2 | **Dates** (`core/dates.ts`): ISO day, month, quarter and year points; ranges with `→`, `->`, `..`, ` – `, ` to `; trailing note kept; `start <= end` enforced; leap years and quarter ends tested; property tests with fast-check | todo | spec 02 §6, D4 |
 | 0.1.0-D3 | **Roadmap parser** (`core/parse-roadmap.ts`): format marker, Now block (known keys + free facts), phases, version blocks (heading grammar, Window/Goal/Exit/Milestone/State fields, status lines), deliverable tables mapped by header name, milestones, Parked | todo | spec 02 §3 |
 | 0.1.0-D4 | **Status vocabulary** (`core/status.ts`): 6 statuses + aliases, optional date and reference in the cell (`done 2026-12-01 (#14)`) | todo | spec 02 §4, D8 |
