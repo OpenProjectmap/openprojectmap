@@ -44,7 +44,7 @@ function versionCard(
   return h(
     'article',
     { class: 'card version', id: v.id },
-    h('h3', null, h('a', { href: `#/versions/${v.id}` }, `${v.id} · ${v.title}`)),
+    h('h2', null, h('a', { href: `#/versions/${v.id}` }, `${v.id} · ${v.title}`)),
     h(
       'p',
       { class: 'meta' },
