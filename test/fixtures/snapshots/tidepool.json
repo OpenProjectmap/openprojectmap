@@ -1,0 +1,847 @@
+{
+  "schema": "openprojectmap/project-data@1",
+  "tool": {
+    "name": "openprojectmap",
+    "version": "0.0.0-snapshot"
+  },
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "today": "2026-11-17",
+  "project": {
+    "name": "Tidepool",
+    "title": "Tidepool",
+    "formatVersion": 1
+  },
+  "now": {
+    "updated": "2026-11-16",
+    "currentVersion": "v0.2.0",
+    "nextStep": "Finish the streak reminder at the user's chosen time (0.2.0-D2).",
+    "why": "Reminders are the core of the beta test: without them we can't measure whether nudges improve retention.",
+    "target": "Private beta (M1) by 2026-12-20",
+    "facts": [
+      {
+        "key": "Live",
+        "value": "v0.1.0 on TestFlight"
+      },
+      {
+        "key": "Beta users",
+        "value": "23"
+      }
+    ],
+    "source": {
+      "file": "docs/project/ROADMAP.md",
+      "line": 7
+    }
+  },
+  "phases": [
+    {
+      "id": "1",
+      "title": "Private beta",
+      "versionIds": ["v0.1.0", "v0.2.0", "v0.3.0"],
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 17
+      }
+    },
+    {
+      "id": "2",
+      "title": "Launch",
+      "versionIds": ["v0.4.0", "v1.0.0"],
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 63
+      }
+    }
+  ],
+  "versions": [
+    {
+      "id": "v0.1.0",
+      "semver": "0.1.0",
+      "title": "Check-ins",
+      "phaseId": "1",
+      "window": {
+        "start": "2026-10-20",
+        "end": "2026-11-09",
+        "raw": "2026-10-20 → 2026-11-09",
+        "tentative": false
+      },
+      "milestoneId": null,
+      "goal": "A user can create a habit and check in once a day, and see their streak.",
+      "exit": "20 testers checked in on 5 or more days in the first week.",
+      "state": "shipped",
+      "stateExplicit": false,
+      "statusLines": [
+        {
+          "date": "2026-11-02",
+          "text": "check-in and streak logic merged; TestFlight build in review.",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 24
+          }
+        },
+        {
+          "date": "2026-11-09",
+          "text": "shipped to 23 testers; 21 checked in on 5 or more days.",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 25
+          }
+        }
+      ],
+      "deliverables": [
+        {
+          "id": "0.1.0-D1",
+          "title": "Habit creation",
+          "detail": "**Habit creation**: name, emoji, daily goal",
+          "status": "done",
+          "statusRaw": "done 2026-10-27 (#3)",
+          "statusDate": "2026-10-27",
+          "owner": null,
+          "ref": "#3",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 29
+          }
+        },
+        {
+          "id": "0.1.0-D2",
+          "title": "Daily check-in",
+          "detail": "**Daily check-in** with undo",
+          "status": "done",
+          "statusRaw": "done 2026-10-30 (#5)",
+          "statusDate": "2026-10-30",
+          "owner": null,
+          "ref": "#5",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 30
+          }
+        },
+        {
+          "id": "0.1.0-D3",
+          "title": "Streak counter",
+          "detail": "**Streak counter** and calendar",
+          "status": "done",
+          "statusRaw": "done 2026-11-02 (#8)",
+          "statusDate": "2026-11-02",
+          "owner": null,
+          "ref": "#8",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 31
+          }
+        },
+        {
+          "id": "0.1.0-D4",
+          "title": "Widgets for the home screen",
+          "detail": "Widgets for the home screen",
+          "status": "parked",
+          "statusRaw": "parked",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "Moved to Parked: not needed for the beta",
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 32
+          }
+        },
+        {
+          "id": "0.1.0-D5",
+          "title": "TestFlight release",
+          "detail": "**TestFlight release**",
+          "status": "done",
+          "statusRaw": "done 2026-11-09",
+          "statusDate": "2026-11-09",
+          "owner": null,
+          "ref": null,
+          "notes": "build 14",
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 33
+          }
+        }
+      ],
+      "progress": {
+        "done": 4,
+        "total": 4,
+        "parked": 1,
+        "byStatus": {
+          "todo": 0,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 4,
+          "parked": 1
+        },
+        "pct": 100
+      },
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 19
+      }
+    },
+    {
+      "id": "v0.2.0",
+      "semver": "0.2.0",
+      "title": "Reminders",
+      "phaseId": "1",
+      "window": {
+        "start": "2026-11-10",
+        "end": "2026-11-30",
+        "raw": "2026-11-10 → 2026-11-30",
+        "tentative": false
+      },
+      "milestoneId": "M1",
+      "goal": "Users get a nudge before they break a streak.",
+      "exit": "50 beta users received a reminder and 30% opened it.",
+      "state": "active",
+      "stateExplicit": false,
+      "statusLines": [
+        {
+          "date": "2026-11-14",
+          "text": "permission flow merged; reminder scheduling in progress.",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 41
+          }
+        }
+      ],
+      "deliverables": [
+        {
+          "id": "0.2.0-D1",
+          "title": "Push permission flow",
+          "detail": "**Push permission flow** with a pre-prompt explaining why",
+          "status": "done",
+          "statusRaw": "done 2026-11-14 (#12)",
+          "statusDate": "2026-11-14",
+          "owner": null,
+          "ref": "#12",
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 45
+          }
+        },
+        {
+          "id": "0.2.0-D2",
+          "title": "Streak reminder",
+          "detail": "**Streak reminder** at the user's chosen time",
+          "status": "doing",
+          "statusRaw": "doing",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "Android exact alarms need a permission on 14+",
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 46
+          }
+        },
+        {
+          "id": "0.2.0-D3",
+          "title": "Quiet hours",
+          "detail": "**Quiet hours** setting",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 47
+          }
+        },
+        {
+          "id": "0.2.0-D4",
+          "title": "Reminder analytics",
+          "detail": "**Reminder analytics**: delivered, opened",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "Needed for the exit criteria",
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 48
+          }
+        },
+        {
+          "id": "0.2.0-D5",
+          "title": "Invite 30 more testers",
+          "detail": "Invite 30 more testers",
+          "status": "blocked",
+          "statusRaw": "blocked",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "Waiting on D2; see decision D2",
+          "extra": {},
+          "versionId": "v0.2.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 49
+          }
+        }
+      ],
+      "progress": {
+        "done": 1,
+        "total": 5,
+        "parked": 0,
+        "byStatus": {
+          "todo": 2,
+          "doing": 1,
+          "review": 0,
+          "blocked": 1,
+          "done": 1,
+          "parked": 0
+        },
+        "pct": 20
+      },
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 35
+      }
+    },
+    {
+      "id": "v0.3.0",
+      "semver": "0.3.0",
+      "title": "Beta polish",
+      "phaseId": "1",
+      "window": {
+        "start": "2026-12-01",
+        "end": "2026-12-20",
+        "raw": "2026-12-01 → 2026-12-20",
+        "tentative": false
+      },
+      "milestoneId": null,
+      "goal": "The beta feels finished enough that testers recommend it to a friend.",
+      "exit": "Crash-free sessions of 99.5% or more; 10 testers invite someone.",
+      "state": "planned",
+      "stateExplicit": false,
+      "statusLines": [],
+      "deliverables": [
+        {
+          "id": "0.3.0-D1",
+          "title": "Onboarding",
+          "detail": "**Onboarding**: 3 screens + first habit suggestion",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.3.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 59
+          }
+        },
+        {
+          "id": "0.3.0-D2",
+          "title": "Invite link",
+          "detail": "**Invite link** with a deep link into onboarding",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.3.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 60
+          }
+        },
+        {
+          "id": "0.3.0-D3",
+          "title": "Crash and performance fixes from beta feedback",
+          "detail": "Crash and performance fixes from beta feedback",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.3.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 61
+          }
+        }
+      ],
+      "progress": {
+        "done": 0,
+        "total": 3,
+        "parked": 0,
+        "byStatus": {
+          "todo": 3,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 0,
+          "parked": 0
+        },
+        "pct": 0
+      },
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 51
+      }
+    },
+    {
+      "id": "v0.4.0",
+      "semver": "0.4.0",
+      "title": "Accounts and sync",
+      "phaseId": "2",
+      "window": {
+        "start": "2027-01-01",
+        "end": "2027-01-31",
+        "raw": "2027-01",
+        "tentative": false
+      },
+      "milestoneId": null,
+      "goal": "Habits survive a phone change.",
+      "exit": "Sign in on a second device and see the same streaks within 5 seconds.",
+      "state": "planned",
+      "stateExplicit": false,
+      "statusLines": [],
+      "deliverables": [
+        {
+          "id": "0.4.0-D1",
+          "title": "Sign in with Apple / Google",
+          "detail": "**Sign in with Apple / Google**",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.4.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 73
+          }
+        },
+        {
+          "id": "0.4.0-D2",
+          "title": "Sync",
+          "detail": "**Sync** with conflict handling (last check-in wins)",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.4.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 74
+          }
+        }
+      ],
+      "progress": {
+        "done": 0,
+        "total": 2,
+        "parked": 0,
+        "byStatus": {
+          "todo": 2,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 0,
+          "parked": 0
+        },
+        "pct": 0
+      },
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 65
+      }
+    },
+    {
+      "id": "v1.0.0",
+      "semver": "1.0.0",
+      "title": "Public launch",
+      "phaseId": "2",
+      "window": {
+        "start": "2027-01-01",
+        "end": "2027-03-31",
+        "raw": "2027-Q1",
+        "tentative": false
+      },
+      "milestoneId": "M2",
+      "goal": "Tidepool is in both app stores and anyone can download it.",
+      "exit": "Approved on the App Store and Google Play; 1,000 sign-ups in the first 30 days.",
+      "state": "planned",
+      "stateExplicit": false,
+      "statusLines": [],
+      "deliverables": [
+        {
+          "id": "1.0.0-D1",
+          "title": "Store listings",
+          "detail": "**Store listings**: screenshots, copy, privacy labels",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v1.0.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 85
+          }
+        },
+        {
+          "id": "1.0.0-D2",
+          "title": "Pricing",
+          "detail": "**Pricing**: free + Plus subscription",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": "See decision D1",
+          "extra": {},
+          "versionId": "v1.0.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 86
+          }
+        },
+        {
+          "id": "1.0.0-D3",
+          "title": "Launch page",
+          "detail": "**Launch page** with a waitlist",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v1.0.0",
+          "source": {
+            "file": "docs/project/ROADMAP.md",
+            "line": 87
+          }
+        }
+      ],
+      "progress": {
+        "done": 0,
+        "total": 3,
+        "parked": 0,
+        "byStatus": {
+          "todo": 3,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 0,
+          "parked": 0
+        },
+        "pct": 0
+      },
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 76
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "id": "M1",
+      "name": "Private beta",
+      "reachedWhen": "50 people use it weekly for 3 weeks",
+      "reachedOn": null,
+      "dependsOn": null,
+      "versionIds": ["v0.2.0"],
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 93
+      }
+    },
+    {
+      "id": "M2",
+      "name": "Public launch",
+      "reachedWhen": "In both stores; 1,000 sign-ups in 30 days",
+      "reachedOn": null,
+      "dependsOn": null,
+      "versionIds": ["v1.0.0"],
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 94
+      }
+    },
+    {
+      "id": "M3",
+      "name": "First revenue",
+      "reachedWhen": "100 paying Plus subscribers",
+      "reachedOn": null,
+      "dependsOn": null,
+      "versionIds": [],
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 95
+      }
+    }
+  ],
+  "parked": [
+    {
+      "item": "Home-screen widgets",
+      "why": "Not needed to test retention",
+      "revisitWhen": "After M1, if 5 or more testers ask",
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 101
+      }
+    },
+    {
+      "item": "Social sharing of streaks",
+      "why": "Privacy questions; not core",
+      "revisitWhen": "After M2",
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 102
+      }
+    },
+    {
+      "item": "Apple Watch app",
+      "why": "Expensive; small audience",
+      "revisitWhen": "After M3",
+      "source": {
+        "file": "docs/project/ROADMAP.md",
+        "line": 103
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "How do we charge for Plus?",
+      "options": ["monthly", "yearly", "both"],
+      "default": "Both; yearly = 2 months free",
+      "neededBy": "2027-01-10",
+      "status": "open",
+      "outcome": null,
+      "overdue": false,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 8
+      }
+    },
+    {
+      "id": "D2",
+      "question": "Invite more testers before reminders work?",
+      "options": ["wait", "invite now"],
+      "default": "Wait for 0.2.0-D2",
+      "neededBy": "2026-11-20",
+      "status": "open",
+      "outcome": null,
+      "overdue": false,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 9
+      }
+    },
+    {
+      "id": "D3",
+      "question": "Which analytics tool?",
+      "options": ["self-hosted", "hosted free tier"],
+      "default": "Self-hosted (privacy promise)",
+      "neededBy": "2026-11-12",
+      "status": "defaulted",
+      "outcome": "Nobody decided by 2026-11-12, so we're proceeding with the default",
+      "overdue": false,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 10
+      }
+    },
+    {
+      "id": "D4",
+      "question": "Platforms for the beta",
+      "options": ["iOS only", "iOS + Android"],
+      "default": "iOS + Android",
+      "neededBy": "2026-10-20",
+      "status": "decided",
+      "outcome": "Both, decided 2026-10-18",
+      "overdue": false,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 11
+      }
+    }
+  ],
+  "risks": [
+    {
+      "id": "R1",
+      "risk": "Store review rejects reminders as marketing",
+      "likelihood": "M",
+      "impact": "H",
+      "score": 6,
+      "mitigation": "Reminders opt-in only; follow review guideline 4.5.4; TestFlight first",
+      "owner": "founder",
+      "open": true,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 17
+      }
+    },
+    {
+      "id": "R2",
+      "risk": "Android battery optimisation kills reminders",
+      "likelihood": "H",
+      "impact": "M",
+      "score": 6,
+      "mitigation": "Exact alarms + an in-app guide for the top 3 OEMs",
+      "owner": "founder",
+      "open": true,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 18
+      }
+    },
+    {
+      "id": "R3",
+      "risk": "Testers stop using it after week 2",
+      "likelihood": "M",
+      "impact": "H",
+      "score": 6,
+      "mitigation": "Weekly check-in survey; fix the top complaint each version",
+      "owner": "founder",
+      "open": true,
+      "source": {
+        "file": "docs/project/DECISIONS.md",
+        "line": 19
+      }
+    }
+  ],
+  "releases": [
+    {
+      "version": null,
+      "date": null,
+      "title": null,
+      "unreleased": true,
+      "sections": [
+        {
+          "heading": "Added",
+          "items": ["Tidepool now asks for notification permission, and explains why first."]
+        }
+      ],
+      "versionId": null,
+      "source": {
+        "file": "CHANGELOG.md",
+        "line": 7
+      }
+    },
+    {
+      "version": "0.1.0",
+      "date": "2026-11-09",
+      "title": null,
+      "unreleased": false,
+      "sections": [
+        {
+          "heading": "Added",
+          "items": [
+            "Create habits with a name, an emoji and a daily goal.",
+            "Check in once a day (with undo) and watch your streak grow.",
+            "A calendar showing every day you checked in."
+          ]
+        }
+      ],
+      "versionId": "v0.1.0",
+      "source": {
+        "file": "CHANGELOG.md",
+        "line": 13
+      }
+    }
+  ],
+  "tracks": [],
+  "git": null,
+  "derived": {
+    "currentVersionId": "v0.2.0",
+    "nextVersionId": "v0.3.0",
+    "overall": {
+      "done": 5,
+      "total": 17,
+      "parked": 1,
+      "byStatus": {
+        "todo": 10,
+        "doing": 1,
+        "review": 0,
+        "blocked": 1,
+        "done": 5,
+        "parked": 1
+      },
+      "pct": 29
+    },
+    "needsYourCall": ["D2", "D1"],
+    "topRisks": ["R1", "R2", "R3"],
+    "stale": {
+      "isStale": false,
+      "days": 1,
+      "commitsSince": null,
+      "reason": null
+    },
+    "timeline": {
+      "start": "2026-10-01",
+      "end": "2027-03-31"
+    },
+    "milestoneProgress": [
+      {
+        "id": "M1",
+        "reached": false,
+        "pct": 56
+      },
+      {
+        "id": "M2",
+        "reached": false,
+        "pct": 29
+      },
+      {
+        "id": "M3",
+        "reached": false,
+        "pct": 0
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "code": "OPM-I402",
+      "severity": "info",
+      "message": "No version completes milestone M3",
+      "file": "docs/project/ROADMAP.md",
+      "line": 95,
+      "hint": "Add `**Milestone:** Mx` to a version"
+    }
+  ]
+}

@@ -163,7 +163,7 @@ Checks: `shipped` with deliverables in `todo`, `doing`, `review` or `blocked` �
 ## 6. Dates
 
 ```
-window    := point | point ws* arrow ws* point [ws+ note]
+window    := point [ws+ note] | point ws* arrow ws* point [ws+ note]
 arrow     := "→" | "->" | ".." | "–" | "to"
 point     := day | month | quarter | year
 day       := YYYY "-" MM "-" DD
@@ -178,6 +178,7 @@ note      := "(" any ")" | any        # kept as window.note; "tentative" or "?" 
 - All dates are calendar dates without time or timezone. "Today" is `options.now` as a UTC date,
   or local midnight in the CLI when `--tz local` is set (default `UTC`).
 - `start > end` → `OPM-W203`.
+- `to` needs whitespace on both sides. A note may not start with a digit or a dash (so `a - b` is `OPM-W202`, not a date with a note).
 
 ## 7. DECISIONS.md
 
@@ -256,6 +257,7 @@ Severity: **E** error (build fails), **W** warning (fails only with `--strict`),
 | OPM-W502 | W | Decision without a default | Every open question needs a default |
 | OPM-W503 | W | Duplicate decision or risk ID | Renumber |
 | OPM-W504 | W | Risk level not L/M/H | Use L, M or H |
+| OPM-W505 | W | Decision status not open, decided or defaulted | Use open, decided or defaulted |
 | OPM-I601 | I | `State: shipped` with no changelog release | Add `## [x.y.z] - date` to CHANGELOG.md |
 | OPM-I602 | I | Changelog release with no version block | Add the version to the roadmap |
 | OPM-W701 | W | Table missing a required column | The message names the column |

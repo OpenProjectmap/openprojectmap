@@ -1,0 +1,123 @@
+{
+  "schema": "openprojectmap/project-data@1",
+  "tool": {
+    "name": "openprojectmap",
+    "version": "0.0.0-snapshot"
+  },
+  "generatedAt": "2026-11-17T00:00:00Z",
+  "today": "2026-11-17",
+  "project": {
+    "name": "Minimal",
+    "title": "Minimal",
+    "formatVersion": 1
+  },
+  "now": {
+    "updated": "2026-11-17",
+    "currentVersion": null,
+    "nextStep": "Write the first deliverable.",
+    "why": null,
+    "target": null,
+    "facts": [],
+    "source": {
+      "file": "ROADMAP.md",
+      "line": 4
+    }
+  },
+  "phases": [],
+  "versions": [
+    {
+      "id": "v0.1.0",
+      "semver": "0.1.0",
+      "title": "First",
+      "phaseId": null,
+      "window": {
+        "start": "2026-11-17",
+        "end": "2026-12-01",
+        "raw": "2026-11-17 → 2026-12-01",
+        "tentative": false
+      },
+      "milestoneId": null,
+      "goal": "Ship something.",
+      "exit": "It works.",
+      "state": "planned",
+      "stateExplicit": false,
+      "statusLines": [],
+      "deliverables": [
+        {
+          "id": "0.1.0-D1",
+          "title": "The thing",
+          "detail": "The thing",
+          "status": "todo",
+          "statusRaw": "todo",
+          "statusDate": null,
+          "owner": null,
+          "ref": null,
+          "notes": null,
+          "extra": {},
+          "versionId": "v0.1.0",
+          "source": {
+            "file": "ROADMAP.md",
+            "line": 19
+          }
+        }
+      ],
+      "progress": {
+        "done": 0,
+        "total": 1,
+        "parked": 0,
+        "byStatus": {
+          "todo": 1,
+          "doing": 0,
+          "review": 0,
+          "blocked": 0,
+          "done": 0,
+          "parked": 0
+        },
+        "pct": 0
+      },
+      "source": {
+        "file": "ROADMAP.md",
+        "line": 11
+      }
+    }
+  ],
+  "milestones": [],
+  "parked": [],
+  "decisions": [],
+  "risks": [],
+  "releases": [],
+  "tracks": [],
+  "git": null,
+  "derived": {
+    "currentVersionId": "v0.1.0",
+    "nextVersionId": null,
+    "overall": {
+      "done": 0,
+      "total": 1,
+      "parked": 0,
+      "byStatus": {
+        "todo": 1,
+        "doing": 0,
+        "review": 0,
+        "blocked": 0,
+        "done": 0,
+        "parked": 0
+      },
+      "pct": 0
+    },
+    "needsYourCall": [],
+    "topRisks": [],
+    "stale": {
+      "isStale": false,
+      "days": 0,
+      "commitsSince": null,
+      "reason": null
+    },
+    "timeline": {
+      "start": "2026-11-01",
+      "end": "2026-12-31"
+    },
+    "milestoneProgress": []
+  },
+  "diagnostics": []
+}

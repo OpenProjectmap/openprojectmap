@@ -1,0 +1,25 @@
+<!-- opmap: 1 -->
+# Fixture
+
+## Now
+
+**Updated:** 2026-11-17
+**Current version:** v0.1.0
+**Next step:** Do it.
+
+## Versions
+
+### v0.1.0 — First
+
+**Window:** 2026-11-17 → 2026-12-01
+**Milestone:** M1
+**Goal:** g
+**Exit:** e
+
+No table here.
+
+## Milestones
+
+| ID | Milestone | Reached when |
+| --- | --- | --- |
+| M1 | First | v0.1.0 |

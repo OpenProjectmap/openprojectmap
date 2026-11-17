@@ -1,0 +1,16 @@
+opmap.config.json is invalid:
+- unknownKey: unknown key
+- format: must be 1
+- name: expected a string of 1 to 80 characters
+- docs.extra: unknown key
+- docs.roadmap: expected a string of 1 to 4096 characters
+- idPattern: not a valid regular expression (flag u)
+- staleAfterDays: expected a whole number from 1 to 365
+- git.branches.live: not a valid branch name
+- git.areas[0]: expected a folder prefix, optionally ending in /*
+- git.areas[1]: expected a folder prefix, optionally ending in /*
+- git.activityWeeks: expected a whole number from 1 to 52
+- theme.accent: expected a colour like #2f6fed
+- theme.mode: expected one of auto, light, dark
+- tracks[0].id: use 1 to 32 characters from a-z, 0-9 and -
+- tracks[0].file: required

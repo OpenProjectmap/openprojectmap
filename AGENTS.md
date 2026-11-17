@@ -36,7 +36,9 @@ open source (MIT), has zero runtime dependencies, and never makes network reques
   through `textContent` or the `rich()` inline renderer. Every `href` goes through `safeHref()`.
 - Git is called only through `src/node/git.ts`, with `execFile` (never a shell) and validated refs.
 - Paths from config must resolve (after `realpath`) inside the repo root.
-- No telemetry, analytics or update checks, ever.
+- No telemetry, analytics or update checks, ever. The one exception (D18): the desktop app may have a
+  "Check for updates" button that the user clicks. Nothing checks in the background, and the CLI,
+  the Action and the MCP server never check.
 - Match the existing style. Prettier and ESLint configs are the authority. Don't reformat files you
   didn't change.
 
@@ -50,10 +52,23 @@ open source (MIT), has zero runtime dependencies, and never makes network reques
 
 ## 6. Git and PRs
 
-- Branch: `<deliverable-id>/<slug>`, e.g. `0.1.0-D3/roadmap-parser`.
-- Commit subject starts with the deliverable ID: `0.1.0-D3: parse version blocks`.
-- PR title: `0.1.0-D3: <title>`. A release PR is titled `vX.Y.Z — <Version title>`.
-- Squash-merge into `main`. `main` must always pass CI.
+Two long-lived branches: `beta` (preview, where new code is tested) and `main` (production, what
+public users get). Both are protected: no direct pushes, a PR and a green `CI result` are required.
+
+    task / feature / bug branch  →  beta  →  main
+
+- **Work branches** are cut from `beta`: `<deliverable-id>/<slug>`, e.g. `0.1.0-D3/roadmap-parser`.
+  One task, feature or bug per branch.
+- **Task PR** targets `beta`. Title: `0.1.0-D3: <title>`; commit subjects start with the deliverable
+  ID. **Squash-merge** it. Test the result on `beta`.
+- **Release PR** targets `main` and is opened **from `beta` only**, and **only when a whole version
+  is complete** (0.1.0, 0.2.3, 0.8.0 and so on), after it has been tested on `beta`. Title:
+  `vX.Y.Z — <Version title>`. Merge it with a **merge commit** (not squash, so `beta` and `main`
+  keep a shared history), then tag `vX.Y.Z` on `main`.
+- Never open a PR from a work branch to `main`. CI fails any PR to `main` whose head is not `beta`
+  (job `branch flow`). Hotfix for a broken release: branch from `main`, PR to `beta` like any task,
+  then release a patch version.
+- `main` and `beta` must always pass CI.
 - Never commit secrets, tokens or private data. The `examples/` project is fictional and must stay so.
 
 ## 6a. Commands
@@ -80,4 +95,17 @@ node dist/cli.js build -C examples/tidepool
 
 ## 8. Shipping a version
 
-Follow the checklist in `docs/spec/08-quality-release.md` §6 (Definition of Done).
+Follow the checklist in `docs/spec/08-quality-release.md` §6 (Definition of Done), then open the
+release PR from `beta` to `main` (§6 above).
+
+## 9. Cost: which model does the work
+
+Use the cheapest model that can do the job well.
+
+- **Small models** (Claude Haiku 5.5) take small, well-defined, low-risk tasks: updating docs and
+  status lines, the CHANGELOG, searching and reading the repo, listing or summarising files,
+  renaming, formatting, simple mechanical edits, and checking CI or PR status.
+- **The main model** keeps the work that needs judgement: parser, renderer and security code,
+  architecture, decisions, reviewing a finished change, and anything a small model got wrong.
+- Give a small-model agent a self-contained prompt (the files, the exact change, what to report),
+  and read its result before you rely on it. Its output is still your responsibility.

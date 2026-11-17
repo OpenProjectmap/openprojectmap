@@ -7,3 +7,5 @@ examples/
 docs/
 templates/
 *.md
+src/render/assets.generated.ts
+src/render/template.html
