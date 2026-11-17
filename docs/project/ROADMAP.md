@@ -40,6 +40,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.0.1-D7 | **Cheap sub-agents**: AGENTS.md §9 and CLAUDE.md say small tasks (docs updates, search, easy edits) go to Claude Haiku 5.5 sub-agents to cut cost | done | Founder request, 2026-11-16. PR #15 |
 | 0.0.1-D8 | **Decisions recorded and npm name claimed**: D4 to D18 recorded in DECISIONS.md; AGENTS.md §4 allows the user-clicked update check (D18); `openprojectmap` 0.0.1 published to npm as a placeholder | doing | Founder approved all defaults on 2026-11-17. Decisions are recorded; the publish is blocked until 2026-11-20 16:54 UTC, then run `npm login --auth-type=web` (passkey) and publish |
 | 0.0.1-D9 | **Audit gate on what ships**: the CI quality report fails on high advisories in runtime dependencies only (there are none, D5); dev-tooling advisories show in the run summary but do not fail the build | doing | Founder chose this on 2026-11-17. A picomatch ReDoS advisory (GHSA-fc5q-39xc-vjpf, no patched version, dev only via typescript-eslint) failed the gate |
+| 0.0.1-D10 | **CI cost cut**: the full OS and Node matrix runs only on release PRs (to `main`) and pushes to `main`; task PRs and pushes to `beta` run one ubuntu, Node 22 leg | doing | Founder approved on 2026-11-17 after GitHub Actions stopped starting jobs (minutes or spending limit; macOS counts 10x, Windows 2x) |
 
 ### v0.1.0 — Core parser, build and check
 

@@ -42,6 +42,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
+      # full matrix on PRs to main and pushes to main; one ubuntu / Node 22 leg elsewhere (cost)
       matrix: { os: [ubuntu-latest, macos-latest, windows-latest], node: [20, 22] }
     runs-on: ${{ matrix.os }}
     steps:
