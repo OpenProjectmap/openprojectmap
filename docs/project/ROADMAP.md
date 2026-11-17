@@ -8,35 +8,37 @@ the newest status line in a version goes last; windows live only on the version 
 
 ## Now
 
-**Updated:** 2026-11-16
+**Updated:** 2026-11-17
 **Current version:** v0.0.1
-**Next step:** Decide D14 (repo visibility) and check that the docs render on GitHub (0.0.1-D5), then start the block scanner (0.1.0-D1). Claiming the npm name needs `npm login` first.
-**Why:** The toolchain, skeleton, CI and branch protection are on `main`. What is left of v0.0.1 waits on D14: private vulnerability reporting needs the repo to be public, and the exit criteria say the repo is public.
+**Next step:** Start the block scanner (0.1.0-D1). Open for the founder only: look at the docs on github.com (0.0.1-D5).
+**Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
-**Live:** nothing published yet
+**Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
 
 ## Phase 1 — Foundations
 
 ### v0.0.1 — Seed
 
 **Window:** 2026-11-17 → 2026-11-23
-**Goal:** A public repo with toolchain, CI and these planning docs, ready for parser work.
-**Exit:** `pnpm install && pnpm test && pnpm lint && pnpm typecheck` pass on Linux, macOS and Windows in CI on Node 20 and 22; the repo is public with licence, README, SECURITY and CONTRIBUTING.
+**Goal:** A repo with toolchain, CI and these planning docs, ready for parser work.
+**Exit:** `pnpm install && pnpm test && pnpm lint && pnpm typecheck` pass on Linux, macOS and Windows in CI on Node 20 and 22; the repo has licence, README, SECURITY and CONTRIBUTING (it opens to the public at the v0.3.0 launch, D14).
 **Status 2026-11-16:** planned. Roadmap, spec, handbook, templates, example and agent skill written; repo not created.
 **Status 2026-11-16:** D2 and D4 done; D3 written, awaiting a first run on GitHub; D5 committed, GitHub rendering unchecked; D1 and D3 (GitHub home) are decided by the founder; the repo stays private under `alkomy` until it is ready to open. Work is on stacked local branches 0.0.1-D1 to D4, unmerged.
 **Status 2026-11-16:** PRs #1 and #5 squash-merged into `main` (CI green on 6 legs). D2, D3, D4 done. Open: D1 (branch protection, private vulnerability reporting and squash-only wait on D14, repo visibility) and D5 (GitHub rendering check). The npm name is not yet claimed (needs `npm login`).
 **Status 2026-11-16:** `main` is protected and the CI workflow now has a quality report job and a `CI result` gate (format, lint, typecheck, coverage, audit, build, summarised in the run summary). Only private vulnerability reporting is left of D1, waiting on D14.
 **Status 2026-11-16:** the founder set a two-branch model (D19, 0.0.1-D6): work branches go into `beta` for testing; `main` only gets a release PR from `beta` when a version is complete.
+**Status 2026-11-17:** the founder approved every default and answered D11 (`openprojectmap.dev` registered), D14 (stay private) and D16 (certificates bought in January 2027). D1, D6 and D7 are done. Left of v0.0.1: the GitHub rendering check (D5) and the npm publish (D8, blocked by the account suspension), then the release PR from `beta` to `main`.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.0.1-D1 | **Repository**: create the GitHub repo per D3, add LICENSE (D2), README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT (Contributor Covenant 2.1); enable private vulnerability reporting, branch protection on `main` (PR + green CI required), squash-merge only | doing | spec 08 §5. Files, CODE_OF_CONDUCT and the org name are done. On 2026-11-16 `main` got classic branch protection (PR required, status check `CI result`, up to date, linear history, no force-push or deletion, applies to admins) and squash-only merges; auto-merge is off and branches are deleted on merge. Private vulnerability reporting is not available on this private repo (API returns 404); turn it on when the repo opens (D14) |
+| 0.0.1-D1 | **Repository**: create the GitHub repo per D3, add LICENSE (D2), README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT (Contributor Covenant 2.1); enable private vulnerability reporting, branch protection on `main` (PR + green CI required), squash-merge only | done | spec 08 §5. Files, CODE_OF_CONDUCT and the org name are done. On 2026-11-16 `main` got classic branch protection (PR required, status check `CI result`, up to date, linear history, no force-push or deletion, applies to admins) and squash-only merges; auto-merge is off and branches are deleted on merge. Private vulnerability reporting is not available on this private repo (API returns 404); turn it on when the repo opens (D14). Private vulnerability reporting moves to 0.3.0-D7 (needs a public repo, D14 stays private). Branch protection: PRs #6 to #14 |
 | 0.0.1-D2 | **Toolchain**: `package.json` (`type: module`, `engines.node >=20.11`, `packageManager: pnpm@10`), TypeScript 5 `strict` + `noUncheckedIndexedAccess`, ESLint flat config + typescript-eslint, Prettier, Vitest, esbuild (D7); scripts `build`, `test`, `lint`, `typecheck`, `format` | done | spec 01 §5. 81f6300 (#5); typecheck, lint, test, build pass locally on Linux/Node 22 |
 | 0.0.1-D3 | **CI**: `.github/workflows/ci.yml`, matrix {ubuntu, macos, windows} × Node {20, 22}; jobs typecheck, lint, test, build; `permissions: contents: read`; third-party actions pinned by commit SHA; Dependabot for actions and dev deps | done | spec 08 §4. 81f6300 (#5); ran green on ubuntu, macOS and Windows on Node 20 and 22 for PR #5 |
 | 0.0.1-D4 | **Skeleton**: the `src/core`, `src/node`, `src/render`, `src/cli` folders per spec 01 §3, each with an `index.ts` and one passing test; ESLint `no-restricted-imports` forbids `node:*` in `src/core` and `innerHTML` patterns in `src/render/client` | done | spec 01 §3, AGENTS §4. 81f6300 (#5); both lint rules checked with a deliberately bad file |
 | 0.0.1-D5 | **Seed commit**: commit `docs/`, `templates/`, `examples/`, `skills/`, `opmap.config.json`, `CHANGELOG.md`; check every doc renders on GitHub (tables, links) | review | Committed in c9fe7d9; rendering on GitHub not yet checked (repo is private; check in the web UI) |
-| 0.0.1-D6 | **Branch model**: `beta` (preview) and `main` (production), both protected; task PRs squash into `beta`, a release PR from `beta` to `main` per completed version (D19); CI runs on both and a `branch flow` check rejects other PRs to `main`; Dependabot targets `beta` | doing | AGENTS.md §6, spec 08 §5. GitHub settings (create and protect `beta`, enable merge commits, drop linear history on `main`) are applied alongside the PR |
-| 0.0.1-D7 | **Cheap sub-agents**: AGENTS.md §9 and CLAUDE.md say small tasks (docs updates, search, easy edits) go to Claude Haiku 5.5 sub-agents to cut cost | doing | Founder request, 2026-11-16 |
+| 0.0.1-D6 | **Branch model**: `beta` (preview) and `main` (production), both protected; task PRs squash into `beta`, a release PR from `beta` to `main` per completed version (D19); CI runs on both and a `branch flow` check rejects other PRs to `main`; Dependabot targets `beta` | done | AGENTS.md §6, spec 08 §5. GitHub settings (create and protect `beta`, enable merge commits, drop linear history on `main`) are applied alongside the PR. PR #14 |
+| 0.0.1-D7 | **Cheap sub-agents**: AGENTS.md §9 and CLAUDE.md say small tasks (docs updates, search, easy edits) go to Claude Haiku 5.5 sub-agents to cut cost | done | Founder request, 2026-11-16. PR #15 |
+| 0.0.1-D8 | **Decisions recorded and npm name claimed**: D4 to D18 recorded in DECISIONS.md; AGENTS.md §4 allows the user-clicked update check (D18); `openprojectmap` 0.0.1 published to npm as a placeholder | doing | Founder approved all defaults on 2026-11-17. Decisions are recorded; the publish is blocked until 2026-11-20 16:54 UTC, then run `npm login --auth-type=web` (passkey) and publish |
 
 ### v0.1.0 — Core parser, build and check
 

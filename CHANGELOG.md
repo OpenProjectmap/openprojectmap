@@ -25,4 +25,5 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Decisions D4 to D18 recorded. The desktop app may have a user-clicked "Check for updates" button; nothing else ever checks for updates.
 - Roadmap: a VS Code extension (v0.7.0) and a desktop app for Windows, macOS and Linux (v0.8.0) are now planned, moved out of Parked; a feature-intake tool for agents is added to v0.6.0; v1.0.0 moves to 2027-Q3.
