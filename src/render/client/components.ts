@@ -86,7 +86,7 @@ export function table(head: string[], rows: Child[][], caption: string): HTMLEle
           h(
             'tr',
             null,
-            r.map((c) => h('td', null, c)),
+            r.map((c, i) => h('td', { 'data-label': head[i] ?? '' }, c)),
           ),
         ),
       ),
