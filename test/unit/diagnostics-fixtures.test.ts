@@ -95,7 +95,7 @@ describe('diagnostic fixtures', () => {
       if (process.env['UPDATE_FIXTURES'] === '1')
         writeFileSync(expectedPath, `${actual.join('\n')}\n`);
       const expected = readFileSync(expectedPath, 'utf8')
-        .split('\n')
+        .split(/\r?\n/)
         .filter((l) => l !== '');
       expect(actual).toEqual(expected);
       // The fixture must raise the code it is named after.
