@@ -163,7 +163,7 @@ Checks: `shipped` with deliverables in `todo`, `doing`, `review` or `blocked` �
 ## 6. Dates
 
 ```
-window    := point | point ws* arrow ws* point [ws+ note]
+window    := point [ws+ note] | point ws* arrow ws* point [ws+ note]
 arrow     := "→" | "->" | ".." | "–" | "to"
 point     := day | month | quarter | year
 day       := YYYY "-" MM "-" DD
@@ -178,6 +178,7 @@ note      := "(" any ")" | any        # kept as window.note; "tentative" or "?" 
 - All dates are calendar dates without time or timezone. "Today" is `options.now` as a UTC date,
   or local midnight in the CLI when `--tz local` is set (default `UTC`).
 - `start > end` → `OPM-W203`.
+- `to` needs whitespace on both sides. A note may not start with a digit or a dash (so `a - b` is `OPM-W202`, not a date with a note).
 
 ## 7. DECISIONS.md
 
