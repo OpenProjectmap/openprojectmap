@@ -72,8 +72,8 @@ describe('scan: paragraphs', () => {
   it('joins consecutive lines and splits on blank lines', () => {
     const { blocks } = scan('one\n  two\n\nthree');
     expect(blocks).toEqual([
-      { type: 'paragraph', text: 'one two', line: 1, column: 1 },
-      { type: 'paragraph', text: 'three', line: 4, column: 1 },
+      { type: 'paragraph', text: 'one two', lines: ['one', 'two'], line: 1, column: 1 },
+      { type: 'paragraph', text: 'three', lines: ['three'], line: 4, column: 1 },
     ]);
   });
   it('is interrupted by a heading', () => {

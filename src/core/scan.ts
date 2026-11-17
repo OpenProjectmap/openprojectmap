@@ -32,7 +32,10 @@ export interface TableBlock extends Position {
 
 export interface ParagraphBlock extends Position {
   type: 'paragraph';
+  /** The lines joined with one space. */
   text: string;
+  /** The same lines, each trimmed with runs of blanks collapsed (so list items can be split). */
+  lines: string[];
 }
 
 export type Block = HeadingBlock | FieldBlock | TableBlock | ParagraphBlock;
@@ -239,6 +242,7 @@ export function scan(input: string): ScanResult {
       blocks.push({
         type: 'paragraph',
         text: para.lines.join(' '),
+        lines: para.lines,
         line: para.line,
         column: para.column,
       });
