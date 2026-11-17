@@ -153,6 +153,8 @@ function pageAfter(data: ProjectData): HTMLElement[] {
     '#/overview',
     '#/versions',
     '#/decisions',
+    '#/timeline',
+    '#/timeline?zoom=quarter',
     '#/history',
     '#/parked',
     `#/versions/${data.versions[0]?.id}?q=a&status=todo,doing`,
@@ -174,11 +176,16 @@ function pageAfter(data: ProjectData): HTMLElement[] {
 }
 
 const FORBIDDEN =
-  'script, iframe, object, embed, img, link, meta, base, style, form, svg, audio, video, source';
+  'script, iframe, object, embed, img, link, meta, base, style, form, audio, video, source';
 const URL_ATTRS = ['href', 'src', 'srcdoc', 'action', 'formaction', 'xlink:href', 'data'];
 
 function assertInert(root: HTMLElement): void {
   expect(root.querySelectorAll(FORBIDDEN)).toHaveLength(0);
+  // The only SVG on the page is the timeline, and it holds nothing but drawing elements.
+  for (const svg of root.querySelectorAll('svg'))
+    expect(svg.getAttribute('class')).toBe('timeline-svg');
+  for (const el of root.querySelectorAll('svg *'))
+    expect(['g', 'path', 'rect', 'line', 'text']).toContain(el.localName);
   for (const el of root.querySelectorAll('*')) {
     for (const a of el.getAttributeNames()) {
       expect(a.startsWith('on'), `${el.tagName} has attribute ${a}`).toBe(false);

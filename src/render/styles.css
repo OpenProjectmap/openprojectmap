@@ -347,6 +347,93 @@ h4 {
   width: calc(var(--w, 0) * 1%);
   min-width: 2px;
 }
+/* timeline */
+.timeline-wrap {
+  min-width: 0;
+}
+.timeline-svg {
+  display: block;
+  min-width: 760px;
+  width: 100%;
+  height: auto;
+  font: 12px var(--font);
+}
+.timeline-svg text {
+  fill: var(--text);
+}
+.timeline-svg .axis,
+.timeline-svg .ms {
+  fill: var(--muted);
+}
+.timeline-svg .group {
+  font-weight: 700;
+}
+.timeline-svg .tick {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.timeline-svg .tick.major {
+  stroke: var(--muted);
+}
+.timeline-svg .today {
+  stroke: var(--danger);
+  stroke-width: 2;
+}
+.timeline-svg .today-label {
+  fill: var(--danger);
+  font-weight: 600;
+}
+.timeline-svg .track {
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-width: 1.5;
+}
+.timeline-svg .fill {
+  fill: var(--muted);
+  opacity: 0.55;
+}
+.timeline-svg .state-active .track {
+  stroke: var(--accent);
+}
+.timeline-svg .state-active .fill {
+  fill: var(--accent);
+  opacity: 0.8;
+}
+.timeline-svg .state-shipped .track {
+  stroke: var(--ok);
+}
+.timeline-svg .state-shipped .fill {
+  fill: var(--ok);
+  opacity: 0.8;
+}
+.timeline-svg .tentative .track {
+  stroke-dasharray: 5 3;
+}
+.timeline-svg .diamond {
+  fill: var(--warn);
+  stroke: var(--text);
+  stroke-width: 1;
+}
+.timeline-svg .bar-row {
+  cursor: pointer;
+}
+.timeline-svg .bar-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 10px;
+}
+.diamond-key {
+  color: var(--warn);
+}
+.today-key {
+  color: var(--danger);
+  font-weight: 700;
+}
 footer {
   margin-top: 24px;
   color: var(--muted);
