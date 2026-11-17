@@ -9,8 +9,10 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # macOS minutes cost 10x and Windows 2x. The full matrix runs on release PRs (to main) and on
-  # pushes to main; everything else runs one fast leg (ubuntu, Node 22).
+  # What blocks a merge runs on the self-hosted Linux runner: Node 22 for task PRs, Node 20 and 22
+  # for release PRs (to main) and pushes to main. macOS and Windows run on GitHub-hosted runners as
+  # an advisory job (`cross-os`) on those same release runs, so billing or minutes problems there
+  # cannot block a release. macOS minutes cost 10x and Windows 2x.
   plan:
     name: plan
     runs-on: [self-hosted, Linux, X64]
@@ -25,7 +27,7 @@ jobs:
         run: |
           echo "full=$FULL" >> "$GITHUB_OUTPUT"
           if [ "$FULL" = "true" ]; then
-            echo 'matrix={"include":[{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":20},{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":22},{"os":"macos-latest","runner":["macos-latest"],"node":20},{"os":"macos-latest","runner":["macos-latest"],"node":22},{"os":"windows-latest","runner":["windows-latest"],"node":20},{"os":"windows-latest","runner":["windows-latest"],"node":22}]}' >> "$GITHUB_OUTPUT"
+            echo 'matrix={"include":[{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":20},{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":22}]}' >> "$GITHUB_OUTPUT"
           else
             echo 'matrix={"include":[{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":22}]}' >> "$GITHUB_OUTPUT"
           fi
@@ -43,6 +45,33 @@ jobs:
         with:
           fetch-depth: 0
       # Node first: pnpm's installer runs on the Node in PATH, and a self-hosted runner's can be old.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  # macOS and Windows on GitHub-hosted runners. Advisory: not part of `CI result`.
+  cross-os:
+    name: cross-os (${{ matrix.os }}, node ${{ matrix.node }})
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+        node: [22]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
