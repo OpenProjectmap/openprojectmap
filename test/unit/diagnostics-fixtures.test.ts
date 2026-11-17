@@ -7,8 +7,10 @@ import type { Source } from '../../src/core/index.js';
 
 const ROOT = 'test/fixtures/diagnostics';
 const NOW = '2026-11-17T00:00:00Z';
-/** Codes raised outside the core (config, git). Their fixtures arrive with 0.1.0-D8 and D9. */
-const OUTSIDE_CORE = new Set(['OPM-E003', 'OPM-I801', 'OPM-I802', 'OPM-W803']);
+/** Codes raised by the git adapter. Their fixtures arrive with 0.1.0-D9. */
+const GIT_CODES = new Set(['OPM-I801', 'OPM-I802', 'OPM-W803']);
+/** Fixtures that are not parseProject inputs: OPM-E003 is a config file, tested in config.test.ts. */
+const NOT_PARSE_INPUT = new Set(['OPM-E003']);
 
 const dirs = readdirSync(ROOT, { withFileTypes: true })
   .filter((d) => d.isDirectory())
@@ -80,7 +82,7 @@ describe('catalogue', () => {
 describe('diagnostic fixtures', () => {
   it('has a fixture for every code the core can raise', () => {
     const missing = CATALOGUE.map((c) => c.code).filter(
-      (c) => !OUTSIDE_CORE.has(c) && !dirs.includes(c),
+      (c) => !GIT_CODES.has(c) && !dirs.includes(c),
     );
     expect(missing).toEqual([]);
   });
@@ -88,7 +90,7 @@ describe('diagnostic fixtures', () => {
     expect(dirs.filter((d) => !codeInfo(d))).toEqual([]);
   });
 
-  for (const dir of dirs) {
+  for (const dir of dirs.filter((d) => !NOT_PARSE_INPUT.has(d))) {
     it(`${dir}: raises exactly the expected diagnostics`, () => {
       const actual = run(dir);
       const expectedPath = join(ROOT, dir, 'expected.txt');
