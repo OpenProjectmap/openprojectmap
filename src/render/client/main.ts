@@ -86,7 +86,9 @@ export function boot(doc: Document = document): () => void {
   );
 
   const tabs = h('div', { role: 'tablist', 'aria-label': 'Views', class: 'tabs' });
-  const main = h('main', { id: 'main', role: 'tabpanel', tabindex: '-1' });
+  // <main> is the landmark; the tab panel inside it is what the tabs control.
+  const panel = h('div', { id: 'panel', role: 'tabpanel', tabindex: '-1' });
+  const main = h('main', { id: 'main' }, panel);
   const nav = h('nav', { 'aria-label': 'Project map' }, tabs);
   const footer = h(
     'footer',
@@ -107,7 +109,7 @@ export function boot(doc: Document = document): () => void {
             role: 'tab',
             id: `tab-${v}`,
             'aria-selected': String(v === state.view),
-            'aria-controls': 'main',
+            'aria-controls': 'panel',
             tabindex: v === state.view ? '0' : '-1',
             onClick: () => {
               if (doc.defaultView)
@@ -125,8 +127,8 @@ export function boot(doc: Document = document): () => void {
       );
     }
     if (hadFocus) doc.getElementById(`tab-${state.view}`)?.focus();
-    main.setAttribute('aria-labelledby', `tab-${state.view}`);
-    main.replaceChildren(
+    panel.setAttribute('aria-labelledby', `tab-${state.view}`);
+    panel.replaceChildren(
       renderView(data, state, (s) => {
         doc.defaultView?.history.replaceState(null, '', formatHash(s));
       }),

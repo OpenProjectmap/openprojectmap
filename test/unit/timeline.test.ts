@@ -122,7 +122,7 @@ describe('timeline view', () => {
     boot(document);
     await go('#/timeline');
     const svg = main().querySelector('svg');
-    expect(svg?.getAttribute('role')).toBe('img');
+    expect(svg?.getAttribute('role')).toBe('group');
     expect(svg?.getAttribute('aria-label')).toMatch(
       /^Timeline from \d{4}-\d\d-\d\d to \d{4}-\d\d-\d\d: \d+ scheduled versions$/,
     );

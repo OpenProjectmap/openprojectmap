@@ -80,7 +80,7 @@ export function renderTimeline(data: ProjectData, state: State): Node {
     'svg',
     {
       viewBox: `0 0 ${layout.width} ${layout.height}`,
-      role: 'img',
+      role: 'group',
       'aria-label': summary,
       class: 'timeline-svg',
       width: layout.width,

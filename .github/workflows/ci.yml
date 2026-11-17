@@ -17,11 +17,13 @@ jobs:
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
+      full: ${{ steps.pick.outputs.full }}
     steps:
       - id: pick
         env:
           FULL: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
         run: |
+          echo "full=$FULL" >> "$GITHUB_OUTPUT"
           if [ "$FULL" = "true" ]; then
             echo 'matrix={"include":[{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":20},{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":22},{"os":"macos-latest","runner":["macos-latest"],"node":20},{"os":"macos-latest","runner":["macos-latest"],"node":22},{"os":"windows-latest","runner":["windows-latest"],"node":20},{"os":"windows-latest","runner":["windows-latest"],"node":22}]}' >> "$GITHUB_OUTPUT"
           else
@@ -137,6 +139,32 @@ jobs:
         run: |
           echo "::error::Do not merge main into beta through a PR; open a task branch instead."
           exit 1
+
+  # Real-browser checks (axe-core with colour contrast, spec 05 §7). Advisory until the first
+  # green run: it is not part of `CI result`, so a failure here does not block a merge.
+  e2e:
+    name: e2e (axe)
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results/
+          if-no-files-found: ignore
 
   ci-result:
     name: CI result
