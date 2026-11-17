@@ -9,24 +9,42 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # macOS minutes cost 10x and Windows 2x. The full matrix runs on release PRs (to main) and on
+  # pushes to main; everything else runs one fast leg (ubuntu, Node 22).
+  plan:
+    name: plan
+    runs-on: [self-hosted, Linux, X64]
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        env:
+          FULL: ${{ (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+        run: |
+          if [ "$FULL" = "true" ]; then
+            echo 'matrix={"include":[{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":20},{"os":"ubuntu-latest","runner":["ubuntu-latest"],"node":22},{"os":"macos-latest","runner":["macos-latest"],"node":20},{"os":"macos-latest","runner":["macos-latest"],"node":22},{"os":"windows-latest","runner":["windows-latest"],"node":20},{"os":"windows-latest","runner":["windows-latest"],"node":22}]}' >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"include":[{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":22}]}' >> "$GITHUB_OUTPUT"
+          fi
+
   test:
     name: test (${{ matrix.os }}, node ${{ matrix.node }})
+    needs: plan
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node: [20, 22]
-    runs-on: ${{ matrix.os }}
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      # Node first: pnpm's installer runs on the Node in PATH, and a self-hosted runner's can be old.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
@@ -35,15 +53,15 @@ jobs:
 
   quality:
     name: quality report
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      # Node first: pnpm's installer runs on the Node in PATH, and a self-hosted runner's can be old.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-          cache: pnpm
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - run: pnpm install --frozen-lockfile
       - name: Run quality checks
         shell: bash
@@ -98,7 +116,7 @@ jobs:
 
   branch-flow:
     name: branch flow
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 5
     steps:
       - name: A PR to main must come from beta
@@ -120,8 +138,8 @@ jobs:
   ci-result:
     name: CI result
     if: always()
-    needs: [test, quality, branch-flow]
-    runs-on: ubuntu-latest
+    needs: [plan, test, quality, branch-flow]
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 5
     steps:
       - name: Require every job to pass
