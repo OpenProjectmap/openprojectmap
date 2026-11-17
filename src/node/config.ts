@@ -393,7 +393,7 @@ export function loadConfig(options: LoadConfigOptions): ResolvedConfig {
   if (configPath !== null) {
     let parsed: unknown;
     try {
-      parsed = JSON.parse(readFileSync(configPath, 'utf8').replace(/^﻿/, ''));
+      parsed = JSON.parse(readFileSync(configPath, 'utf8').replace(/^\uFEFF/, ''));
     } catch (e) {
       throw new OpmapError(
         'OPM-E003',
