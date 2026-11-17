@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-17
 **Current version:** v0.0.1
-**Next step:** Derivations (0.1.0-D6). Open for the founder only: look at the docs on github.com (0.0.1-D5).
+**Next step:** Validator and diagnostic catalogue (0.1.0-D7). Open for the founder only: look at the docs on github.com (0.0.1-D5).
 **Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -48,7 +48,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** `npx openprojectmap build` turns the three docs into one HTML map, and `check` lists every format problem with file:line and a fix hint.
 **Exit:** On a clean clone, `npx openprojectmap@0.1.0 check` exits 0 on `examples/tidepool` and on this repo; `build` finishes in under 1 s for the 1,000-deliverable stress fixture; `src/core` line coverage is 95% or higher.
 **Status 2026-11-16:** planned.
-**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it; D3 (roadmap parser) in PR #21; D5 (decisions and changelog parsers) in PR #22.
+**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it; D3 (roadmap parser) in PR #21; D5 (decisions and changelog parsers) in PR #22; D6 (derivations) in PR #23.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -57,7 +57,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.1.0-D3 | **Roadmap parser** (`core/parse-roadmap.ts`): format marker, Now block (known keys + free facts), phases, version blocks (heading grammar, Window/Goal/Exit/Milestone/State fields, status lines), deliverable tables mapped by header name, milestones, Parked | done | spec 02 §3. PR #21: `core/parse-roadmap.ts` (also `core/diagnostics.ts`, `core/progress.ts`); parses this repo's roadmap and tidepool with no warnings |
 | 0.1.0-D4 | **Status vocabulary** (`core/status.ts`): 6 statuses + aliases, optional date and reference in the cell (`done 2026-12-01 (#14)`) | done | spec 02 §4, D8. PR #20: `core/status.ts`, plus `core/types.ts` (the ProjectData v1 types and `Diagnostic`). Done before D3 because the roadmap parser needs it |
 | 0.1.0-D5 | **Decisions and changelog parsers**: decisions table + risks table (`core/parse-decisions.ts`); Keep a Changelog 1.1 headings incl. `[Unreleased]` and the common variants (`core/parse-changelog.ts`) | done | spec 02 §7–8, D6. PR #22: `core/parse-decisions.ts`, `core/parse-changelog.ts`. New code OPM-W505 (unknown decision status) added to spec 02 §9. The scanner now keeps each paragraph line so list items can be split |
-| 0.1.0-D6 | **Derivations** (`core/derive.ts`): version state, progress (parked excluded), current/next version, overall progress, Needs-your-call list (open decisions by Needed by; overdue → "proceeding with default"), staleness, timeline bounds | todo | spec 03 §3 |
+| 0.1.0-D6 | **Derivations** (`core/derive.ts`): version state, progress (parked excluded), current/next version, overall progress, Needs-your-call list (open decisions by Needed by; overdue → "proceeding with default"), staleness, timeline bounds | done | spec 03 §3, spec 02 §5. PR #23: `core/derive.ts`. The cross-file checks that use it (OPM-W104, W204, I601, I602) belong to the validator, D7 |
 | 0.1.0-D7 | **Validator and diagnostic catalogue** (`core/validate.ts`, `core/codes.ts`): every OPM code in spec 02 §9, each with message, hint and a fixture | todo | spec 02 §9 |
 | 0.1.0-D8 | **Config loader** (`node/config.ts`): find `opmap.config.json` from cwd up to the git root; hand-written validation with precise errors; defaults; paths resolved relative to the config and contained in the repo root after `realpath` | todo | spec 04 §3, spec 07 §3 |
 | 0.1.0-D9 | **Git enrichment** (`node/git.ts`): `execFile('git', …)` only; ref validation; branch heads, last commit, N-week activity, areas by prefix; soft-fail outside a repo or on a shallow clone (info diagnostic); `--fetch`, `--no-git` | todo | spec 06 §1 |
