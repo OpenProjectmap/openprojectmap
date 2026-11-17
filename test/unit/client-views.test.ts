@@ -406,3 +406,19 @@ describe('history and parked views', () => {
     expect(main().textContent).toContain('Nothing is parked.');
   });
 });
+
+describe('tables for narrow screens', () => {
+  it('labels every cell with its column so a row can become a card', async () => {
+    window.location.hash = '#/decisions';
+    mount(tidepool());
+    boot(document);
+    await tick();
+    const heads = [...(main().querySelectorAll('table')[0]?.querySelectorAll('th') ?? [])].map(
+      (t) => t.textContent,
+    );
+    const cells = [...(main().querySelector('tbody tr')?.children ?? [])].map((c) =>
+      c.getAttribute('data-label'),
+    );
+    expect(cells).toEqual(heads);
+  });
+});

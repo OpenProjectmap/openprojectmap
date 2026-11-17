@@ -17,6 +17,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `opmap build` writes one self-contained HTML map from ROADMAP, DECISIONS and CHANGELOG markdown; `opmap check` lists every problem with file, line and a fix hint. Both support `--strict`, `--max-warnings`, `--format text|json|github`, `--now`, `--no-git`, `--fetch`, `--out`, `--json` and `--open`, and exit with 0, 1, 2 or 3.
 - A parser for doc format v1: block scanner, dates and windows, status words with aliases, roadmap, decisions and risks, and Keep a Changelog; 38 diagnostic codes, each with a hint and a fixture.
 - A first map with Overview, Versions (filters and search) and Decisions views, light and dark themes, an escaped data block, a content security policy pinned by hash, and a no-script summary.
+- A Timeline view (SVG Gantt with phase groups, progress fill, milestone diamonds, today line and month or quarter zoom), History and Parked views, and compact density.
+- Accessibility: axe-core checks on every view, contrast-tested theme colours, a proper tab panel structure, and tables that turn into labelled cards on narrow screens.
 - `opmap.config.json` loader with strict validation; every path must stay inside the repository.
 - Git facts (branch heads, weekly activity, areas, commits since the last update) read without a shell, and skipped cleanly outside a repository.
 - A programmatic API: `parseProject`, `buildData`, `buildProject`, `renderMap` and `loadConfig`.
