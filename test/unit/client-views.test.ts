@@ -51,6 +51,8 @@ describe('boot and the overview', () => {
       'Overview',
       'Versions',
       'Decisions',
+      'History',
+      'Parked',
     ]);
     expect(document.querySelector('[role=tab][aria-selected=true]')?.textContent).toBe('Overview');
     const cards = [...main().querySelectorAll('h2')].map((h) => h.textContent);
@@ -148,18 +150,17 @@ describe('navigation', () => {
     };
     await press('ArrowRight');
     expect(window.location.hash).toBe('#/versions');
-    await press('ArrowRight');
-    await press('ArrowRight');
-    expect(window.location.hash).toBe('#/overview');
+    for (let i = 0; i < 4; i++) await press('ArrowRight');
+    expect(window.location.hash).toBe('#/overview'); // wraps after Parked
     await press('ArrowLeft');
-    expect(window.location.hash).toBe('#/decisions');
+    expect(window.location.hash).toBe('#/parked');
     await press('Home');
     expect(window.location.hash).toBe('#/overview');
     await press('End');
-    expect(window.location.hash).toBe('#/decisions');
+    expect(window.location.hash).toBe('#/parked');
     await press('x');
-    expect(window.location.hash).toBe('#/decisions');
-    expect(document.activeElement?.id).toBe('tab-decisions');
+    expect(window.location.hash).toBe('#/parked');
+    expect(document.activeElement?.id).toBe('tab-parked');
   });
   it('cycles the theme and remembers it', () => {
     mount(tidepool());
@@ -323,5 +324,84 @@ describe('decisions view', () => {
     await go('#/decisions');
     expect(main().textContent).toContain('(closed)');
     expect(main().textContent).toContain('?');
+  });
+});
+
+describe('history and parked views', () => {
+  beforeEach(() => {
+    window.location.hash = '';
+  });
+  it('lists releases with sections, linked to their version', async () => {
+    const d = tidepool();
+    mount(d);
+    boot(document);
+    await go('#/history');
+    const text = main().textContent ?? '';
+    expect(text).toContain('Unreleased');
+    expect(text).toContain('v0.1.0');
+    expect(main().querySelectorAll('article.release').length).toBe(d.releases.length);
+    expect(main().querySelector('article.release a[href^="#/versions/"]')).not.toBeNull();
+    expect(main().textContent).not.toContain('Branches');
+  });
+  it('shows branches, a shallow note and the area bars when git facts exist', async () => {
+    const d = tidepool();
+    const c = { sha: 'abc1234', date: '2026-11-16T09:00:00Z', subject: 'hello' };
+    d.git = {
+      root: 'r',
+      head: c,
+      branches: { live: c, staging: null },
+      activity: { weekStarts: [], commits: [], areas: { src: 6, docs: 3, tests: 0 } },
+      shallow: true,
+    };
+    mount(d);
+    boot(document);
+    await go('#/history');
+    const text = main().textContent ?? '';
+    expect(text).toContain('abc1234');
+    expect(text).toContain('not found');
+    expect(text).toContain('Shallow clone');
+    const bars = [...main().querySelectorAll<HTMLElement>('.area-bar')];
+    expect(bars.map((b) => b.style.getPropertyValue('--w'))).toEqual(['100', '50', '0']);
+    d.git.activity.areas = {};
+    d.git.shallow = false;
+    mount(d);
+    boot(document);
+    await go('#/history');
+    expect(main().textContent).toContain('No changes in the configured areas.');
+  });
+  it('says so when there are no releases, or no entries or untitled sections', async () => {
+    const d = tidepool();
+    d.releases = [];
+    mount(d);
+    boot(document);
+    await go('#/history');
+    expect(main().textContent).toContain('The changelog has no releases yet.');
+    const e = tidepool();
+    const r = e.releases[0];
+    if (r) {
+      r.sections = [];
+      r.title = 'Named';
+    }
+    const second = e.releases[1];
+    if (second) second.sections = [{ heading: '', items: ['untitled item'] }];
+    mount(e);
+    boot(document);
+    await go('#/history');
+    expect(main().textContent).toContain('No entries.');
+    expect(main().textContent).toContain('Named');
+    expect(main().textContent).toContain('untitled item');
+  });
+  it('shows the parked table, or says nothing is parked', async () => {
+    const d = tidepool();
+    mount(d);
+    boot(document);
+    await go('#/parked');
+    expect(main().textContent).toContain("Parked items are ideas you've decided not to do yet.");
+    expect(main().querySelectorAll('tbody tr')).toHaveLength(d.parked.length);
+    d.parked = [];
+    mount(d);
+    boot(document);
+    await go('#/parked');
+    expect(main().textContent).toContain('Nothing is parked.');
   });
 });
