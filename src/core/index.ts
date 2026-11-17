@@ -28,6 +28,8 @@ export interface ProjectSources {
 export interface ParseProjectOptions {
   /** The current time as an ISO timestamp, e.g. `2026-11-17T09:00:00Z`. The core never reads a clock. */
   now: string;
+  /** Overrides the date taken from `now` (for `--tz local`). */
+  today?: string;
   /** Used when the roadmap has no H1 title. */
   name?: string;
   /** Written to `data.tool.version`. */
@@ -39,7 +41,7 @@ export interface ParseProjectOptions {
   commitsSince?: number | null;
 }
 
-function sortDiagnostics(list: Diagnostic[]): Diagnostic[] {
+export function sortDiagnostics(list: Diagnostic[]): Diagnostic[] {
   return [...list].sort(
     (a, b) =>
       (a.file ?? '').localeCompare(b.file ?? '') ||
@@ -58,8 +60,9 @@ export function parseProject(sources: ProjectSources, options: ParseProjectOptio
       'Set docs.roadmap in opmap.config.json or run opmap init',
     );
   }
-  const today = parseIsoDay(options.now.slice(0, 10));
-  if (today === null) throw new RangeError('options.now must start with a YYYY-MM-DD date');
+  const today = parseIsoDay((options.today ?? options.now).slice(0, 10));
+  if (today === null)
+    throw new RangeError('options.now (or options.today) must start with a YYYY-MM-DD date');
 
   const roadmap = parseRoadmap(
     sources.roadmap,
