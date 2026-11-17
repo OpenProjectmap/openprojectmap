@@ -1,0 +1,11 @@
+{
+  "format": 2,
+  "name": "",
+  "docs": { "roadmap": 7, "extra": true },
+  "idPattern": "(",
+  "staleAfterDays": 0,
+  "git": { "branches": { "live": "../evil" }, "areas": ["/etc", "a/../b"], "activityWeeks": 99 },
+  "theme": { "accent": "red; background:url(x)", "mode": "neon" },
+  "tracks": [{ "id": "Bad Id", "title": "T" }],
+  "unknownKey": 1
+}
