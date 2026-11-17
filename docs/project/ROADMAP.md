@@ -48,14 +48,14 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** `npx openprojectmap build` turns the three docs into one HTML map, and `check` lists every format problem with file:line and a fix hint.
 **Exit:** On a clean clone, `npx openprojectmap@0.1.0 check` exits 0 on `examples/tidepool` and on this repo; `build` finishes in under 1 s for the 1,000-deliverable stress fixture; `src/core` line coverage is 95% or higher.
 **Status 2026-11-16:** planned.
-**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) done in PR #19.
+**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
 | 0.1.0-D1 | **Block scanner** (`core/scan.ts`): line-based scan into headings, fields (`**Key:** value`), GFM pipe tables (escaped `\|`, pipes inside backticks), paragraphs; fenced code and HTML comments skipped; CRLF and BOM normalised; every node carries `{line, column}` | done | spec 02 §2, spec 01 §4. PR #17: `core/scan.ts`, 99% line coverage |
 | 0.1.0-D2 | **Dates** (`core/dates.ts`): ISO day, month, quarter and year points; ranges with `→`, `->`, `..`, ` – `, ` to `; trailing note kept; `start <= end` enforced; leap years and quarter ends tested; property tests with fast-check | done | spec 02 §6, D4. PR #19: `core/dates.ts`, 100% line coverage; fast-check property tests (day-number round trip, month ends, window order) |
 | 0.1.0-D3 | **Roadmap parser** (`core/parse-roadmap.ts`): format marker, Now block (known keys + free facts), phases, version blocks (heading grammar, Window/Goal/Exit/Milestone/State fields, status lines), deliverable tables mapped by header name, milestones, Parked | todo | spec 02 §3 |
-| 0.1.0-D4 | **Status vocabulary** (`core/status.ts`): 6 statuses + aliases, optional date and reference in the cell (`done 2026-12-01 (#14)`) | todo | spec 02 §4, D8 |
+| 0.1.0-D4 | **Status vocabulary** (`core/status.ts`): 6 statuses + aliases, optional date and reference in the cell (`done 2026-12-01 (#14)`) | done | spec 02 §4, D8. PR #20: `core/status.ts`, plus `core/types.ts` (the ProjectData v1 types and `Diagnostic`). Done before D3 because the roadmap parser needs it |
 | 0.1.0-D5 | **Decisions and changelog parsers**: decisions table + risks table (`core/parse-decisions.ts`); Keep a Changelog 1.1 headings incl. `[Unreleased]` and the common variants (`core/parse-changelog.ts`) | todo | spec 02 §7–8, D6 |
 | 0.1.0-D6 | **Derivations** (`core/derive.ts`): version state, progress (parked excluded), current/next version, overall progress, Needs-your-call list (open decisions by Needed by; overdue → "proceeding with default"), staleness, timeline bounds | todo | spec 03 §3 |
 | 0.1.0-D7 | **Validator and diagnostic catalogue** (`core/validate.ts`, `core/codes.ts`): every OPM code in spec 02 §9, each with message, hint and a fixture | todo | spec 02 §9 |
