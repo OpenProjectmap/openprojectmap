@@ -7,10 +7,8 @@ import type { Source } from '../../src/core/index.js';
 
 const ROOT = 'test/fixtures/diagnostics';
 const NOW = '2026-11-17T00:00:00Z';
-/** Codes raised by the git adapter. Their fixtures arrive with 0.1.0-D9. */
-const GIT_CODES = new Set(['OPM-I801', 'OPM-I802', 'OPM-W803']);
-/** Fixtures that are not parseProject inputs: OPM-E003 is a config file, tested in config.test.ts. */
-const NOT_PARSE_INPUT = new Set(['OPM-E003']);
+/** Fixtures that are not parseProject inputs: OPM-E003 is a config file (config.test.ts), the others come from git (git.test.ts). */
+const NOT_PARSE_INPUT = new Set(['OPM-E003', 'OPM-I801', 'OPM-I802', 'OPM-W803']);
 
 const dirs = readdirSync(ROOT, { withFileTypes: true })
   .filter((d) => d.isDirectory())
@@ -81,9 +79,7 @@ describe('catalogue', () => {
 
 describe('diagnostic fixtures', () => {
   it('has a fixture for every code the core can raise', () => {
-    const missing = CATALOGUE.map((c) => c.code).filter(
-      (c) => !GIT_CODES.has(c) && !dirs.includes(c),
-    );
+    const missing = CATALOGUE.map((c) => c.code).filter((c) => !dirs.includes(c));
     expect(missing).toEqual([]);
   });
   it('has no fixture for an unknown code', () => {

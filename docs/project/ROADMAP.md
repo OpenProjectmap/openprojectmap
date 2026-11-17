@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-17
 **Current version:** v0.0.1
-**Next step:** Git enrichment (0.1.0-D9). Open for the founder only: look at the docs on github.com (0.0.1-D5).
+**Next step:** CLI build and check (0.1.0-D10). Open for the founder only: look at the docs on github.com (0.0.1-D5).
 **Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -48,7 +48,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** `npx openprojectmap build` turns the three docs into one HTML map, and `check` lists every format problem with file:line and a fix hint.
 **Exit:** On a clean clone, `npx openprojectmap@0.1.0 check` exits 0 on `examples/tidepool` and on this repo; `build` finishes in under 1 s for the 1,000-deliverable stress fixture; `src/core` line coverage is 95% or higher.
 **Status 2026-11-16:** planned.
-**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it; D3 (roadmap parser) in PR #21; D5 (decisions and changelog parsers) in PR #22; D6 (derivations) in PR #23; D7 (validator and catalogue) in PR #24; D8 (config loader) in PR #25.
+**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it; D3 (roadmap parser) in PR #21; D5 (decisions and changelog parsers) in PR #22; D6 (derivations) in PR #23; D7 (validator and catalogue) in PR #24; D8 (config loader) in PR #25; D9 (git enrichment) in PR #26.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -60,7 +60,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.1.0-D6 | **Derivations** (`core/derive.ts`): version state, progress (parked excluded), current/next version, overall progress, Needs-your-call list (open decisions by Needed by; overdue → "proceeding with default"), staleness, timeline bounds | done | spec 03 §3, spec 02 §5. PR #23: `core/derive.ts`. The cross-file checks that use it (OPM-W104, W204, I601, I602) belong to the validator, D7 |
 | 0.1.0-D7 | **Validator and diagnostic catalogue** (`core/validate.ts`, `core/codes.ts`): every OPM code in spec 02 §9, each with message, hint and a fixture | done | spec 02 §9. PR #24: `core/codes.ts` (catalogue, checked against the spec table by a test), `core/validate.ts` (W104, W204, W305, I601, I602), `core/errors.ts`, and `parseProject()` in `core/index.ts` that ties the parsers together. 34 fixtures under `test/fixtures/diagnostics/`; the four codes raised outside the core (E003, I801, I802, W803) get theirs in D8 and D9 |
 | 0.1.0-D8 | **Config loader** (`node/config.ts`): find `opmap.config.json` from cwd up to the git root; hand-written validation with precise errors; defaults; paths resolved relative to the config and contained in the repo root after `realpath` | done | spec 04 §3, spec 07 §3. PR #25: `node/config.ts`. Unknown keys are errors; paths are `realpath`-ed and checked against the repo root (a symlink pointing out is rejected); OPM-E003 fixture added |
-| 0.1.0-D9 | **Git enrichment** (`node/git.ts`): `execFile('git', …)` only; ref validation; branch heads, last commit, N-week activity, areas by prefix; soft-fail outside a repo or on a shallow clone (info diagnostic); `--fetch`, `--no-git` | todo | spec 06 §1 |
+| 0.1.0-D9 | **Git enrichment** (`node/git.ts`): `execFile('git', …)` only; ref validation; branch heads, last commit, N-week activity, areas by prefix; soft-fail outside a repo or on a shallow clone (info diagnostic); `--fetch`, `--no-git` | done | spec 06 §1. PR #26: `node/git.ts` (`git()`, `gatherGit()`); fixtures for OPM-I801, I802 and W803; `--fetch` and `--no-git` are wired in D10 with the CLI |
 | 0.1.0-D10 | **CLI `build` and `check`** (`cli/`): `node:util.parseArgs`; text, json and github output formats; exit codes 0/1/2/3; `--strict`; `--now` / `OPMAP_NOW` for reproducible output | todo | spec 04 §2, §4 |
 | 0.1.0-D11 | **Minimal renderer**: Overview, Versions and Decisions views, built with the safe DOM helper (no `innerHTML`, so v0.2 is not a rewrite); data embedded as escaped JSON; `<noscript>` summary | todo | spec 05 §1–2 |
 | 0.1.0-D12 | **Fixtures and snapshots**: `test/fixtures/**` incl. one per diagnostic, tidepool and a generated 1,000-deliverable stress fixture; JSON snapshots of ProjectData | todo | spec 08 §2 |
