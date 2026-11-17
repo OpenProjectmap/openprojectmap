@@ -36,7 +36,9 @@ open source (MIT), has zero runtime dependencies, and never makes network reques
   through `textContent` or the `rich()` inline renderer. Every `href` goes through `safeHref()`.
 - Git is called only through `src/node/git.ts`, with `execFile` (never a shell) and validated refs.
 - Paths from config must resolve (after `realpath`) inside the repo root.
-- No telemetry, analytics or update checks, ever.
+- No telemetry, analytics or update checks, ever. The one exception (D18): the desktop app may have a
+  "Check for updates" button that the user clicks. Nothing checks in the background, and the CLI,
+  the Action and the MCP server never check.
 - Match the existing style. Prettier and ESLint configs are the authority. Don't reformat files you
   didn't change.
 
