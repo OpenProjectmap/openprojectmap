@@ -13,7 +13,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Next step:** Start the block scanner (0.1.0-D1). Open for the founder only: look at the docs on github.com (0.0.1-D5).
 **Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
-**Live:** the `openprojectmap` name is claimed on npm at 0.0.1 (placeholder, skeleton only)
+**Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: the npm account is temporarily suspended after a security-sensitive action, and the account uses a passkey, not an OTP
 
 ## Phase 1 — Foundations
 
@@ -27,7 +27,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-16:** PRs #1 and #5 squash-merged into `main` (CI green on 6 legs). D2, D3, D4 done. Open: D1 (branch protection, private vulnerability reporting and squash-only wait on D14, repo visibility) and D5 (GitHub rendering check). The npm name is not yet claimed (needs `npm login`).
 **Status 2026-11-16:** `main` is protected and the CI workflow now has a quality report job and a `CI result` gate (format, lint, typecheck, coverage, audit, build, summarised in the run summary). Only private vulnerability reporting is left of D1, waiting on D14.
 **Status 2026-11-16:** the founder set a two-branch model (D19, 0.0.1-D6): work branches go into `beta` for testing; `main` only gets a release PR from `beta` when a version is complete.
-**Status 2026-11-17:** the founder approved every default and answered D11 (`openprojectmap.dev` registered), D14 (stay private) and D16 (certificates bought in January 2027). D1, D6 and D7 are done. Only the GitHub rendering check (D5) is left of v0.0.1, then the release PR from `beta` to `main`.
+**Status 2026-11-17:** the founder approved every default and answered D11 (`openprojectmap.dev` registered), D14 (stay private) and D16 (certificates bought in January 2027). D1, D6 and D7 are done. Left of v0.0.1: the GitHub rendering check (D5) and the npm publish (D8, blocked by the account suspension), then the release PR from `beta` to `main`.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.0.1-D5 | **Seed commit**: commit `docs/`, `templates/`, `examples/`, `skills/`, `opmap.config.json`, `CHANGELOG.md`; check every doc renders on GitHub (tables, links) | review | Committed in c9fe7d9; rendering on GitHub not yet checked (repo is private; check in the web UI) |
 | 0.0.1-D6 | **Branch model**: `beta` (preview) and `main` (production), both protected; task PRs squash into `beta`, a release PR from `beta` to `main` per completed version (D19); CI runs on both and a `branch flow` check rejects other PRs to `main`; Dependabot targets `beta` | done | AGENTS.md §6, spec 08 §5. GitHub settings (create and protect `beta`, enable merge commits, drop linear history on `main`) are applied alongside the PR. PR #14 |
 | 0.0.1-D7 | **Cheap sub-agents**: AGENTS.md §9 and CLAUDE.md say small tasks (docs updates, search, easy edits) go to Claude Haiku 5.5 sub-agents to cut cost | done | Founder request, 2026-11-16. PR #15 |
-| 0.0.1-D8 | **Decisions recorded and npm name claimed**: D4 to D18 recorded in DECISIONS.md; AGENTS.md §4 allows the user-clicked update check (D18); `openprojectmap` 0.0.1 published to npm as a placeholder | doing | Founder approved all defaults on 2026-11-17 |
+| 0.0.1-D8 | **Decisions recorded and npm name claimed**: D4 to D18 recorded in DECISIONS.md; AGENTS.md §4 allows the user-clicked update check (D18); `openprojectmap` 0.0.1 published to npm as a placeholder | doing | Founder approved all defaults on 2026-11-17. Decisions are recorded; the publish is blocked until npm lifts the suspension, then run `npm login --auth-type=web` (passkey) and publish |
 
 ### v0.1.0 — Core parser, build and check
 
