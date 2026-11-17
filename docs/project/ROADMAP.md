@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-17
 **Current version:** v0.0.1
-**Next step:** Roadmap parser (0.1.0-D3). Open for the founder only: look at the docs on github.com (0.0.1-D5).
+**Next step:** Decisions and changelog parsers (0.1.0-D5). Open for the founder only: look at the docs on github.com (0.0.1-D5).
 **Why:** The toolchain, skeleton, CI, branch model and every open decision for v0.1.0 are settled (2026-11-17). The repo stays private (D14), so the "public repo" part of the v0.0.1 exit and private vulnerability reporting move to the launch in v0.3.0.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** nothing published yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -48,13 +48,13 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** `npx openprojectmap build` turns the three docs into one HTML map, and `check` lists every format problem with file:line and a fix hint.
 **Exit:** On a clean clone, `npx openprojectmap@0.1.0 check` exits 0 on `examples/tidepool` and on this repo; `build` finishes in under 1 s for the 1,000-deliverable stress fixture; `src/core` line coverage is 95% or higher.
 **Status 2026-11-16:** planned.
-**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it.
+**Status 2026-11-17:** D1 (block scanner) done in PR #17; D2 (dates) in PR #19; D4 (status vocabulary) in PR #20, ahead of D3 which depends on it; D3 (roadmap parser) in PR #21.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
 | 0.1.0-D1 | **Block scanner** (`core/scan.ts`): line-based scan into headings, fields (`**Key:** value`), GFM pipe tables (escaped `\|`, pipes inside backticks), paragraphs; fenced code and HTML comments skipped; CRLF and BOM normalised; every node carries `{line, column}` | done | spec 02 §2, spec 01 §4. PR #17: `core/scan.ts`, 99% line coverage |
 | 0.1.0-D2 | **Dates** (`core/dates.ts`): ISO day, month, quarter and year points; ranges with `→`, `->`, `..`, ` – `, ` to `; trailing note kept; `start <= end` enforced; leap years and quarter ends tested; property tests with fast-check | done | spec 02 §6, D4. PR #19: `core/dates.ts`, 100% line coverage; fast-check property tests (day-number round trip, month ends, window order) |
-| 0.1.0-D3 | **Roadmap parser** (`core/parse-roadmap.ts`): format marker, Now block (known keys + free facts), phases, version blocks (heading grammar, Window/Goal/Exit/Milestone/State fields, status lines), deliverable tables mapped by header name, milestones, Parked | todo | spec 02 §3 |
+| 0.1.0-D3 | **Roadmap parser** (`core/parse-roadmap.ts`): format marker, Now block (known keys + free facts), phases, version blocks (heading grammar, Window/Goal/Exit/Milestone/State fields, status lines), deliverable tables mapped by header name, milestones, Parked | done | spec 02 §3. PR #21: `core/parse-roadmap.ts` (also `core/diagnostics.ts`, `core/progress.ts`); parses this repo's roadmap and tidepool with no warnings |
 | 0.1.0-D4 | **Status vocabulary** (`core/status.ts`): 6 statuses + aliases, optional date and reference in the cell (`done 2026-12-01 (#14)`) | done | spec 02 §4, D8. PR #20: `core/status.ts`, plus `core/types.ts` (the ProjectData v1 types and `Diagnostic`). Done before D3 because the roadmap parser needs it |
 | 0.1.0-D5 | **Decisions and changelog parsers**: decisions table + risks table (`core/parse-decisions.ts`); Keep a Changelog 1.1 headings incl. `[Unreleased]` and the common variants (`core/parse-changelog.ts`) | todo | spec 02 §7–8, D6 |
 | 0.1.0-D6 | **Derivations** (`core/derive.ts`): version state, progress (parked excluded), current/next version, overall progress, Needs-your-call list (open decisions by Needed by; overdue → "proceeding with default"), staleness, timeline bounds | todo | spec 03 §3 |
