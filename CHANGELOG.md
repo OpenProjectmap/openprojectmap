@@ -6,6 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- CI: release PRs run the blocking checks on Linux (Node 20 and 22) on the self-hosted runner; macOS and Windows run as an advisory job.
+
 ## [0.1.0] - 2026-11-17
 
 ### Added

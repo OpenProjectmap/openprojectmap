@@ -42,7 +42,8 @@ jobs:
   test:
     strategy:
       fail-fast: false
-      # full matrix on PRs to main and pushes to main; one ubuntu / Node 22 leg elsewhere (cost)
+      # blocking: self-hosted Linux, Node 22 (Node 20 and 22 on PRs to main and pushes to main).
+      # macOS and Windows run as an advisory job on the same release runs (cost, billing).
       matrix: { os: [ubuntu-latest, macos-latest, windows-latest], node: [20, 22] }
     runs-on: ${{ matrix.os }}
     steps:
