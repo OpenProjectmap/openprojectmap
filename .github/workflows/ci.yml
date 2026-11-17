@@ -76,12 +76,15 @@ jobs:
           pnpm audit --prod --audit-level high > audit.log 2>&1; echo $? > audit.rc
           pnpm audit --dev --audit-level high > audit-dev.log 2>&1; echo $? > audit-dev.rc
           pnpm build > build.log 2>&1;              echo $? > build.rc
+          # Dogfood: the project's own docs must pass its own checker. No git facts, so the result
+          # depends only on the files and the date (a Now block older than 14 days is stale).
+          node dist/cli.js check --strict --no-git > dogfood.log 2>&1; echo $? > dogfood.rc
           {
             echo "## Quality report"
             echo
             echo "| Check | Result |"
             echo "| --- | --- |"
-            for c in format lint typecheck coverage audit build; do
+            for c in format lint typecheck coverage audit build dogfood; do
               if [ "$(cat $c.rc)" = "0" ]; then r="pass"; else r="**FAIL**"; fi
               echo "| $c | $r |"
             done
@@ -97,7 +100,7 @@ jobs:
             echo '```'
             grep -E "^( *File|All files|.*\|)" coverage.log | head -30
             echo '```'
-            for c in format lint typecheck coverage audit build; do
+            for c in format lint typecheck coverage audit build dogfood; do
               if [ "$(cat $c.rc)" != "0" ]; then
                 echo "<details><summary>$c output</summary>"
                 echo
@@ -109,7 +112,7 @@ jobs:
             done
           } >> "$GITHUB_STEP_SUMMARY"
           fail=0
-          for c in format lint typecheck coverage audit build; do
+          for c in format lint typecheck coverage audit build dogfood; do
             [ "$(cat $c.rc)" = "0" ] || fail=1
           done
           exit $fail
