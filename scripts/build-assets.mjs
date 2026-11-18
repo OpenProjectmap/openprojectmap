@@ -17,11 +17,13 @@ const css = await transform(readFileSync('src/render/styles.css', 'utf8'), {
 });
 const template = readFileSync('src/render/template.html', 'utf8');
 // The init templates travel inside the bundle, so `init` never has to find files next to the CLI.
-const templates = Object.fromEntries(
-  ['ROADMAP.md', 'DECISIONS.md', 'CHANGELOG.md', 'opmap.config.json', 'AGENTS.snippet.md'].map(
+const templates = Object.fromEntries([
+  ...['ROADMAP.md', 'DECISIONS.md', 'CHANGELOG.md', 'opmap.config.json', 'AGENTS.snippet.md'].map(
     (f) => [f, readFileSync(`templates/${f}`, 'utf8')],
   ),
-);
+  // The Claude Code skill, installed by `init --agents claude`.
+  ['SKILL.md', readFileSync('skills/openprojectmap/SKILL.md', 'utf8')],
+]);
 const text = (client.outputFiles[0]?.text ?? '').trim();
 
 // The fictional Tidepool project, for `init --example`.

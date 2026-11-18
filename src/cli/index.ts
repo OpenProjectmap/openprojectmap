@@ -13,14 +13,16 @@ import {
   conflicts,
   defaultAnswers,
   ensureGitignore,
+  installAgents,
   normalizeAnswers,
+  parseAgents,
   planExample,
   planInit,
   todayOf,
   validDocsDir,
   writeInit,
 } from '../node/init.js';
-import type { InitAnswers, InitFile } from '../node/init.js';
+import type { Agent, InitAnswers, InitFile } from '../node/init.js';
 import type { BuildOptions } from '../node/build.js';
 import { formatDiagnostics, painter, summarize } from './output.js';
 import type { Format } from './output.js';
@@ -88,6 +90,7 @@ Options:
       --dir <docs dir>   init: docs folder (default docs/project)
       --force            init: overwrite existing files (never the changelog)
       --example          init: write the fictional Tidepool project to explore, ask nothing
+      --agents <list>    init: install agent files: claude, cursor, codex, all or none
   -q, --quiet            Errors only
       --no-color         No colours (also NO_COLOR, and when not a terminal)
   -h, --help             Show this help
@@ -118,6 +121,7 @@ const OPTIONS = {
   dir: { type: 'string' },
   force: { type: 'boolean' },
   example: { type: 'boolean' },
+  agents: { type: 'string' },
   quiet: { type: 'boolean', short: 'q' },
   'no-color': { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
@@ -211,6 +215,12 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
     );
   }
 
+  let agents: Agent[];
+  try {
+    agents = parseAgents(values.agents ?? '');
+  } catch (e) {
+    throw new UsageError((e as Error).message);
+  }
   let files: InitFile[];
   let docs: string;
   if (example) {
@@ -248,6 +258,16 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
 
     files = planInit(checked.answers, INIT_TEMPLATES, today);
     docs = checked.answers.docsDir;
+    if (values.agents === undefined && interactive) {
+      const reply = await io.ask(
+        'Which AI agents should get instructions? (claude, cursor, codex, all, none) [none] ',
+      );
+      try {
+        agents = parseAgents(reply);
+      } catch (e) {
+        throw new UsageError((e as Error).message);
+      }
+    }
   }
   const existing = conflicts(cwd, files);
   if (existing.length > 0) {
@@ -266,6 +286,9 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   }
   const result = writeInit(cwd, files);
   const ignored = ensureGitignore(cwd);
+  const installed = installAgents(cwd, agents, docs, INIT_TEMPLATES, values.force === true);
+  for (const f of installed.written) io.stdout(`${paint('green', 'wrote')} ${f}\n`);
+  for (const f of installed.kept) io.stdout(`kept  ${f} (already there)\n`);
   for (const f of result.written) io.stdout(`${paint('green', 'wrote')} ${f}\n`);
   for (const f of result.kept) io.stdout(`kept  ${f} (already there)\n`);
   if (ignored) io.stdout(`${paint('green', 'added')} .opmap/ to .gitignore\n`);
