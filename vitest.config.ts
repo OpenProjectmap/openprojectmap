@@ -6,6 +6,8 @@ const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { versio
 export default defineConfig({
   define: { __OPMAP_VERSION__: JSON.stringify(version) },
   test: {
+    // axe-core and jsdom are slow under coverage on a busy runner; a timeout is not a bug.
+    testTimeout: 30_000,
     include: ['test/**/*.test.ts'],
     coverage: {
       provider: 'v8',

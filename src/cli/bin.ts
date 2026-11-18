@@ -1,4 +1,4 @@
 // The `openprojectmap` and `opmap` executable.
-import { main } from './index.js';
+import { mainAsync } from './index.js';
 
-process.exitCode = main(process.argv.slice(2));
+process.exitCode = await mainAsync(process.argv.slice(2));

@@ -161,11 +161,33 @@ export function boot(doc: Document = document): () => void {
       });
   });
 
+  // Printing shows every view in sequence (spec 05 §5). The extra copy exists only while printing.
+  const beforePrint = (): void => {
+    if (doc.getElementById('print-all')) return;
+    const all = h('div', { id: 'print-all', 'aria-hidden': 'true' });
+    for (const v of VIEWS) {
+      const state: State = { view: v, versionId: null, status: [], q: '', zoom: 'month' };
+      all.appendChild(h('h2', { class: 'print-title' }, LABELS[v]));
+      all.appendChild(renderView(data, state, () => undefined));
+    }
+    main.appendChild(all);
+  };
+  const afterPrint = (): void => {
+    doc.getElementById('print-all')?.remove();
+  };
+
   app.replaceChildren();
   append(app, [header, nav, main, footer]);
-  doc.defaultView?.addEventListener('hashchange', paint);
+  const win = doc.defaultView;
+  win?.addEventListener('hashchange', paint);
+  win?.addEventListener('beforeprint', beforePrint);
+  win?.addEventListener('afterprint', afterPrint);
   paint();
-  return () => doc.defaultView?.removeEventListener('hashchange', paint);
+  return () => {
+    win?.removeEventListener('hashchange', paint);
+    win?.removeEventListener('beforeprint', beforePrint);
+    win?.removeEventListener('afterprint', afterPrint);
+  };
 }
 
 if (typeof document !== 'undefined' && document.getElementById('opmap-data')) boot(document);

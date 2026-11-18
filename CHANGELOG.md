@@ -6,6 +6,26 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `opmap init` sets up a project: it asks a few questions (or takes flags with `--yes`), writes `opmap.config.json`, the roadmap, decisions and changelog from templates, adds `.opmap/` to .gitignore and runs the checker. It never overwrites your files without `--force`.
+- `opmap init --example` writes the fictional Tidepool project so you can explore a finished map before writing your own.
+- `opmap init --agents claude,cursor,codex` installs instructions for your AI agents: the Claude Code skill, a Cursor rule, and a section in `AGENTS.md`.
+- `opmap doctor` checks your setup (Node, git, config, doc files, format marker, output folder) and says how to fix each problem.
+- A README with real screenshots, issue templates for bugs and ideas, and a workflow that publishes the demo map to GitHub Pages once the repository is public.
+
+## [0.2.0] - 2026-11-18
+
+### Added
+
+- Printing shows every view in sequence.
+- Real-browser checks: axe-core with colour contrast on every view in light and dark, 360 px layout, keyboard and print checks, and screenshots of every view in light, dark and mobile.
+
+### Fixed
+
+- Timeline bars: the link name now contains its visible text, the last milestone label is no longer clipped, and the legend sits in one row.
+- On phones, empty cells are hidden in the card view and the tab bar wraps instead of scrolling.
+
 ### Changed
 
 - CI: release PRs run the blocking checks on Linux (Node 20 and 22) on the self-hosted runner; macOS and Windows run as an advisory job.

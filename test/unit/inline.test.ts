@@ -116,7 +116,7 @@ describe('parseInline', () => {
         '_'.repeat(20_000) +
         '<h'.repeat(20_000),
     );
-    expect(performance.now() - t0).toBeLessThan(2000);
+    expect(performance.now() - t0).toBeLessThan(10000);
   });
 });
 

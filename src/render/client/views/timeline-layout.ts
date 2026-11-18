@@ -8,7 +8,7 @@ export type Zoom = 'month' | 'quarter';
 export const LAYOUT = {
   width: 1000,
   labelWidth: 190,
-  rightPad: 16,
+  rightPad: 44,
   headerHeight: 34,
   rowHeight: 30,
   groupHeight: 26,
