@@ -3,8 +3,9 @@
 **Turn your project's markdown docs into a living project map: one HTML file that shows where you
 are, what's next, and what needs your decision.**
 
-> Status: pre-alpha. The format spec and roadmap are written, and the code is being built in the
-> open. See [docs/project/ROADMAP.md](docs/project/ROADMAP.md).
+> Status: alpha (v0.2.0). The parser, `init`, `check`, `build` and `doctor` work, and the map has six
+> views. Not on npm yet: the first publish is planned for November 2026. See
+> [docs/project/ROADMAP.md](docs/project/ROADMAP.md) for what is next.
 
 OpenProjectMap is for founders, solo builders and "vibe coders" who ship with AI agents and lose
 track of the plan. You keep three plain markdown files in your repo:
@@ -23,7 +24,13 @@ npx openprojectmap build      # writes .opmap/index.html
 
 You get a single self-contained page with an overview, a timeline, version progress, a
 "Needs your call" panel, risks and release history. It works offline, makes no network requests,
-and you can open it locally, publish it on GitHub Pages, or self-host it with Docker.
+and you can open it locally or publish it as a static file.
+
+![The overview of the Tidepool example map](docs/img/map-overview.png)
+
+![The timeline of the Tidepool example map](docs/img/map-timeline.png)
+
+*The fictional Tidepool example, built with `opmap init --example`.*
 
 ## Why markdown, not an app?
 
@@ -35,14 +42,18 @@ and you can open it locally, publish it on GitHub Pages, or self-host it with Do
   [Founder Handbook](docs/guide/README.md) walks you through it in plain language, and
   `npx openprojectmap init` interviews you and writes your first roadmap.
 
-## Quick start (once v0.3 is released)
+## Quick start
 
 ```bash
-npx openprojectmap init       # asks a few questions, writes the three docs and opmap.config.json
-npx openprojectmap check      # lists problems with file:line and how to fix them
-npx openprojectmap build      # builds the map
-npx openprojectmap serve      # live preview while you edit (v0.4)
+npx openprojectmap init --example   # try it: writes a fictional finished project, then build it
+npx openprojectmap init             # your own: asks a few questions, writes the docs and opmap.config.json
+npx openprojectmap init --agents claude,cursor,codex   # also teach your AI agents the routine
+npx openprojectmap check            # lists problems with file:line and how to fix them
+npx openprojectmap build --open     # builds .opmap/index.html and opens it
+npx openprojectmap doctor           # checks your setup and says how to fix what is wrong
 ```
+
+`serve` (a live preview while you edit) and commands that edit the docs for you come in v0.4.
 
 ## Principles
 
