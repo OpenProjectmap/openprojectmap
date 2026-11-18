@@ -44,6 +44,7 @@ function run(args: string[], over: Partial<Io> = {}): Run {
     cwd: process.cwd(),
     isTTY: false,
     open: (f) => opened.push(f),
+    ask: async () => '',
     ...over,
   });
   return { code, out, err, opened };
