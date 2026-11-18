@@ -12,6 +12,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `opmap init --example` writes the fictional Tidepool project so you can explore a finished map before writing your own.
 - `opmap init --agents claude,cursor,codex` installs instructions for your AI agents: the Claude Code skill, a Cursor rule, and a section in `AGENTS.md`.
 - `opmap doctor` checks your setup (Node, git, config, doc files, format marker, output folder) and says how to fix each problem.
+- A README with real screenshots, issue templates for bugs and ideas, and a workflow that publishes the demo map to GitHub Pages once the repository is public.
 
 ## [0.2.0] - 2026-11-18
 

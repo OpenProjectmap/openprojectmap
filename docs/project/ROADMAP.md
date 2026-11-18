@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-18
 **Current version:** v0.3.0
-**Next step:** The demo and README (0.3.0-D6): publish the Tidepool map on GitHub Pages and put a screenshot in the README. The founder: merge the v0.2.0 release PR, publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
+**Next step:** Waiting on the founder for the handbook review (0.3.0-D3) and the repo going public (D14) for the live demo (0.3.0-D6) and the launch (0.3.0-D7). Then v0.3.0 can close. The founder: merge the v0.2.0 release PR, publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
 **Why:** v0.1.0 and v0.2.0 are complete on `beta`: parser, CLI, the full map with six views, accessibility, print and screenshot checks. Onboarding (`init`, templates, agent skill) is what stands between the tool and the first outside user.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** v0.2.0 (with v0.1.0) is on `beta`, not on npm yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -107,7 +107,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** Someone who has never planned a project goes from nothing to a published map in 30 minutes, alone or with their AI agent.
 **Exit:** In 3 moderated tests with people new to roadmaps, each reaches a built map with zero warnings in 30 minutes or less; the agent skill completes "interview me and write my roadmap" in Claude Code and one other agent.
 **Status 2026-11-16:** planned.
-**Status 2026-11-18:** D1 (`init`) done in PR #46; D2 (templates and `init --example`) in PR #48; D4 (agent integration) in PR #48; D5 (`doctor`) in PR #48.
+**Status 2026-11-18:** D1 (`init`) done in PR #46; D2 (templates and `init --example`) in PR #48; D4 (agent integration) in PR #48; D5 (`doctor`) in PR #48; D6 (README and demo workflow) in progress in PR #49.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -116,8 +116,8 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.3.0-D3 | **Founder Handbook final**: `docs/guide/` reviewed by 3 non-technical founders; plain-language pass | todo | |
 | 0.3.0-D4 | **Agent integration**: `skills/openprojectmap/SKILL.md`, the AGENTS.md snippet, a Cursor rule; `init --agents claude,cursor,codex` installs them | done | spec 06 §5. PR #48: `opmap init --agents claude,cursor,codex` (or `all`, `none`; asked in a terminal): the Claude Code skill to `.claude/skills/openprojectmap/SKILL.md`, a Cursor rule with `alwaysApply: true`, and a section in `AGENTS.md` (added once, never duplicated; an existing skill or rule is kept unless `--force`). The skill text is bundled into the CLI. Risk R5 asks for the skill to be tried in 2 or more agents; that manual test is still to do |
 | 0.3.0-D5 | **`doctor`**: checks the Node version, git, config, doc paths and format marker; prints a fix for each problem | done | spec 04 §2. PR #48: `opmap doctor` (`node/doctor.ts`) checks the Node version (20.11 or newer), git, the git repository, the config, the roadmap, decisions and changelog files, the format marker, a summary of the docs, and that the output folder is in .gitignore; each warning or failure prints a fix. Exit 1 only on a failure; `--format json` for tools |
-| 0.3.0-D6 | **Demo and README**: the tidepool map published on GitHub Pages, a screenshot/GIF in the README | todo | |
-| 0.3.0-D7 | **Launch**: issue and PR templates, `good first issue` labels on 10 or more roadmap rows, announcement posts (Show HN, r/SideProject, X) | todo | PR template added early, 2026-11-16; issue templates still to do |
+| 0.3.0-D6 | **Demo and README**: the tidepool map published on GitHub Pages, a screenshot/GIF in the README | doing | PR #49: the README now shows the real overview and timeline screenshots of Tidepool and an accurate quick start; `.github/workflows/pages.yml` builds the Tidepool map and deploys it to GitHub Pages (manual run only). GitHub Pages needs a public repo or a paid plan, and the repo is private (D14), so the live demo waits for D14 |
+| 0.3.0-D7 | **Launch**: issue and PR templates, `good first issue` labels on 10 or more roadmap rows, announcement posts (Show HN, r/SideProject, X) | todo | PR template added early (2026-11-16); issue templates (bug, idea) added in PR #49; the `good first issue` labels and the announcement posts are still to do |
 
 ## Phase 3 — Daily driver
 
