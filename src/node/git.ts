@@ -214,3 +214,9 @@ function activity(cwd: string, ref: string, options: GitOptions): GitInfo['activ
   }
   return result;
 }
+
+/** The installed git version (`2.47.3`), or null when git is missing. */
+export function gitVersion(cwd: string): string | null {
+  const out = git(['--version'], cwd);
+  return out === null ? null : (/(\d+\.\d+(?:\.\d+)?)/.exec(out)?.[1] ?? out.trim());
+}
