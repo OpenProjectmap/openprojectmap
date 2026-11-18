@@ -177,3 +177,32 @@ export function ensureGitignore(cwd: string, entry = '.opmap/'): boolean {
 export function todayOf(now: string): string {
   return parseIsoDay(now.slice(0, 10)) ?? now.slice(0, 10);
 }
+
+/** The Tidepool example as init files, written into `docsDir`. The config keeps the template's `$schema`. */
+export function planExample(docsDir: string, example: Templates, templates: Templates): InitFile[] {
+  const need = (t: Templates, name: string): string => {
+    const v = t[name];
+    if (v === undefined) throw new Error(`The example file ${name} is missing`);
+    return v;
+  };
+  const config = JSON.parse(need(example, 'opmap.config.json')) as Record<string, unknown>;
+  const schema = (JSON.parse(need(templates, 'opmap.config.json')) as Record<string, unknown>)[
+    '$schema'
+  ];
+  if (typeof schema === 'string') config['$schema'] = schema;
+  config['docs'] = {
+    roadmap: `${docsDir}/ROADMAP.md`,
+    decisions: `${docsDir}/DECISIONS.md`,
+    changelog: 'CHANGELOG.md',
+  };
+  return [
+    {
+      path: 'opmap.config.json',
+      text: `${JSON.stringify(config, null, 2)}\n`,
+      keepExisting: false,
+    },
+    { path: `${docsDir}/ROADMAP.md`, text: need(example, 'ROADMAP.md'), keepExisting: false },
+    { path: `${docsDir}/DECISIONS.md`, text: need(example, 'DECISIONS.md'), keepExisting: false },
+    { path: 'CHANGELOG.md', text: need(example, 'CHANGELOG.md'), keepExisting: true },
+  ];
+}

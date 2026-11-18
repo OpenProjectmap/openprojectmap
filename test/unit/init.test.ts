@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { mainAsync } from '../../src/cli/index.js';
 import type { Io } from '../../src/cli/index.js';
-import { INIT_TEMPLATES } from '../../src/render/assets.generated.js';
+import { INIT_EXAMPLE, INIT_TEMPLATES } from '../../src/render/assets.generated.js';
 import {
   conflicts,
   defaultAnswers,
@@ -20,6 +20,7 @@ import {
   fillTemplate,
   normalizeAnswers,
   oneLine,
+  planExample,
   planInit,
   todayOf,
   validDocsDir,
@@ -136,6 +137,25 @@ describe('planInit', () => {
   });
   it('throws when a template is missing', () => {
     expect(() => planInit(answers, {}, TODAY)).toThrow('missing');
+  });
+});
+
+describe('planExample', () => {
+  const files = planExample('docs/plan', INIT_EXAMPLE, INIT_TEMPLATES);
+  it('plans the Tidepool files into the chosen folder, with the template schema and paths', () => {
+    expect(files.map((f) => f.path)).toEqual([
+      'opmap.config.json',
+      'docs/plan/ROADMAP.md',
+      'docs/plan/DECISIONS.md',
+      'CHANGELOG.md',
+    ]);
+    const c = JSON.parse(files[0]?.text ?? '');
+    expect(c).toMatchObject({ name: 'Tidepool', docs: { roadmap: 'docs/plan/ROADMAP.md' } });
+    expect(c.$schema).toBe('https://openprojectmap.dev/schema/config.v1.json');
+    expect(files[1]?.text).toContain('# Tidepool');
+  });
+  it('throws when an example file is missing', () => {
+    expect(() => planExample('docs', {}, INIT_TEMPLATES)).toThrow('missing');
   });
 });
 
@@ -359,6 +379,35 @@ describe('opmap init', () => {
     expect(code).toBe(0);
     expect(existsSync(join(dir, '.opmap/index.html'))).toBe(true);
     expect(out).toContain('map built: 1 version, 3 deliverables');
+  });
+  it('--example writes Tidepool without asking and without --yes, and its map builds', async () => {
+    const dir = fresh();
+    const r = await init(['--example'], dir);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('wrote docs/project/ROADMAP.md');
+    expect(r.asked).toEqual([]);
+    expect(readFileSync(join(dir, 'docs/project/ROADMAP.md'), 'utf8')).toContain('# Tidepool');
+    let out = '';
+    const code = await mainAsync(['build', '-C', dir, '--no-git', '--now', TODAY], {
+      stdout: (s) => (out += s),
+      stderr: () => undefined,
+      env: {},
+      cwd: dir,
+      isTTY: false,
+      open: () => undefined,
+      ask: async () => '',
+    });
+    expect(code).toBe(0);
+    expect(out).toContain('map built: 5 versions, 18 deliverables');
+  });
+  it('--example honours --dir, refuses to overwrite, and rejects a bad folder', async () => {
+    const dir = fresh();
+    expect((await init(['--example', '--dir', 'plan/x'], dir)).code).toBe(0);
+    expect(existsSync(join(dir, 'plan/x/ROADMAP.md'))).toBe(true);
+    const again = await init(['--example', '--dir', 'plan/x'], dir);
+    expect(again.code).toBe(2);
+    expect(again.err).toContain('already exist');
+    expect((await init(['--example', '--dir', '../out'], fresh())).code).toBe(2);
   });
   it('mainAsync still runs the other commands and the help', async () => {
     const r = await init([], process.cwd(), { cwd: process.cwd() });

@@ -8,17 +8,19 @@ import { parseArgs } from 'node:util';
 import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
-import { INIT_TEMPLATES } from '../render/assets.generated.js';
+import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
 import {
   conflicts,
   defaultAnswers,
   ensureGitignore,
   normalizeAnswers,
+  planExample,
   planInit,
   todayOf,
+  validDocsDir,
   writeInit,
 } from '../node/init.js';
-import type { InitAnswers } from '../node/init.js';
+import type { InitAnswers, InitFile } from '../node/init.js';
 import type { BuildOptions } from '../node/build.js';
 import { formatDiagnostics, painter, summarize } from './output.js';
 import type { Format } from './output.js';
@@ -85,6 +87,7 @@ Options:
       --window <w>       init: first version window, e.g. 2026-12-01 → 2026-12-14
       --dir <docs dir>   init: docs folder (default docs/project)
       --force            init: overwrite existing files (never the changelog)
+      --example          init: write the fictional Tidepool project to explore, ask nothing
   -q, --quiet            Errors only
       --no-color         No colours (also NO_COLOR, and when not a terminal)
   -h, --help             Show this help
@@ -114,6 +117,7 @@ const OPTIONS = {
   window: { type: 'string' },
   dir: { type: 'string' },
   force: { type: 'boolean' },
+  example: { type: 'boolean' },
   quiet: { type: 'boolean', short: 'q' },
   'no-color': { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
@@ -200,35 +204,51 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   const today = todayOf(now);
   const yes = values.yes === true;
   const interactive = io.isTTY && !yes && (io.env['CI'] ?? '') === '';
-  if (!interactive && !yes)
+  const example = values.example === true;
+  if (!interactive && !yes && !example) {
     throw new UsageError(
       'init cannot ask questions here (no terminal, or CI is set); pass --yes, and flags such as --name and --goal',
     );
+  }
 
-  const defaults = defaultAnswers(today, basename(cwd));
-  const ask = async (question: string, dflt: string, flag: string | undefined): Promise<string> => {
-    if (flag !== undefined) return flag;
-    if (!interactive) return dflt;
-    const answer = (await io.ask(`${question} [${dflt}] `)).trim();
-    return answer === '' ? dflt : answer;
-  };
-  const answers: InitAnswers = {
-    name: await ask('Project name?', defaults.name, values.name),
-    goal: await ask('One sentence: what is it, and who is it for?', defaults.goal, values.goal),
-    target: await ask('Launch target (a date or month)?', defaults.target, values.target),
-    versionTitle: await ask(
-      'Title of the first version?',
-      defaults.versionTitle,
-      values['version-title'],
-    ),
-    window: await ask('When will it start and end?', defaults.window, values.window),
-    docsDir: await ask('Docs folder?', defaults.docsDir, values.dir),
-  };
-  const checked = normalizeAnswers(answers, today);
-  if (checked.problems.length > 0)
-    throw new UsageError(`cannot set up the project: ${checked.problems.join('; ')}`);
+  let files: InitFile[];
+  let docs: string;
+  if (example) {
+    docs = (values.dir ?? 'docs/project').trim().replace(/\\/g, '/').replace(/\/+$/, '');
+    if (!validDocsDir(docs))
+      throw new UsageError(`the docs folder "${docs}" must be a plain folder inside the project`);
+    files = planExample(docs, INIT_EXAMPLE, INIT_TEMPLATES);
+  } else {
+    const defaults = defaultAnswers(today, basename(cwd));
+    const ask = async (
+      question: string,
+      dflt: string,
+      flag: string | undefined,
+    ): Promise<string> => {
+      if (flag !== undefined) return flag;
+      if (!interactive) return dflt;
+      const answer = (await io.ask(`${question} [${dflt}] `)).trim();
+      return answer === '' ? dflt : answer;
+    };
+    const answers: InitAnswers = {
+      name: await ask('Project name?', defaults.name, values.name),
+      goal: await ask('One sentence: what is it, and who is it for?', defaults.goal, values.goal),
+      target: await ask('Launch target (a date or month)?', defaults.target, values.target),
+      versionTitle: await ask(
+        'Title of the first version?',
+        defaults.versionTitle,
+        values['version-title'],
+      ),
+      window: await ask('When will it start and end?', defaults.window, values.window),
+      docsDir: await ask('Docs folder?', defaults.docsDir, values.dir),
+    };
+    const checked = normalizeAnswers(answers, today);
+    if (checked.problems.length > 0)
+      throw new UsageError(`cannot set up the project: ${checked.problems.join('; ')}`);
 
-  const files = planInit(checked.answers, INIT_TEMPLATES, today);
+    files = planInit(checked.answers, INIT_TEMPLATES, today);
+    docs = checked.answers.docsDir;
+  }
   const existing = conflicts(cwd, files);
   if (existing.length > 0) {
     if (values.force !== true) {
@@ -256,7 +276,6 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   if (data.diagnostics.length > 0) {
     io.stdout(`\n${formatDiagnostics('text', data.diagnostics, paint, false, false)}\n`);
   }
-  const docs = checked.answers.docsDir;
   io.stdout(
     `\nNext:\n  1. Open ${docs}/ROADMAP.md and replace each <!-- comment --> with your own words${counts.warnings > 0 ? ' (the warnings above show what is missing)' : ''}\n  2. npx openprojectmap check\n  3. npx openprojectmap build --open\n`,
   );
