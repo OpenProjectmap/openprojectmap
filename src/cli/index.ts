@@ -8,17 +8,22 @@ import { parseArgs } from 'node:util';
 import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
-import { INIT_TEMPLATES } from '../render/assets.generated.js';
+import { doctorExit, runDoctor } from '../node/doctor.js';
+import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
 import {
   conflicts,
   defaultAnswers,
   ensureGitignore,
+  installAgents,
   normalizeAnswers,
+  parseAgents,
+  planExample,
   planInit,
   todayOf,
+  validDocsDir,
   writeInit,
 } from '../node/init.js';
-import type { InitAnswers } from '../node/init.js';
+import type { Agent, InitAnswers, InitFile } from '../node/init.js';
 import type { BuildOptions } from '../node/build.js';
 import { formatDiagnostics, painter, summarize } from './output.js';
 import type { Format } from './output.js';
@@ -61,6 +66,7 @@ Usage: opmap <command> [options]
 
 Commands:
   init    Set up the three project docs and the config in this folder
+  doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
 
@@ -85,6 +91,8 @@ Options:
       --window <w>       init: first version window, e.g. 2026-12-01 → 2026-12-14
       --dir <docs dir>   init: docs folder (default docs/project)
       --force            init: overwrite existing files (never the changelog)
+      --example          init: write the fictional Tidepool project to explore, ask nothing
+      --agents <list>    init: install agent files: claude, cursor, codex, all or none
   -q, --quiet            Errors only
       --no-color         No colours (also NO_COLOR, and when not a terminal)
   -h, --help             Show this help
@@ -114,6 +122,8 @@ const OPTIONS = {
   window: { type: 'string' },
   dir: { type: 'string' },
   force: { type: 'boolean' },
+  example: { type: 'boolean' },
+  agents: { type: 'string' },
   quiet: { type: 'boolean', short: 'q' },
   'no-color': { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
@@ -200,35 +210,67 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   const today = todayOf(now);
   const yes = values.yes === true;
   const interactive = io.isTTY && !yes && (io.env['CI'] ?? '') === '';
-  if (!interactive && !yes)
+  const example = values.example === true;
+  if (!interactive && !yes && !example) {
     throw new UsageError(
       'init cannot ask questions here (no terminal, or CI is set); pass --yes, and flags such as --name and --goal',
     );
+  }
 
-  const defaults = defaultAnswers(today, basename(cwd));
-  const ask = async (question: string, dflt: string, flag: string | undefined): Promise<string> => {
-    if (flag !== undefined) return flag;
-    if (!interactive) return dflt;
-    const answer = (await io.ask(`${question} [${dflt}] `)).trim();
-    return answer === '' ? dflt : answer;
-  };
-  const answers: InitAnswers = {
-    name: await ask('Project name?', defaults.name, values.name),
-    goal: await ask('One sentence: what is it, and who is it for?', defaults.goal, values.goal),
-    target: await ask('Launch target (a date or month)?', defaults.target, values.target),
-    versionTitle: await ask(
-      'Title of the first version?',
-      defaults.versionTitle,
-      values['version-title'],
-    ),
-    window: await ask('When will it start and end?', defaults.window, values.window),
-    docsDir: await ask('Docs folder?', defaults.docsDir, values.dir),
-  };
-  const checked = normalizeAnswers(answers, today);
-  if (checked.problems.length > 0)
-    throw new UsageError(`cannot set up the project: ${checked.problems.join('; ')}`);
+  let agents: Agent[];
+  try {
+    agents = parseAgents(values.agents ?? '');
+  } catch (e) {
+    throw new UsageError((e as Error).message);
+  }
+  let files: InitFile[];
+  let docs: string;
+  if (example) {
+    docs = (values.dir ?? 'docs/project').trim().replace(/\\/g, '/').replace(/\/+$/, '');
+    if (!validDocsDir(docs))
+      throw new UsageError(`the docs folder "${docs}" must be a plain folder inside the project`);
+    files = planExample(docs, INIT_EXAMPLE, INIT_TEMPLATES);
+  } else {
+    const defaults = defaultAnswers(today, basename(cwd));
+    const ask = async (
+      question: string,
+      dflt: string,
+      flag: string | undefined,
+    ): Promise<string> => {
+      if (flag !== undefined) return flag;
+      if (!interactive) return dflt;
+      const answer = (await io.ask(`${question} [${dflt}] `)).trim();
+      return answer === '' ? dflt : answer;
+    };
+    const answers: InitAnswers = {
+      name: await ask('Project name?', defaults.name, values.name),
+      goal: await ask('One sentence: what is it, and who is it for?', defaults.goal, values.goal),
+      target: await ask('Launch target (a date or month)?', defaults.target, values.target),
+      versionTitle: await ask(
+        'Title of the first version?',
+        defaults.versionTitle,
+        values['version-title'],
+      ),
+      window: await ask('When will it start and end?', defaults.window, values.window),
+      docsDir: await ask('Docs folder?', defaults.docsDir, values.dir),
+    };
+    const checked = normalizeAnswers(answers, today);
+    if (checked.problems.length > 0)
+      throw new UsageError(`cannot set up the project: ${checked.problems.join('; ')}`);
 
-  const files = planInit(checked.answers, INIT_TEMPLATES, today);
+    files = planInit(checked.answers, INIT_TEMPLATES, today);
+    docs = checked.answers.docsDir;
+    if (values.agents === undefined && interactive) {
+      const reply = await io.ask(
+        'Which AI agents should get instructions? (claude, cursor, codex, all, none) [none] ',
+      );
+      try {
+        agents = parseAgents(reply);
+      } catch (e) {
+        throw new UsageError((e as Error).message);
+      }
+    }
+  }
   const existing = conflicts(cwd, files);
   if (existing.length > 0) {
     if (values.force !== true) {
@@ -246,6 +288,9 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   }
   const result = writeInit(cwd, files);
   const ignored = ensureGitignore(cwd);
+  const installed = installAgents(cwd, agents, docs, INIT_TEMPLATES, values.force === true);
+  for (const f of installed.written) io.stdout(`${paint('green', 'wrote')} ${f}\n`);
+  for (const f of installed.kept) io.stdout(`kept  ${f} (already there)\n`);
   for (const f of result.written) io.stdout(`${paint('green', 'wrote')} ${f}\n`);
   for (const f of result.kept) io.stdout(`kept  ${f} (already there)\n`);
   if (ignored) io.stdout(`${paint('green', 'added')} .opmap/ to .gitignore\n`);
@@ -256,7 +301,6 @@ async function runInit(values: Values, rest: string[], io: Io): Promise<number> 
   if (data.diagnostics.length > 0) {
     io.stdout(`\n${formatDiagnostics('text', data.diagnostics, paint, false, false)}\n`);
   }
-  const docs = checked.answers.docsDir;
   io.stdout(
     `\nNext:\n  1. Open ${docs}/ROADMAP.md and replace each <!-- comment --> with your own words${counts.warnings > 0 ? ' (the warnings above show what is missing)' : ''}\n  2. npx openprojectmap check\n  3. npx openprojectmap build --open\n`,
   );
@@ -279,6 +323,7 @@ function run(argv: readonly string[], io: Io): number {
     io.stdout(HELP);
     return 0;
   }
+  if (command === 'doctor') return doctor(values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command !== 'build' && command !== 'check')
     throw new UsageError(`unknown command "${command}"`);
@@ -338,4 +383,36 @@ function run(argv: readonly string[], io: Io): number {
   }
   if (values.open) io.open(outFile);
   return failed ? 1 : 0;
+}
+
+const MARK = { ok: '✔', warn: '⚠', fail: '✖' } as const;
+const COLOR = { ok: 'green', warn: 'yellow', fail: 'red' } as const;
+
+function doctor(values: Values, io: Io): number {
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const format: Format = pick(values.format, ['text', 'json', 'github'], '--format', 'text');
+  const checks = runDoctor({
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+  });
+  const code = doctorExit(checks);
+  if (format === 'json') {
+    io.stdout(`${JSON.stringify({ checks, ok: code === 0 }, null, 2)}\n`);
+    return code;
+  }
+  const paint = painter(
+    io.isTTY && values['no-color'] !== true && (io.env['NO_COLOR'] ?? '') === '',
+  );
+  for (const c of checks) {
+    io.stdout(`${paint(COLOR[c.level], MARK[c.level])} ${c.name}: ${c.detail}\n`);
+    if (c.fix) io.stdout(`    fix: ${c.fix}\n`);
+  }
+  const fails = checks.filter((c) => c.level === 'fail').length;
+  const warns = checks.filter((c) => c.level === 'warn').length;
+  io.stdout(
+    `${fails > 0 ? paint('red', `${fails} problem${fails === 1 ? '' : 's'} to fix`) : paint('green', 'All good')}${warns > 0 ? `, ${warns} suggestion${warns === 1 ? '' : 's'}` : ''}\n`,
+  );
+  return code;
 }

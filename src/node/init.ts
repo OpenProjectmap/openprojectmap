@@ -177,3 +177,109 @@ export function ensureGitignore(cwd: string, entry = '.opmap/'): boolean {
 export function todayOf(now: string): string {
   return parseIsoDay(now.slice(0, 10)) ?? now.slice(0, 10);
 }
+
+/** The Tidepool example as init files, written into `docsDir`. The config keeps the template's `$schema`. */
+export function planExample(docsDir: string, example: Templates, templates: Templates): InitFile[] {
+  const need = (t: Templates, name: string): string => {
+    const v = t[name];
+    if (v === undefined) throw new Error(`The example file ${name} is missing`);
+    return v;
+  };
+  const config = JSON.parse(need(example, 'opmap.config.json')) as Record<string, unknown>;
+  const schema = (JSON.parse(need(templates, 'opmap.config.json')) as Record<string, unknown>)[
+    '$schema'
+  ];
+  if (typeof schema === 'string') config['$schema'] = schema;
+  config['docs'] = {
+    roadmap: `${docsDir}/ROADMAP.md`,
+    decisions: `${docsDir}/DECISIONS.md`,
+    changelog: 'CHANGELOG.md',
+  };
+  return [
+    {
+      path: 'opmap.config.json',
+      text: `${JSON.stringify(config, null, 2)}\n`,
+      keepExisting: false,
+    },
+    { path: `${docsDir}/ROADMAP.md`, text: need(example, 'ROADMAP.md'), keepExisting: false },
+    { path: `${docsDir}/DECISIONS.md`, text: need(example, 'DECISIONS.md'), keepExisting: false },
+    { path: 'CHANGELOG.md', text: need(example, 'CHANGELOG.md'), keepExisting: true },
+  ];
+}
+
+export const AGENTS = ['claude', 'cursor', 'codex'] as const;
+export type Agent = (typeof AGENTS)[number];
+
+/** `claude,cursor`, `all` or `none`. Throws a message that names the valid choices. */
+export function parseAgents(list: string): Agent[] {
+  const items = list
+    .split(',')
+    .map((a) => a.trim().toLowerCase())
+    .filter((a) => a !== '');
+  if (items.length === 0 || items.includes('none')) return [];
+  if (items.includes('all')) return [...AGENTS];
+  const bad = items.filter((a) => !(AGENTS as readonly string[]).includes(a));
+  if (bad.length > 0)
+    throw new Error(`unknown agent "${bad[0]}": choose from ${AGENTS.join(', ')}, all or none`);
+  return [...new Set(items)] as Agent[];
+}
+
+const SNIPPET_HEADING = '## Project map (OpenProjectMap)';
+
+export interface AgentResult {
+  written: string[];
+  kept: string[];
+}
+
+/**
+ * Install the agent files: the Claude Code skill, a Cursor rule, and a section in AGENTS.md (read
+ * by Codex and others). An existing skill or rule is kept unless `force`; the AGENTS.md section is
+ * added once and never duplicated.
+ */
+export function installAgents(
+  cwd: string,
+  agents: readonly Agent[],
+  docsDir: string,
+  templates: Templates,
+  force = false,
+): AgentResult {
+  const result: AgentResult = { written: [], kept: [] };
+  const need = (name: string): string => {
+    const t = templates[name];
+    if (t === undefined) throw new Error(`The template ${name} is missing`);
+    return t;
+  };
+  const snippet = fillTemplate(need('AGENTS.snippet.md'), { docsDir }).trimEnd();
+  const put = (path: string, text: string): void => {
+    const abs = join(cwd, path);
+    if (existsSync(abs) && !force) {
+      result.kept.push(path);
+      return;
+    }
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, text);
+    result.written.push(path);
+  };
+  for (const agent of agents) {
+    if (agent === 'claude') {
+      put('.claude/skills/openprojectmap/SKILL.md', need('SKILL.md'));
+    } else if (agent === 'cursor') {
+      const body = snippet.replace(`${SNIPPET_HEADING}\n\n`, '');
+      put(
+        '.cursor/rules/openprojectmap.mdc',
+        `---\ndescription: Keep the OpenProjectMap roadmap, decisions and changelog up to date\nalwaysApply: true\n---\n\n${body}\n`,
+      );
+    } else {
+      const abs = join(cwd, 'AGENTS.md');
+      const current = existsSync(abs) ? readFileSync(abs, 'utf8') : '';
+      if (current.includes(SNIPPET_HEADING)) {
+        result.kept.push('AGENTS.md');
+      } else {
+        const sep = current === '' ? '' : current.endsWith('\n') ? '\n' : '\n\n';
+        writeFileSync(abs, `${current}${sep}${snippet}\n`);
+        result.written.push('AGENTS.md');
+      }
+    }
+  }
+  return result;
+}

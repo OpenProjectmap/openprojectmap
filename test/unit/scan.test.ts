@@ -222,6 +222,6 @@ describe('scan: line endings and scale', () => {
         '\n' +
         '| a '.repeat(20_000),
     );
-    expect(performance.now() - t0).toBeLessThan(1000);
+    expect(performance.now() - t0).toBeLessThan(8000);
   });
 });

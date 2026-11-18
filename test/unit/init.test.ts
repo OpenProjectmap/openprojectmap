@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { mainAsync } from '../../src/cli/index.js';
 import type { Io } from '../../src/cli/index.js';
-import { INIT_TEMPLATES } from '../../src/render/assets.generated.js';
+import { INIT_EXAMPLE, INIT_TEMPLATES } from '../../src/render/assets.generated.js';
 import {
   conflicts,
   defaultAnswers,
@@ -20,6 +20,9 @@ import {
   fillTemplate,
   normalizeAnswers,
   oneLine,
+  installAgents,
+  parseAgents,
+  planExample,
   planInit,
   todayOf,
   validDocsDir,
@@ -139,6 +142,90 @@ describe('planInit', () => {
   });
 });
 
+describe('planExample', () => {
+  const files = planExample('docs/plan', INIT_EXAMPLE, INIT_TEMPLATES);
+  it('plans the Tidepool files into the chosen folder, with the template schema and paths', () => {
+    expect(files.map((f) => f.path)).toEqual([
+      'opmap.config.json',
+      'docs/plan/ROADMAP.md',
+      'docs/plan/DECISIONS.md',
+      'CHANGELOG.md',
+    ]);
+    const c = JSON.parse(files[0]?.text ?? '');
+    expect(c).toMatchObject({ name: 'Tidepool', docs: { roadmap: 'docs/plan/ROADMAP.md' } });
+    expect(c.$schema).toBe('https://openprojectmap.dev/schema/config.v1.json');
+    expect(files[1]?.text).toContain('# Tidepool');
+  });
+  it('throws when an example file is missing', () => {
+    expect(() => planExample('docs', {}, INIT_TEMPLATES)).toThrow('missing');
+  });
+});
+
+describe('parseAgents', () => {
+  it('reads lists, all and none, and rejects unknown names', () => {
+    expect(parseAgents('claude, Cursor ,claude')).toEqual(['claude', 'cursor']);
+    expect(parseAgents('all')).toEqual(['claude', 'cursor', 'codex']);
+    for (const none of ['', 'none', ' ', 'claude,none']) expect(parseAgents(none)).toEqual([]);
+    expect(() => parseAgents('claude,gpt')).toThrow(
+      'unknown agent "gpt": choose from claude, cursor, codex, all or none',
+    );
+  });
+});
+
+describe('installAgents', () => {
+  it('writes the skill, the Cursor rule and an AGENTS.md section', () => {
+    const dir = fresh();
+    const r = installAgents(dir, ['claude', 'cursor', 'codex'], 'plan/docs', INIT_TEMPLATES);
+    expect(r.written).toEqual([
+      '.claude/skills/openprojectmap/SKILL.md',
+      '.cursor/rules/openprojectmap.mdc',
+      'AGENTS.md',
+    ]);
+    expect(readFileSync(join(dir, '.claude/skills/openprojectmap/SKILL.md'), 'utf8')).toContain(
+      'name: openprojectmap',
+    );
+    const rule = readFileSync(join(dir, '.cursor/rules/openprojectmap.mdc'), 'utf8');
+    expect(rule.startsWith('---\ndescription:')).toBe(true);
+    expect(rule).toContain('alwaysApply: true');
+    expect(rule).toContain('plan/docs/ROADMAP.md');
+    expect(rule).not.toContain('## Project map');
+    const agents = readFileSync(join(dir, 'AGENTS.md'), 'utf8');
+    expect(agents).toContain('## Project map (OpenProjectMap)');
+    expect(agents).toContain('plan/docs/ROADMAP.md');
+    expect(agents).not.toMatch(/\{\{\w+\}\}/);
+  });
+  it('appends to an existing AGENTS.md once, and keeps existing skill and rule files unless forced', () => {
+    const dir = fresh();
+    writeFileSync(join(dir, 'AGENTS.md'), '# My rules\n\nBe nice.');
+    installAgents(dir, ['codex'], 'docs/project', INIT_TEMPLATES);
+    const once = readFileSync(join(dir, 'AGENTS.md'), 'utf8');
+    expect(once.startsWith('# My rules\n\nBe nice.\n\n## Project map (OpenProjectMap)')).toBe(true);
+    const again = installAgents(dir, ['codex', 'claude', 'cursor'], 'docs/project', INIT_TEMPLATES);
+    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toBe(once);
+    expect(again.kept).toEqual(['AGENTS.md']);
+    writeFileSync(join(dir, '.claude/skills/openprojectmap/SKILL.md'), 'mine\n');
+    expect(installAgents(dir, ['claude'], 'docs/project', INIT_TEMPLATES).kept).toEqual([
+      '.claude/skills/openprojectmap/SKILL.md',
+    ]);
+    expect(readFileSync(join(dir, '.claude/skills/openprojectmap/SKILL.md'), 'utf8')).toBe(
+      'mine\n',
+    );
+    installAgents(dir, ['claude'], 'docs/project', INIT_TEMPLATES, true);
+    expect(readFileSync(join(dir, '.claude/skills/openprojectmap/SKILL.md'), 'utf8')).toContain(
+      'name: openprojectmap',
+    );
+  });
+  it('adds a blank line after an AGENTS.md that ends in a newline, and throws on a missing template', () => {
+    const dir = fresh();
+    writeFileSync(join(dir, 'AGENTS.md'), 'x\n');
+    installAgents(dir, ['codex'], 'docs', INIT_TEMPLATES);
+    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8').startsWith('x\n\n## Project map')).toBe(
+      true,
+    );
+    expect(() => installAgents(fresh(), ['claude'], 'docs', {})).toThrow('missing');
+  });
+});
+
 describe('writeInit', () => {
   const files = planInit(
     { ...defaultAnswers(TODAY, 'app'), docsDir: 'plan/docs' },
@@ -237,7 +324,7 @@ describe('opmap init', () => {
       answers: ['A goal.', '', 'Alpha', '2026-12-01 → 2026-12-20', 'plan'],
     });
     expect(r.code).toBe(0);
-    expect(r.asked).toHaveLength(5); // the name came from a flag
+    expect(r.asked).toHaveLength(6); // the name came from a flag; the last question is about agents
     expect(r.asked[0]).toContain('One sentence');
     expect(r.asked[0]).toContain('[Describe in one sentence');
     const roadmap = readFileSync(join(dir, 'plan/ROADMAP.md'), 'utf8');
@@ -291,7 +378,7 @@ describe('opmap init', () => {
         'docs/project',
       ],
       dir,
-      { isTTY: true, answers: ['n'] },
+      { isTTY: true, answers: ['', 'n'] },
     );
     expect(no.code).toBe(1);
     expect(no.out).toContain('Nothing was changed.');
@@ -313,7 +400,7 @@ describe('opmap init', () => {
         'docs/project',
       ],
       dir,
-      { isTTY: true, answers: ['yes'] },
+      { isTTY: true, answers: ['', 'yes'] },
     );
     expect(yes.code).toBe(0);
     expect(readFileSync(join(dir, 'docs/project/ROADMAP.md'), 'utf8')).toContain('# n');
@@ -359,6 +446,91 @@ describe('opmap init', () => {
     expect(code).toBe(0);
     expect(existsSync(join(dir, '.opmap/index.html'))).toBe(true);
     expect(out).toContain('map built: 1 version, 3 deliverables');
+  });
+  it('--example writes Tidepool without asking and without --yes, and its map builds', async () => {
+    const dir = fresh();
+    const r = await init(['--example'], dir);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('wrote docs/project/ROADMAP.md');
+    expect(r.asked).toEqual([]);
+    expect(readFileSync(join(dir, 'docs/project/ROADMAP.md'), 'utf8')).toContain('# Tidepool');
+    let out = '';
+    const code = await mainAsync(['build', '-C', dir, '--no-git', '--now', TODAY], {
+      stdout: (s) => (out += s),
+      stderr: () => undefined,
+      env: {},
+      cwd: dir,
+      isTTY: false,
+      open: () => undefined,
+      ask: async () => '',
+    });
+    expect(code).toBe(0);
+    expect(out).toContain('map built: 5 versions, 18 deliverables');
+  });
+  it('--example honours --dir, refuses to overwrite, and rejects a bad folder', async () => {
+    const dir = fresh();
+    expect((await init(['--example', '--dir', 'plan/x'], dir)).code).toBe(0);
+    expect(existsSync(join(dir, 'plan/x/ROADMAP.md'))).toBe(true);
+    const again = await init(['--example', '--dir', 'plan/x'], dir);
+    expect(again.code).toBe(2);
+    expect(again.err).toContain('already exist');
+    expect((await init(['--example', '--dir', '../out'], fresh())).code).toBe(2);
+  });
+  it('--agents installs the agent files after the project files', async () => {
+    const dir = fresh();
+    const r = await init(['--yes', '--goal', 'g', '--agents', 'claude,codex'], dir);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('wrote .claude/skills/openprojectmap/SKILL.md');
+    expect(r.out).toContain('wrote AGENTS.md');
+    expect(existsSync(join(dir, '.cursor'))).toBe(false);
+    const bad = await init(['--yes', '--goal', 'g', '--agents', 'gpt'], fresh());
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('unknown agent "gpt"');
+    const ex = await init(['--example', '--agents', 'all'], fresh());
+    expect(ex.out).toContain('wrote .cursor/rules/openprojectmap.mdc');
+  });
+  it('asks which agents in a terminal, and accepts a list', async () => {
+    const dir = fresh();
+    const r = await init(
+      [
+        '--name',
+        'n',
+        '--goal',
+        'g',
+        '--target',
+        't',
+        '--version-title',
+        'v',
+        '--window',
+        `${TODAY} → 2026-12-02`,
+        '--dir',
+        'docs/project',
+      ],
+      dir,
+      { isTTY: true, answers: ['cursor'] },
+    );
+    expect(r.asked).toHaveLength(1);
+    expect(r.asked[0]).toContain('Which AI agents');
+    expect(existsSync(join(dir, '.cursor/rules/openprojectmap.mdc'))).toBe(true);
+    const bad = await init(
+      [
+        '--name',
+        'n',
+        '--goal',
+        'g',
+        '--target',
+        't',
+        '--version-title',
+        'v',
+        '--window',
+        `${TODAY} → 2026-12-02`,
+        '--dir',
+        'docs/project',
+      ],
+      fresh(),
+      { isTTY: true, answers: ['gpt'] },
+    );
+    expect(bad.code).toBe(2);
   });
   it('mainAsync still runs the other commands and the help', async () => {
     const r = await init([], process.cwd(), { cwd: process.cwd() });
