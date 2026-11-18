@@ -1,6 +1,6 @@
 {
   "name": "openprojectmap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Turn three markdown files (ROADMAP, DECISIONS, CHANGELOG) into one self-contained HTML project map.",
   "license": "MIT",
   "type": "module",

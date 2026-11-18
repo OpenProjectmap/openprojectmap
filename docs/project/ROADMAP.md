@@ -8,12 +8,12 @@ the newest status line in a version goes last; windows live only on the version 
 
 ## Now
 
-**Updated:** 2026-11-17
-**Current version:** v0.2.0
-**Next step:** Accessibility with axe-core and Playwright (0.2.0-D8), then responsive and print (0.2.0-D9) and the size budget (0.2.0-D10). The founder: merge the v0.1.0 release PR, publish to npm after 2026-11-20, look at the docs on github.com (0.0.1-D5).
-**Why:** v0.1.0 is complete on `beta`. Most of 0.2.0-D1 to D4 and D6 to D7 already shipped inside it, so what is left of v0.2.0 is the timeline, the missing views, accessibility, responsive layout and the size and visual checks.
+**Updated:** 2026-11-18
+**Current version:** v0.3.0
+**Next step:** Start `init` (0.3.0-D1). The founder: merge the release PR (#34, v0.2.0 with v0.1.0), publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
+**Why:** v0.1.0 and v0.2.0 are complete on `beta`: parser, CLI, the full map with six views, accessibility, print and screenshot checks. Onboarding (`init`, templates, agent skill) is what stands between the tool and the first outside user.
 **Target:** Public alpha (M2) by 2027-01-17
-**Live:** v0.1.0 is on `beta`, not on npm yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
+**Live:** v0.2.0 (with v0.1.0) is on `beta`, not on npm yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
 
 ## Phase 1 — Foundations
 
@@ -83,6 +83,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-16:** planned.
 **Status 2026-11-17:** v0.1.0's renderer already covers D1 to D3, D6 and most of D4 and D7. History and Parked views and compact density added in PR #35. Timeline done in PR #36; accessibility checks in jsdom in PR #37 (the real-browser axe run is still to verify). Left: D8 verification, responsive and print polish (D9), size budget (D10), visual regression (D11).
 **Status 2026-11-18:** all eleven deliverables are done (PR #43 closes D8, D9 and D11). The browser libraries were installed on the dev machine, which let real-browser axe (colour contrast included), 360 px layout, keyboard, print and screenshot checks run: they found and fixed the timeline link names, the clipped milestone label, a vertical legend, empty card rows on phones and the tab bar overflow. Exit checked: axe 0 serious or critical on every view; the XSS corpus renders inert in every field; the template, client and styles are about 11 KB gzipped (limit 60 KB); no horizontal scroll at 360 px.
+**Status 2026-11-18:** v0.2.0 is released from `beta` together with v0.1.0 in one release PR (#34), because v0.1.0 had not been merged to `main` yet and the two share one branch. The first publish to npm is therefore `0.2.0`. Milestone M1 ("works on one repo") is reached when it is on npm.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
