@@ -8,8 +8,6 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0] - 2026-11-18
 
-This release also carries v0.1.0, which was never published on its own.
-
 ### Added
 
 - Printing shows every view in sequence.
