@@ -146,7 +146,7 @@ button.filter,
 .tabs {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
+  flex-wrap: wrap;
   padding: 12px 0;
 }
 .tabs button[aria-selected='true'],
@@ -432,7 +432,7 @@ h4 {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.legend {
+ul.legend {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
@@ -509,6 +509,9 @@ html[data-density='compact'] td {
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
+  .table-wrap:not(.timeline-wrap) td:empty {
+    display: none;
+  }
   .top {
     gap: 6px;
   }
@@ -519,11 +522,28 @@ html[data-density='compact'] td {
     grid-template-columns: 1fr;
   }
 }
+@media screen {
+  #print-all {
+    display: none;
+  }
+}
 @media print {
   .tabs,
+  nav,
   button.theme,
-  .filters {
+  .filters,
+  #panel {
     display: none;
+  }
+  #print-all .print-title {
+    break-before: page;
+    margin-top: 0;
+  }
+  #print-all .print-title:first-child {
+    break-before: auto;
+  }
+  .timeline-svg {
+    min-width: 0;
   }
   .card {
     break-inside: avoid;

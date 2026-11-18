@@ -8,11 +8,13 @@ import { LAYOUT, layoutTimeline } from './timeline-layout.js';
 import type { Bar, Group } from './timeline-layout.js';
 
 const MAX_LABEL = 26;
-const short = (s: string): string => (s.length > MAX_LABEL ? `${s.slice(0, MAX_LABEL - 1)}…` : s);
+/** Cut a label to fit the column. No ellipsis character: a link's name must contain its visible text (WCAG 2.5.3), so the visible text stays a prefix of the full aria-label. */
+const short = (s: string): string => (s.length > MAX_LABEL ? s.slice(0, MAX_LABEL).trimEnd() : s);
 
 function barSummary(v: Version): string {
   const win = v.window ? v.window.raw : 'no window';
-  return `${v.id} ${v.title}: ${v.state}, ${v.progress.pct}% done, ${win}. Press Enter to open.`;
+  const ms = v.milestoneId ? `, completes ${v.milestoneId}` : '';
+  return `${v.id} ${v.title}: ${v.state}, ${v.progress.pct}% done, ${win}${ms}. Press Enter to open.`;
 }
 
 function open(id: string): void {
@@ -30,7 +32,7 @@ function barNode(row: Bar): Child {
   const { rowHeight, barHeight } = LAYOUT;
   const cy = row.y + rowHeight / 2;
   const top = cy - barHeight / 2;
-  return h(
+  const link = h(
     'g',
     {
       class: `bar-row state-${v.state}${v.window?.tentative ? ' tentative' : ''}`,
@@ -48,16 +50,25 @@ function barNode(row: Bar): Child {
     row.fill > 0
       ? h('rect', { x: row.x, y: top, width: row.fill, height: barHeight, rx: 4, class: 'fill' })
       : null,
-    row.milestone
-      ? h('path', {
-          d: `M${row.milestone.x} ${cy - 9} l8 9 l-8 9 l-8 -9 z`,
-          class: 'diamond',
-          'data-milestone': row.milestone.id,
-        })
-      : null,
-    row.milestone
-      ? h('text', { x: row.milestone.x + 12, y: cy + 4, class: 'ms' }, row.milestone.id)
-      : null,
+  );
+  if (!row.milestone) return link;
+  // The milestone mark is outside the link: its text is not part of the link's name (WCAG 2.5.3),
+  // and the milestone is already named in the link's aria-label.
+  return h(
+    'g',
+    { class: 'bar-with-milestone' },
+    link,
+    h('path', {
+      d: `M${row.milestone.x} ${cy - 9} l8 9 l-8 9 l-8 -9 z`,
+      class: 'diamond',
+      'data-milestone': row.milestone.id,
+      'aria-hidden': 'true',
+    }),
+    h(
+      'text',
+      { x: row.milestone.x + 12, y: cy + 4, class: 'ms', 'aria-hidden': 'true' },
+      row.milestone.id,
+    ),
   );
 }
 
