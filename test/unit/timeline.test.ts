@@ -201,7 +201,15 @@ describe('timeline view', () => {
     await go('#/timeline');
     expect(main().querySelector('line.today')).toBeNull();
     expect(
-      [...main().querySelectorAll('text.lbl')].some((t) => (t.textContent ?? '').endsWith('…')),
+      [...main().querySelectorAll('g.bar-row')].some((g) => {
+        const t = g.querySelector('text.lbl')?.textContent ?? '';
+        return (
+          t.length <= 26 &&
+          (g.getAttribute('aria-label') ?? '').startsWith(t) &&
+          !t.includes('…') &&
+          (g.getAttribute('aria-label') ?? '').length > t.length + 20
+        );
+      }),
     ).toBe(true);
   });
 });

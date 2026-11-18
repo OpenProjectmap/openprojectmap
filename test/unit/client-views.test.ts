@@ -422,3 +422,34 @@ describe('tables for narrow screens', () => {
     expect(cells).toEqual(heads);
   });
 });
+
+describe('printing', () => {
+  it('adds every view while printing and removes it afterwards', async () => {
+    window.location.hash = '#/overview';
+    mount(tidepool());
+    boot(document);
+    await tick();
+    expect(document.getElementById('print-all')).toBeNull();
+    window.dispatchEvent(new Event('beforeprint'));
+    const all = document.getElementById('print-all');
+    expect([...(all?.querySelectorAll('.print-title') ?? [])].map((t) => t.textContent)).toEqual([
+      'Overview',
+      'Timeline',
+      'Versions',
+      'Decisions',
+      'History',
+      'Parked',
+    ]);
+    window.dispatchEvent(new Event('beforeprint')); // a second event does not add a second copy
+    expect(document.querySelectorAll('#print-all')).toHaveLength(1);
+    window.dispatchEvent(new Event('afterprint'));
+    expect(document.getElementById('print-all')).toBeNull();
+  });
+  it('stops listening when boot is undone', async () => {
+    mount(tidepool());
+    const stop = boot(document);
+    stop();
+    window.dispatchEvent(new Event('beforeprint'));
+    expect(document.getElementById('print-all')).toBeNull();
+  });
+});

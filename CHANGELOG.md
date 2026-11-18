@@ -6,6 +6,16 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Printing shows every view in sequence.
+- Real-browser checks: axe-core with colour contrast on every view in light and dark, 360 px layout, keyboard and print checks, and screenshots of every view in light, dark and mobile.
+
+### Fixed
+
+- Timeline bars: the link name now contains its visible text, the last milestone label is no longer clipped, and the legend sits in one row.
+- On phones, empty cells are hidden in the card view and the tab bar wraps instead of scrolling.
+
 ### Changed
 
 - CI: release PRs run the blocking checks on Linux (Node 20 and 22) on the self-hosted runner; macOS and Windows run as an advisory job.

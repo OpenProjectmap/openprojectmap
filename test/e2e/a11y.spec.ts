@@ -1,35 +1,13 @@
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { VIEWS, buildTidepool } from './helpers.js';
 
-const outDir = mkdtempSync(join(tmpdir(), 'opmap-e2e-'));
-const page_ = join(outDir, 'index.html');
-
+let site: ReturnType<typeof buildTidepool>;
 test.beforeAll(() => {
-  execFileSync(
-    'node',
-    [
-      'dist/cli.js',
-      'build',
-      '-C',
-      'examples/tidepool',
-      '--no-git',
-      '--now',
-      '2026-11-25',
-      '--out',
-      outDir,
-      '-q',
-    ],
-    { stdio: 'inherit' },
-  );
+  site = buildTidepool();
 });
-test.afterAll(() => rmSync(outDir, { recursive: true, force: true }));
+test.afterAll(() => site.cleanup());
 
-const VIEWS = ['overview', 'timeline', 'versions', 'decisions', 'history', 'parked'] as const;
 const THEMES = ['light', 'dark'] as const;
 
 for (const theme of THEMES) {
@@ -38,7 +16,7 @@ for (const theme of THEMES) {
       page,
     }) => {
       await page.emulateMedia({ colorScheme: theme });
-      await page.goto(`${pathToFileURL(page_).href}#/${view}`);
+      await page.goto(`${site.url}#/${view}`);
       await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
       await page.waitForSelector('#main h2, #main h3');
       const results = await new AxeBuilder({ page })
@@ -51,7 +29,10 @@ for (const theme of THEMES) {
         bad.map(
           (v) =>
             `${v.id}: ${v.nodes
-              .map((n) => n.target.join(' '))
+              .map(
+                (n) =>
+                  `${n.target.join(' ')} (${n.failureSummary?.replace(/\s+/g, ' ').slice(0, 160) ?? ''})`,
+              )
               .slice(0, 3)
               .join(' | ')}`,
         ),
