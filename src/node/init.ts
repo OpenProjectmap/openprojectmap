@@ -1,0 +1,179 @@
+// `opmap init`: plan the files from the templates, then write them without clobbering anything.
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, normalize } from 'node:path';
+import { addDays, parseIsoDay, parseWindow } from '../core/dates.js';
+
+export interface InitAnswers {
+  name: string;
+  /** One sentence: what the project is for and who it is for. */
+  goal: string;
+  /** The launch target as free text, e.g. `Launch by 2027-03`. */
+  target: string;
+  versionTitle: string;
+  /** `YYYY-MM-DD → YYYY-MM-DD` (any window form the format accepts). */
+  window: string;
+  /** Docs folder, repo-relative with `/`. */
+  docsDir: string;
+}
+
+export interface InitFile {
+  /** Repo-relative, `/` separated. */
+  path: string;
+  text: string;
+  /** Only write when the file is absent, even with `--force` (the changelog). */
+  keepExisting: boolean;
+}
+
+export type Templates = Readonly<Record<string, string>>;
+
+const FIRST_VERSION = '0.1.0';
+const MAX = { name: 80, goal: 300, target: 120, title: 80 };
+
+/** Collapse to one line, so an answer can never add structure to the markdown. */
+export function oneLine(s: string, max: number): string {
+  return s
+    .replace(/<!--|-->/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+}
+
+export function fillTemplate(template: string, values: Readonly<Record<string, string>>): string {
+  return template.replace(/\{\{(\w+)\}\}/g, (m, key: string) => values[key] ?? m);
+}
+
+/** A docs folder must be a plain relative path that stays inside the repo. */
+export function validDocsDir(dir: string): boolean {
+  if (dir === '' || isAbsolute(dir) || /^[A-Za-z]:/.test(dir)) return false;
+  const parts = normalize(dir).split(/[\\/]+/);
+  return !parts.includes('..') && !parts.includes('.git') && /^[\w .\-/]+$/.test(dir);
+}
+
+export function defaultAnswers(today: string, dirName: string): InitAnswers {
+  const end = addDays(today, 14);
+  const month = addDays(today, 90).slice(0, 7);
+  return {
+    name: oneLine(dirName, MAX.name) || 'My project',
+    goal: 'Describe in one sentence what this project does and who it is for.',
+    target: `Launch by ${month}`,
+    versionTitle: 'First release',
+    window: `${today} → ${end}`,
+    docsDir: 'docs/project',
+  };
+}
+
+/** Clean up and check the answers. Returns the problems found (empty when fine). */
+export function normalizeAnswers(
+  a: InitAnswers,
+  today: string,
+): { answers: InitAnswers; problems: string[] } {
+  const problems: string[] = [];
+  const answers: InitAnswers = {
+    name: oneLine(a.name, MAX.name),
+    goal: oneLine(a.goal, MAX.goal),
+    target: oneLine(a.target, MAX.target),
+    versionTitle: oneLine(a.versionTitle, MAX.title),
+    window: oneLine(a.window, 60),
+    docsDir: a.docsDir.trim().replace(/\\/g, '/').replace(/\/+$/, ''),
+  };
+  if (answers.name === '') problems.push('the project name cannot be empty');
+  if (answers.goal === '') problems.push('the goal cannot be empty');
+  if (answers.versionTitle === '') problems.push('the first version needs a title');
+  if (answers.target === '') answers.target = `Launch by ${addDays(today, 90).slice(0, 7)}`;
+  const w = parseWindow(answers.window);
+  if (w.window === null || w.problem !== null)
+    problems.push(
+      `the window "${answers.window}" is not a date range such as ${today} → ${addDays(today, 14)}`,
+    );
+  if (!validDocsDir(answers.docsDir))
+    problems.push(`the docs folder "${answers.docsDir}" must be a plain folder inside the project`);
+  return { answers, problems };
+}
+
+export function planInit(answers: InitAnswers, templates: Templates, today: string): InitFile[] {
+  const values = {
+    name: answers.name,
+    goal: answers.goal,
+    today,
+    target: answers.target,
+    firstVersion: `v${FIRST_VERSION}`,
+    firstSemver: FIRST_VERSION,
+    firstVersionTitle: answers.versionTitle,
+    firstWindow: answers.window,
+    phaseTitle: 'Launch',
+    milestone1: 'First users',
+    docsDir: answers.docsDir,
+  };
+  const need = (name: string): string => {
+    const t = templates[name];
+    if (t === undefined) throw new Error(`The template ${name} is missing`);
+    return t;
+  };
+  // The config is built as data, so no answer can break the JSON.
+  const config = JSON.parse(need('opmap.config.json')) as Record<string, unknown>;
+  config['name'] = answers.name;
+  config['docs'] = {
+    roadmap: `${answers.docsDir}/ROADMAP.md`,
+    decisions: `${answers.docsDir}/DECISIONS.md`,
+    changelog: 'CHANGELOG.md',
+  };
+  return [
+    {
+      path: 'opmap.config.json',
+      text: `${JSON.stringify(config, null, 2)}\n`,
+      keepExisting: false,
+    },
+    {
+      path: `${answers.docsDir}/ROADMAP.md`,
+      text: fillTemplate(need('ROADMAP.md'), values),
+      keepExisting: false,
+    },
+    {
+      path: `${answers.docsDir}/DECISIONS.md`,
+      text: fillTemplate(need('DECISIONS.md'), values),
+      keepExisting: false,
+    },
+    { path: 'CHANGELOG.md', text: need('CHANGELOG.md'), keepExisting: true },
+  ];
+}
+
+export interface WriteResult {
+  written: string[];
+  kept: string[];
+}
+
+/** Files `planInit` would overwrite (present, and not a keep-existing file). */
+export function conflicts(cwd: string, files: readonly InitFile[]): string[] {
+  return files.filter((f) => !f.keepExisting && existsSync(join(cwd, f.path))).map((f) => f.path);
+}
+
+export function writeInit(cwd: string, files: readonly InitFile[]): WriteResult {
+  const result: WriteResult = { written: [], kept: [] };
+  for (const f of files) {
+    const abs = join(cwd, f.path);
+    if (f.keepExisting && existsSync(abs)) {
+      result.kept.push(f.path);
+      continue;
+    }
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, f.text);
+    result.written.push(f.path);
+  }
+  return result;
+}
+
+/** Add `.opmap/` to .gitignore (creating it), once. Returns true when it changed the file. */
+export function ensureGitignore(cwd: string, entry = '.opmap/'): boolean {
+  const file = join(cwd, '.gitignore');
+  const current = existsSync(file) ? readFileSync(file, 'utf8') : '';
+  const lines = current.split(/\r?\n/).map((l) => l.trim());
+  if (lines.includes(entry) || lines.includes(entry.replace(/\/$/, ''))) return false;
+  const sep = current === '' || current.endsWith('\n') ? '' : '\n';
+  writeFileSync(file, `${current}${sep}${entry}\n`);
+  return true;
+}
+
+/** Parse `--now`-style input into a date for the templates. */
+export function todayOf(now: string): string {
+  return parseIsoDay(now.slice(0, 10)) ?? now.slice(0, 10);
+}

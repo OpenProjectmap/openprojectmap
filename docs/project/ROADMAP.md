@@ -10,7 +10,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-18
 **Current version:** v0.3.0
-**Next step:** Start `init` (0.3.0-D1). The founder: merge the v0.2.0 release PR, publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
+**Next step:** Templates final and `init --example` (0.3.0-D2), then the agent skill and `init --agents` (0.3.0-D4) and `doctor` (0.3.0-D5). The founder: merge the v0.2.0 release PR, publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
 **Why:** v0.1.0 and v0.2.0 are complete on `beta`: parser, CLI, the full map with six views, accessibility, print and screenshot checks. Onboarding (`init`, templates, agent skill) is what stands between the tool and the first outside user.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** v0.2.0 (with v0.1.0) is on `beta`, not on npm yet. The npm publish of 0.0.1 (placeholder) failed on 2026-11-17 with 403: npm suspended the account for 72 hours because a recovery code was used to log in; it returns to normal on 2026-11-20 at 16:54 UTC
@@ -107,10 +107,11 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** Someone who has never planned a project goes from nothing to a published map in 30 minutes, alone or with their AI agent.
 **Exit:** In 3 moderated tests with people new to roadmaps, each reaches a built map with zero warnings in 30 minutes or less; the agent skill completes "interview me and write my roadmap" in Claude Code and one other agent.
 **Status 2026-11-16:** planned.
+**Status 2026-11-18:** D1 (`init`) done in PR #46.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.3.0-D1 | **`init`**: prompts via `node:readline/promises` (name, one-sentence goal, launch target, first version); flags for non-interactive runs (`--yes`, `--name`, `--dir`); never overwrites a file (`--force` only with confirmation); keeps an existing `CHANGELOG.md` | todo | spec 04 §2.1 |
+| 0.3.0-D1 | **`init`**: prompts via `node:readline/promises` (name, one-sentence goal, launch target, first version); flags for non-interactive runs (`--yes`, `--name`, `--dir`); never overwrites a file (`--force` only with confirmation); keeps an existing `CHANGELOG.md` | done | spec 04 §2.1. PR #46: `opmap init` (prompts through `node:readline/promises`, or flags with `--yes`; `--name`, `--goal`, `--target`, `--version-title`, `--window`, `--dir`, `--force`). It refuses to run without a terminal unless `--yes` is given, never overwrites existing files without `--force` (and never the changelog), keeps the docs folder inside the project, writes the config as data so no answer can break the JSON, adds `.opmap/` to .gitignore, runs the checker and prints the next three commands. Templates are bundled into the CLI. `--example` and `--agents` come with D2 and D4 |
 | 0.3.0-D2 | **Templates final**: `templates/` with guidance as HTML comments, which are invisible on GitHub and ignored by the parser; `init --example` writes tidepool | todo | |
 | 0.3.0-D3 | **Founder Handbook final**: `docs/guide/` reviewed by 3 non-technical founders; plain-language pass | todo | |
 | 0.3.0-D4 | **Agent integration**: `skills/openprojectmap/SKILL.md`, the AGENTS.md snippet, a Cursor rule; `init --agents claude,cursor,codex` installs them | todo | spec 06 §5 |
