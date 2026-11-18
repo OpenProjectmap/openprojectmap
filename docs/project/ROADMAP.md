@@ -45,6 +45,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.0.1-D12 | **Release matrix on the self-hosted runner**: what blocks a release PR is Linux, Node 20 and 22, on the self-hosted runner; macOS and Windows run as an advisory hosted job (`cross-os`) that cannot block a release | done | Founder chose this on 2026-11-17 because GitHub-hosted runners were blocked (billing or minutes). The advisory job shows red until the hosted minutes work again; see the advice in PR #39 |
 | 0.0.1-D13 | **Tests run on Node 20 and 22**: jsdom is pinned to the 29 line because jsdom 30 and 31 need Node 22.22 or newer (through undici 8), which broke every jsdom test on Node 20 | done | Found on 2026-11-17 by the release PR's first Node 20 run on the self-hosted runner. Package `engines` stays `>=20.11` for users; jsdom is a dev dependency |
 | 0.0.1-D14 | **Quality job prints its failures**: a failed check now also writes its last 60 log lines and an error annotation to the job log, not only the run summary | done | Added on 2026-11-17 after the release PR's quality job failed with no readable reason |
+| 0.0.1-D15 | **Test timeout 30 s**: vitest's default 5 s made the axe-core and jsdom tests fail under coverage on a busy runner | done | Found on 2026-11-18 thanks to the failure output added in 0.0.1-D14 |
 
 ### v0.1.0 — Core parser, build and check
 
