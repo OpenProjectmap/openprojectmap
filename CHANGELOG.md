@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A self-hosting guide (`docs/guide/self-hosting.md`) and ready-to-copy files (`examples/self-host/`): one private page for all your projects with Docker, Caddy, a password and read-only deploy keys.
 - `opmap serve --hub <file>` serves a hub on one port and rebuilds it on a timer (`--pull-interval`, default 300 seconds), fetching the git repos in the hub file. It keeps the last good site if a rebuild fails and answers `/healthz`.
 - A `Dockerfile` for self-hosting, with a smoke test that runs in CI. A workflow publishes a signed multi-arch image to GitHub Container Registry for each release tag.
 - `opmap hub <hub.json>` builds many projects into one folder with an index page: a card per project with its current version and progress, next step, decisions waiting on you, a staleness badge and the last commit. Projects can be folders or git remotes (cloned into a cache folder the tool owns). Each map links back to the index. A project that fails still gets a card that says why.

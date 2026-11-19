@@ -1,0 +1,29 @@
+# One page with a map for every project in opmap.hub.json, behind HTTPS and a password.
+# Copy this folder to your server, edit the three files marked EDIT, then: docker compose up -d
+services:
+  opmap:
+    image: ghcr.io/openprojectmap/openprojectmap:0.5
+    restart: unless-stopped
+    volumes:
+      - ./opmap.hub.json:/config/opmap.hub.json:ro
+      - ./ssh/config:/home/node/.ssh/config:ro
+      - ./ssh/known_hosts:/home/node/.ssh/known_hosts:ro
+      - ./ssh/tidepool_key:/home/node/.ssh/tidepool_key:ro
+      - ./ssh/side_quest_key:/home/node/.ssh/side_quest_key:ro
+      - opmap-data:/data # a cache of the clones: safe to delete, nothing here needs a backup
+    expose:
+      - '4173' # not published: only Caddy can reach it
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro # EDIT: your domain and password hash
+      - caddy-data:/data
+    depends_on:
+      - opmap
+volumes:
+  opmap-data: {}
+  caddy-data: {}

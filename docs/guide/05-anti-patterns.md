@@ -15,4 +15,4 @@
 | **Planning a year in detail** | Plans that are wrong after 3 weeks | Detail up to the next milestone; titles and quarters beyond |
 | **"Done" without verification** | Bugs found by users | `done` means tested and deployed; use `review` until then |
 | **A Now block from last month** | Nobody trusts the map | Update `**Updated:**` every session; the map shows a stale banner after 14 days |
-| **Publishing a private plan** | Your strategy on a public page | GitHub Pages is public on free plans; self-host behind auth for private maps |
+| **Publishing a private plan** | Your strategy on a public page | GitHub Pages is public on free plans; self-host behind a password for private maps ([how](self-hosting.md)) |

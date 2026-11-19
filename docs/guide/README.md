@@ -41,6 +41,9 @@ in an empty project folder: it asks five questions and writes the files for you.
 | 4 | [Working with AI agents](04-working-with-ai.md) | 10 min | Make your agent follow and update the plan |
 | 5 | [Mistakes everyone makes](05-anti-patterns.md) | 10 min | Spot and fix the common traps |
 
+When you have several projects and want one private page for all of them, read
+[Putting your maps on one private page](self-hosting.md).
+
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
 ## The 30-second version

@@ -1,0 +1,8 @@
+# EDIT: your domain (its DNS must point at this server) and the password hash.
+# Make the hash with:  docker run --rm caddy caddy hash-password
+map.example.com {
+	basic_auth {
+		founder $2a$14$REPLACE_WITH_THE_OUTPUT_OF_caddy_hash-password
+	}
+	reverse_proxy opmap:4173
+}
