@@ -2,7 +2,7 @@
   "name": "openprojectmap",
   "version": "0.2.0",
   "description": "Turn three markdown files (ROADMAP, DECISIONS, CHANGELOG) into one self-contained HTML project map.",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "author": "OpenProjectMap contributors",
   "repository": {
     "type": "git",

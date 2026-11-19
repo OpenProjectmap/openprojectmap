@@ -6,6 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Licence: new releases are AGPL-3.0-only (was MIT). Versions up to 0.2.0 stay MIT.
+
 ### Added
 
 - Editing commands that change one cell or line and nothing else: `set-status`, `add`, `new-version`, `log`, `now` and `decide`. Each supports `--dry-run` (prints the diff) and refuses a change that would add a problem to your docs. Writes are atomic.

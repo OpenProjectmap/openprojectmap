@@ -27,7 +27,7 @@ each with a default.
   at the start of a session and update it at the end.
 - There is a Founder Handbook for people who have never planned versions or milestones.
 
-Demo: <demo URL>. Repo: <repo URL>. MIT licensed. It is early (v<version>); I would love to hear
+Demo: <demo URL>. Repo: <repo URL>. AGPL-3.0 licensed. It is early (v<version>); I would love to hear
 where the format or the handbook confuses you.
 
 ## r/SideProject
@@ -45,7 +45,7 @@ small format fixes it, and your agent can read and update the same files.
 
 What is in it: a guided setup (`init`), a live preview (`serve`), commands that edit one line of
 your plan safely, an agent skill, and a handbook that explains versions, milestones and decisions in
-plain words (no Scrum needed). Free, MIT, no account, nothing leaves your machine.
+plain words (no Scrum needed). Free, AGPL-3.0, no account, nothing leaves your machine.
 
 Try it without writing anything: `npx openprojectmap init --example && npx openprojectmap build --open`.
 Demo: <demo URL>. Feedback welcome, especially from first-time founders.
@@ -59,7 +59,7 @@ Demo: <demo URL>. Feedback welcome, especially from first-time founders.
 >
 > `npx openprojectmap init --example`
 >
-> Free, MIT, no telemetry. <demo URL>
+> Free, AGPL-3.0, no telemetry. <demo URL>
 
 Thread follow-ups, one per post:
 

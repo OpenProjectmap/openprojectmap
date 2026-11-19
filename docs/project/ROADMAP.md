@@ -8,7 +8,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 ## Now
 
-**Updated:** 2026-11-18
+**Updated:** 2026-11-19
 **Current version:** v0.3.0
 **Next step:** v0.4.0 is done on `beta`. v0.3.0 still waits on the founder (handbook review 0.3.0-D3, the live demo 0.3.0-D6 and the launch 0.3.0-D7 need the repo public), so the next release decision is the founder's: release 0.4.0 with those three parked, or wait. Meanwhile v0.5.0 (the GitHub Action, `diff`, the hub and Docker) is next. v0.3.0 is waiting on the founder for the handbook review (0.3.0-D3) and the repo going public (D14) for the live demo (0.3.0-D6) and the launch (0.3.0-D7). The founder: merge the v0.2.0 release PR, publish to npm after 2026-11-20 16:54 UTC and link the trusted publisher, look at the docs on github.com (0.0.1-D5).
 **Why:** v0.1.0 and v0.2.0 are complete on `beta`: parser, CLI, the full map with six views, accessibility, print and screenshot checks. Onboarding (`init`, templates, agent skill) is what stands between the tool and the first outside user.

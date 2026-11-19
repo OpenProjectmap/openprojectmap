@@ -7,7 +7,7 @@ contributor.
 
 OpenProjectMap is a CLI (`openprojectmap`, alias `opmap`) that parses three markdown files
 (ROADMAP, DECISIONS, CHANGELOG) and writes one self-contained HTML project map. It is
-open source (MIT), has zero runtime dependencies, and never makes network requests.
+open source (AGPL-3.0-only), has zero runtime dependencies, and never makes network requests.
 
 ## 2. Read order at the start of every session
 
