@@ -127,8 +127,15 @@ A project that cannot be built still gets a card, and the card says why. The log
   compose file uses `expose`, not `ports`, for exactly this reason.
 - **To update**, change the version number after the image name in `docker-compose.yml`, then
   `docker compose pull && docker compose up -d`.
-- **The image is signed.** Each release is signed with cosign and carries build provenance, so you can
-  check that it was built from this repository.
+- **The image is signed.** Each release is signed with cosign and carries build provenance and an SBOM.
+  To check that an image was built from this repository's release workflow (needs
+  [cosign](https://docs.sigstore.dev/cosign/system_config/installation/)):
+
+  ```
+  cosign verify ghcr.io/openprojectmap/openprojectmap:0.5 \
+    --certificate-identity-regexp '^https://github.com/OpenProjectmap/openprojectmap/\.github/workflows/docker\.yml@refs/tags/v' \
+    --certificate-oidc-issuer https://token.actions.githubusercontent.com
+  ```
 - **Projects on the same server** (not in git) can be listed with `"path": "/projects/mine"` if you mount
   the folder into the container. If git refuses the folder ("dubious ownership"), the map still builds but
   shows no git activity. Cloning with `repo` avoids this.

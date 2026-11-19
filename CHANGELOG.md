@@ -6,6 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The self-hosting guide shows how to verify the signed image with `cosign verify`.
+
 ## [0.5.0] - 2026-11-19
 
 ### Added
