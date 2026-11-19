@@ -24,6 +24,35 @@ async function go(hash: string): Promise<void> {
 }
 const main = (): HTMLElement => document.getElementById('main') as HTMLElement;
 
+describe('staleness banner', () => {
+  it('shows only when the data says the map is stale, with the commit reason too', () => {
+    const fresh = tidepool();
+    fresh.derived.stale = { isStale: false, days: 2, commitsSince: 1, reason: null };
+    mount(fresh);
+    boot(document);
+    expect(document.querySelector('.banner')).toBeNull();
+    const stale = tidepool();
+    stale.derived.stale = {
+      isStale: true,
+      days: 3,
+      commitsSince: 12,
+      reason: '12 commits since 2026-11-10',
+    };
+    mount(stale);
+    boot(document);
+    expect(document.querySelector('.banner')?.textContent).toContain(
+      '12 commits since 2026-11-10.',
+    );
+    const none = tidepool();
+    none.derived.stale = { isStale: true, days: null, commitsSince: null, reason: null };
+    mount(none);
+    boot(document);
+    expect(document.querySelector('.banner')?.textContent).toContain(
+      'The Now block has not been updated.',
+    );
+  });
+});
+
 describe('boot and the overview', () => {
   beforeEach(() => {
     window.location.hash = '';
@@ -98,9 +127,11 @@ describe('boot and the overview', () => {
     };
     mount(d);
     boot(document);
-    expect(document.querySelector('header')?.textContent).toContain(
-      'stale: 40 days since 2026-10-01',
-    );
+    const banner = document.querySelector('.banner');
+    expect(banner?.getAttribute('role')).toBe('status');
+    expect(banner?.textContent).toContain('This map may be out of date. 40 days since 2026-10-01.');
+    expect(banner?.textContent).toContain('opmap now');
+    expect(document.querySelector('header .banner')).toBeNull();
     expect(main().textContent).toContain('abc1234');
     const empty = tidepool();
     empty.now = null;

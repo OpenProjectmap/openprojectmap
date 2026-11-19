@@ -143,6 +143,14 @@ button.filter,
   cursor: pointer;
   min-height: 36px;
 }
+.banner {
+  background: var(--surface-2);
+  border: 1px solid var(--warn);
+  border-left-width: 6px;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 10px 0 0;
+}
 .tabs {
   display: flex;
   gap: 8px;
@@ -547,5 +555,29 @@ html[data-density='compact'] td {
   }
   .card {
     break-inside: avoid;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+button.link {
+  font: inherit;
+  color: var(--link);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media print {
+  footer button,
+  #open-note {
+    display: none;
   }
 }

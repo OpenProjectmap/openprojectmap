@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { VIEWS, buildTidepool } from './helpers.js';
 
@@ -84,4 +85,22 @@ test('printing shows every view', async ({ page }) => {
   expect(titles).toEqual(['Overview', 'Timeline', 'Versions', 'Decisions', 'History', 'Parked']);
   expect(await page.$eval('#panel', (el) => getComputedStyle(el).display)).toBe('none');
   expect(await page.$eval('.tabs', (el) => getComputedStyle(el).display)).toBe('none');
+});
+
+test('Open docs… shows the files a person chooses, entirely in the browser', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (r) => requests.push(r.url()));
+  await page.goto(`${site.url}#/overview`);
+  await page.waitForSelector('#panel h2');
+  const roadmap = readFileSync('examples/tidepool/docs/project/ROADMAP.md', 'utf8').replace(
+    '# Tidepool',
+    '# Opened from disk',
+  );
+  await page.setInputFiles('#open-docs-input', [
+    { name: 'ROADMAP.md', mimeType: 'text/markdown', buffer: Buffer.from(roadmap) },
+  ]);
+  await expect(page.locator('h1')).toHaveText('Opened from disk');
+  await expect(page.locator('#open-note')).toContainText('Showing ROADMAP.md');
+  await page.waitForSelector('#panel h2');
+  expect(requests.filter((u) => !u.startsWith('file:') && !u.startsWith('data:'))).toEqual([]);
 });
