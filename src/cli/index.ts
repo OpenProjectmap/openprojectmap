@@ -11,6 +11,7 @@ import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
 import { formatDiff } from '../core/diff.js';
 import type { DiffFormat } from '../core/diff.js';
 import { diffRefs } from '../node/diff.js';
+import { buildHub } from '../node/hub.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
 import { AUTHORING, runAuthoring } from './authoring.js';
@@ -87,6 +88,7 @@ Commands:
   decide <ID> "<outcome>"    Record a decision (--defaulted)
   serve   Preview the map in a browser and reload it when the docs change
   export  Print the project data as JSON (--pretty)
+  hub <hub.json>            Build many projects into one folder with an index page (--out, --no-fetch, --cache-dir)
   diff <base> [<head>]      Show what changed in the roadmap between two git refs (default head: the files now)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
@@ -136,6 +138,8 @@ const OPTIONS = {
   'max-warnings': { type: 'string' },
   'no-git': { type: 'boolean' },
   fetch: { type: 'boolean' },
+  'no-fetch': { type: 'boolean' },
+  'cache-dir': { type: 'string' },
   out: { type: 'string' },
   json: { type: 'boolean' },
   pretty: { type: 'boolean' },
@@ -368,6 +372,7 @@ function run(argv: readonly string[], io: Io): number {
   if (command === 'doctor') return doctor(values, io);
   if (command === 'export') return exportData(values, rest, io);
   if (command === 'diff') return runDiff(values, rest, io);
+  if (command === 'hub') return runHub(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
@@ -502,6 +507,37 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
 }
 
 /** `opmap export`: ProjectData as JSON on stdout, for other tools (schema/project-data.v1.json). */
+function runHub(values: Values, rest: string[], io: Io): number {
+  const [hubFile, ...extra] = rest;
+  if (hubFile === undefined)
+    throw new UsageError(
+      'hub needs the hub file, for example: opmap hub opmap.hub.json --out site',
+    );
+  if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const quiet = values.quiet === true;
+  const result = buildHub({
+    hubFile,
+    out: values.out ?? '.opmap/hub',
+    cwd,
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    tz: pick<'utc' | 'local'>(values.tz, ['utc', 'local'], '--tz', 'utc'),
+    fetch: values['no-fetch'] !== true,
+    cacheDir: values['cache-dir'],
+    log: (line) => {
+      if (!quiet) io.stderr(`${line}\n`);
+    },
+  });
+  const built = result.cards.length - result.failed;
+  const rel = relative(cwd, result.out);
+  const shown = rel === '' ? '.' : rel.startsWith('..') ? result.out : rel;
+  io.stdout(
+    `hub built: ${built} of ${result.cards.length} projects${result.failed > 0 ? `, ${result.failed} failed` : ''} → ${shown}/index.html\n`,
+  );
+  return result.failed > 0 ? 1 : 0;
+}
+
 function runDiff(values: Values, rest: string[], io: Io): number {
   const [base, head, ...extra] = rest;
   if (base === undefined)

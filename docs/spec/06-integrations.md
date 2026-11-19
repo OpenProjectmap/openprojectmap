@@ -134,11 +134,21 @@ decisions closed.
   mode) and writes `site/index.html` with one card per project: name, current version and state,
   current-version progress, next step, Needs-your-call count, stale badge, last commit date.
 - `slug` = the name lowercased, `[^a-z0-9]+` → `-`, deduplicated with a numeric suffix.
-- `repo` entries are cloned into a cache dir (`~/.cache/openprojectmap/repos/<slug>` or
-  `/data/repos/<slug>` in Docker) with `git clone --filter=blob:none`; refreshed with
+- `path` entries are folders on this machine (relative paths are taken from the hub file's folder). The hub
+  file is trusted like a command line: it may point anywhere you can read.
+- A project that cannot be built (missing folder, bad docs, failed clone) still gets a card that says why;
+  the command exits 1 and writes everything else.
+- `repo` must be an `https://`, `ssh://` or `file://` URL or `git@host:path`; git runs with only those
+  transports enabled, so a value can never start a helper program. `branch` must be a plain branch name.
+- `repo` entries are cloned into a cache dir (`~/.cache/openprojectmap/repos/<slug>`, or `$OPMAP_REPOS_DIR`,
+  or `--cache-dir`; `/data/repos/<slug>` in Docker) with `git clone --filter=blob:none`; refreshed with
   `git fetch origin <branch>` + `git reset --hard origin/<branch>`. That is safe because the
   directory is owned by the tool, never a user's working copy, and the tool refuses to reset a
-  directory without its `.opmap-managed` marker.
+  directory without its `.opmap-managed` marker, or one cloned from a different remote.
+  `--no-fetch` skips the refresh and uses the clones already there.
+- Each project page is built in hub-child mode, which adds a "← All projects" link to `../index.html`.
+  The index page is static HTML without script (CSP: its own style by hash only); card text is plain
+  words (inline markdown is stripped) and every value is escaped.
 
 ## 4. Docker self-host (v0.5)
 
