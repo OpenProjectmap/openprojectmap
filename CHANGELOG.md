@@ -6,6 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The Now block no longer counts as stale because of commits made before the roadmap was last edited, so refreshing it clears the warning on a busy day.
+
 ### Changed
 
 - Licence: new releases are AGPL-3.0-only (was MIT). Versions up to 0.2.0 stay MIT.

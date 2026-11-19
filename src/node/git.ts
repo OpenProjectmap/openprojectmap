@@ -92,6 +92,8 @@ export interface GitOptions {
   activityWeeks: number;
   /** The Now block's Updated date, for the commits-since count. */
   updated: ISODate | null;
+  /** The roadmap file. Commits up to its last edit do not count towards staleness. */
+  roadmapPath?: string;
   today: ISODate;
   /** Run `git fetch` first (`--fetch`). */
   fetch?: boolean;
@@ -153,8 +155,15 @@ export function gatherGit(options: GitOptions): GitResult {
 
   let commitsSince: number | null = null;
   if (options.updated !== null && parseIsoDay(options.updated) !== null) {
+    // Count commits after the roadmap was last edited, so a busy day cannot make a Now block stale
+    // that was refreshed in the same day.
+    let range = 'HEAD';
+    if (options.roadmapPath !== undefined) {
+      const last = git(['log', '-1', '--format=%H', '--', options.roadmapPath], cwd)?.trim();
+      if (last !== undefined && /^[0-9a-f]{40}$/.test(last)) range = `${last}..HEAD`;
+    }
     const n = Number(
-      git(['rev-list', '--count', `--since=${options.updated}T00:00:00Z`, 'HEAD'], cwd)?.trim(),
+      git(['rev-list', '--count', `--since=${options.updated}T00:00:00Z`, range], cwd)?.trim(),
     );
     commitsSince = Number.isInteger(n) ? n : null;
   }
