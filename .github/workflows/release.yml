@@ -24,6 +24,12 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      # Trusted publishing (OIDC) needs npm 11.5.1 or newer; Node 22 ships npm 10, which would send an
+      # unauthenticated upload and get a 404.
+      - name: Use an npm that supports trusted publishing
+        run: |
+          npm install -g npm@11
+          npm --version
       - name: The tag must match package.json and sit on main
         env:
           TAG: ${{ github.ref_name }}
