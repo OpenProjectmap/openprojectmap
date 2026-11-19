@@ -8,6 +8,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- CI runs on GitHub-hosted runners (free now that the repo is public) instead of a self-hosted one.
+
+### Changed
+
 - Licence: new releases are AGPL-3.0-only (was MIT). Versions up to 0.2.0 stay MIT.
 
 ### Added
