@@ -64,6 +64,23 @@ describe('noscriptSummary', () => {
   });
 });
 
+describe('live pages for opmap serve', () => {
+  it('a live page may connect to its own origin and says so; a normal page may not', () => {
+    const live = renderHtml(tidepool(), assets, undefined, { live: true });
+    const plain = renderHtml(tidepool(), assets);
+    expect(live.csp).toContain("connect-src 'self'");
+    expect(plain.csp).not.toContain('connect-src');
+    expect(live.html).toContain('<meta name="opmap-live" content="1">');
+    expect(plain.html).not.toContain('<meta name="opmap-live"');
+    expect(
+      new DOMParser()
+        .parseFromString(live.html, 'text/html')
+        .querySelector('meta[http-equiv=Content-Security-Policy]')
+        ?.getAttribute('content'),
+    ).toBe(live.csp);
+  });
+});
+
 describe('renderHtml', () => {
   const { html, cspHashes } = renderHtml(tidepool(), assets, {
     accent: '#0f8b8d',

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { ProjectData } from '../../src/core/types.js';
-import { boot, readData } from '../../src/render/client/main.js';
+import { boot, connectLive, readData } from '../../src/render/client/main.js';
 import { matches } from '../../src/render/client/views/versions.js';
 import { tidepool } from './helpers.js';
 
@@ -451,5 +451,67 @@ describe('printing', () => {
     stop();
     window.dispatchEvent(new Event('beforeprint'));
     expect(document.getElementById('print-all')).toBeNull();
+  });
+});
+
+describe('live reload', () => {
+  class FakeSource {
+    static all: FakeSource[] = [];
+    handlers = new Map<string, () => void>();
+    closed = false;
+    constructor(public url: string) {
+      FakeSource.all.push(this);
+    }
+    addEventListener(name: string, fn: () => void): void {
+      this.handlers.set(name, fn);
+    }
+    close(): void {
+      this.closed = true;
+    }
+  }
+  const win = window as unknown as { EventSource?: unknown };
+  const live = (): void => {
+    document.head.replaceChildren();
+    const m = document.createElement('meta');
+    m.name = 'opmap-live';
+    m.content = '1';
+    document.head.append(m);
+  };
+
+  it('does nothing without the live marker or without EventSource', () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    document.head.replaceChildren();
+    connectLive(document)();
+    expect(FakeSource.all).toHaveLength(0);
+    live();
+    delete win.EventSource;
+    expect(() => connectLive(document)()).not.toThrow();
+  });
+  it('connects to /events, reloads on a reload event, and closes on stop', () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    live();
+    let reloads = 0;
+    const stop = connectLive(document, () => reloads++);
+    expect(FakeSource.all[0]?.url).toBe('/events');
+    FakeSource.all[0]?.handlers.get('reload')?.();
+    expect(reloads).toBe(1);
+    stop();
+    expect(FakeSource.all[0]?.closed).toBe(true);
+    delete win.EventSource;
+    document.head.replaceChildren();
+  });
+  it('boot connects when the page is live and stops listening when undone', async () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    live();
+    mount(tidepool());
+    const stop = boot(document);
+    expect(FakeSource.all).toHaveLength(1);
+    stop();
+    expect(FakeSource.all[0]?.closed).toBe(true);
+    delete win.EventSource;
+    document.head.replaceChildren();
   });
 });
