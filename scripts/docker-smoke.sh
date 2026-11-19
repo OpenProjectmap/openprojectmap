@@ -26,16 +26,20 @@ for _ in $(seq 1 60); do
   if curl -fsS http://127.0.0.1:4173/healthz >/dev/null 2>&1; then break; fi
   sleep 1
 done
-curl -fsS http://127.0.0.1:4173/healthz | grep -qx ok
+# Each response goes into a variable first: `curl | grep -q` would break the pipe and fail under pipefail.
+HEALTH="$(curl -fsS http://127.0.0.1:4173/healthz)"
+test "$HEALTH" = ok
 
 echo "check: the index lists the project"
-curl -fsS http://127.0.0.1:4173/ | grep -q '<h1>Smoke test</h1>'
-curl -fsS http://127.0.0.1:4173/ | grep -q 'href="tidepool/index.html"'
+INDEX="$(curl -fsS http://127.0.0.1:4173/)"
+grep -q '<h1>Smoke test</h1>' <<<"$INDEX"
+grep -q 'href="tidepool/index.html"' <<<"$INDEX"
 
 echo "check: the project map is served with a CSP header and a way back"
 HEADERS="$(curl -fsSI http://127.0.0.1:4173/tidepool/)"
-echo "$HEADERS" | grep -qi '^content-security-policy:'
-curl -fsS http://127.0.0.1:4173/tidepool/ | grep -q 'opmap-hub'
+grep -qi '^content-security-policy:' <<<"$HEADERS"
+MAP="$(curl -fsS http://127.0.0.1:4173/tidepool/)"
+grep -q 'opmap-hub' <<<"$MAP"
 
 echo "check: it runs as a normal user, not root"
 test "$(docker exec "$NAME" id -u)" != 0
