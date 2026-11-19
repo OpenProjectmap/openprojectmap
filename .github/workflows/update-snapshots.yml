@@ -4,6 +4,8 @@ name: Update screenshots
 # and review them in the PR diff.
 on:
   workflow_dispatch:
+  push:
+    branches: ['0.4.0-D1/cross-os-fixes'] # TEMPORARY, removed after the first run
 permissions:
   contents: read
 jobs:
