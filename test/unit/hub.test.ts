@@ -12,7 +12,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { main } from '../../src/cli/index.js';
+import { mainAsync } from '../../src/cli/index.js';
 import type { Io } from '../../src/cli/index.js';
 import {
   cardFor,
@@ -176,7 +176,7 @@ function remote(): { url: string; change: (text: string) => void } {
 }
 
 describe('buildHub', () => {
-  it('builds path projects, an index, and a card that says what failed', () => {
+  it('builds path projects, an index, and a card that says what failed', async () => {
     const dir = fresh();
     cpSync('examples/tidepool', join(dir, 'tidepool'), { recursive: true });
     writeFileSync(
@@ -191,7 +191,7 @@ describe('buildHub', () => {
       }),
     );
     const lines: string[] = [];
-    const r = buildHub({
+    const r = await buildHub({
       hubFile: 'opmap.hub.json',
       out: 'site',
       cwd: dir,
@@ -212,7 +212,7 @@ describe('buildHub', () => {
     const child = readFileSync(join(dir, 'site/tidepool/index.html'), 'utf8');
     expect(child).toContain('<meta name="opmap-hub" content="1">');
   });
-  it('clones a repo into its own cache folder, refreshes it, and follows the branch', () => {
+  it('clones a repo into its own cache folder, refreshes it, and follows the branch', async () => {
     const dir = fresh();
     const r = remote();
     writeFileSync(
@@ -228,16 +228,18 @@ describe('buildHub', () => {
       now: '2026-11-25',
       cacheDir: cache,
     };
-    expect(buildHub(opts).failed).toBe(0);
+    expect((await buildHub(opts)).failed).toBe(0);
     expect(existsSync(join(cache, 'remote-one', MANAGED_MARKER))).toBe(true);
     expect(readFileSync(join(dir, 'site/index.html'), 'utf8')).toContain(
       'Finish the streak reminder',
     );
     r.change('Ship the new thing');
-    expect(buildHub({ ...opts, fetch: false }).cards[0]?.nextStep).toContain('Finish the streak');
-    expect(buildHub(opts).cards[0]?.nextStep).toContain('Ship the new thing');
+    expect((await buildHub({ ...opts, fetch: false })).cards[0]?.nextStep).toContain(
+      'Finish the streak',
+    );
+    expect((await buildHub(opts)).cards[0]?.nextStep).toContain('Ship the new thing');
   });
-  it('never touches a folder it did not make, and says so', () => {
+  it('never touches a folder it did not make, and says so', async () => {
     const dir = fresh();
     const r = remote();
     writeFileSync(
@@ -247,11 +249,17 @@ describe('buildHub', () => {
     const cache = join(dir, 'cache');
     mkdirSync(join(cache, 'mine'), { recursive: true });
     writeFileSync(join(cache, 'mine', 'precious.txt'), 'keep me');
-    const res = buildHub({ hubFile: 'h.json', out: 'site', cwd: dir, env: {}, cacheDir: cache });
+    const res = await buildHub({
+      hubFile: 'h.json',
+      out: 'site',
+      cwd: dir,
+      env: {},
+      cacheDir: cache,
+    });
     expect(res.cards[0]?.error).toContain('was not made by openprojectmap');
     expect(readFileSync(join(cache, 'mine', 'precious.txt'), 'utf8')).toBe('keep me');
   });
-  it('explains a missing clone with fetching off, a bad remote and a missing hub file', () => {
+  it('explains a missing clone with fetching off, a bad remote and a missing hub file', async () => {
     const dir = fresh();
     const r = remote();
     writeFileSync(
@@ -259,31 +267,45 @@ describe('buildHub', () => {
       JSON.stringify({ projects: [{ name: 'Mine', repo: r.url }] }),
     );
     const cache = join(dir, 'cache');
-    expect(
-      buildHub({ hubFile: 'h.json', out: 'o', cwd: dir, env: {}, cacheDir: cache, fetch: false })
-        .cards[0]?.error,
-    ).toContain('has not been cloned yet');
-    expect(
-      buildHub({ hubFile: 'h.json', out: 'o', cwd: dir, env: {}, cacheDir: cache }).failed,
-    ).toBe(0);
+    const offline = await buildHub({
+      hubFile: 'h.json',
+      out: 'o',
+      cwd: dir,
+      env: {},
+      cacheDir: cache,
+      fetch: false,
+    });
+    expect(offline.cards[0]?.error).toContain('has not been cloned yet');
+    const online = await buildHub({
+      hubFile: 'h.json',
+      out: 'o',
+      cwd: dir,
+      env: {},
+      cacheDir: cache,
+    });
+    expect(online.failed).toBe(0);
     const other = remote();
     writeFileSync(
       join(dir, 'h2.json'),
       JSON.stringify({ projects: [{ name: 'Mine', repo: other.url }] }),
     );
-    expect(
-      buildHub({ hubFile: 'h2.json', out: 'o', cwd: dir, env: {}, cacheDir: cache }).cards[0]
-        ?.error,
-    ).toContain('different remote');
-    expect(() => buildHub({ hubFile: 'missing.json', out: 'o', cwd: dir, env: {} })).toThrow(
-      'could not be read',
-    );
+    const swapped = await buildHub({
+      hubFile: 'h2.json',
+      out: 'o',
+      cwd: dir,
+      env: {},
+      cacheDir: cache,
+    });
+    expect(swapped.cards[0]?.error).toContain('different remote');
+    await expect(
+      buildHub({ hubFile: 'missing.json', out: 'o', cwd: dir, env: {} }),
+    ).rejects.toThrow('could not be read');
   });
-  it('does not let one OPMAP_CONFIG point every project at one config', () => {
+  it('does not let one OPMAP_CONFIG point every project at one config', async () => {
     const dir = fresh();
     cpSync('examples/tidepool', join(dir, 't'), { recursive: true });
     writeFileSync(join(dir, 'h.json'), JSON.stringify({ projects: [{ name: 'T', path: 't' }] }));
-    const r = buildHub({
+    const r = await buildHub({
       hubFile: 'h.json',
       out: 'o',
       cwd: dir,
@@ -294,7 +316,7 @@ describe('buildHub', () => {
 });
 
 describe('opmap hub', () => {
-  it('runs from the command line and exits 1 when a project fails', () => {
+  it('runs from the command line and exits 1 when a project fails', async () => {
     const dir = fresh();
     cpSync('examples/tidepool', join(dir, 't'), { recursive: true });
     writeFileSync(
@@ -306,7 +328,7 @@ describe('opmap hub', () => {
         ],
       }),
     );
-    const run = (args: string[]) => {
+    const run = async (args: string[]) => {
       let out = '';
       let err = '';
       const io: Io = {
@@ -318,15 +340,15 @@ describe('opmap hub', () => {
         open: () => undefined,
         ask: async () => '',
       };
-      return { code: main([...args, '-C', dir, '--now', '2026-11-25'], io), out, err };
+      return { code: await mainAsync([...args, '-C', dir, '--now', '2026-11-25'], io), out, err };
     };
-    const r = run(['hub', 'h.json', '--out', 'site']);
+    const r = await run(['hub', 'h.json', '--out', 'site']);
     expect(r.code).toBe(1);
     expect(r.out).toContain('hub built: 1 of 2 projects, 1 failed');
     expect(r.err).toContain('could not build X');
     expect(existsSync(join(dir, 'site/index.html'))).toBe(true);
-    const quiet = run(['hub', 'h.json', '--out', 'site', '-q']);
+    const quiet = await run(['hub', 'h.json', '--out', 'site', '-q']);
     expect(quiet.err).toBe('');
-    expect(run(['hub']).code).not.toBe(0);
+    expect((await run(['hub'])).code).not.toBe(0);
   });
 });

@@ -15,7 +15,7 @@ import type { HubCard, HubProject } from '../core/hub.js';
 import { isSafeBranch } from '../core/hub.js';
 import { renderHubHtml } from '../render/hub.js';
 import { VERSION, buildData, renderMap, resolveNow } from './build.js';
-import { git } from './git.js';
+import { gitAsync } from './git.js';
 
 /** Marks a folder this tool made, so it never resets a person's own working copy. */
 export const MANAGED_MARKER = '.opmap-managed';
@@ -71,13 +71,13 @@ function fail(message: string, hint: string): never {
 }
 
 /** Clone `repo` into `dir` on first use, then fast-forward it with fetch and reset. */
-function ensureClone(
+async function ensureClone(
   repo: string,
   wantBranch: string | undefined,
   dir: string,
   cacheDir: string,
   fetch: boolean,
-): void {
+): Promise<void> {
   const marker = join(dir, MANAGED_MARKER);
   if (!existsSync(dir)) {
     if (!fetch)
@@ -96,7 +96,7 @@ function ensureClone(
       repo,
       dir,
     ];
-    if (git(args, cacheDir, CLONE_TIMEOUT_MS) === null)
+    if ((await gitAsync(args, cacheDir, CLONE_TIMEOUT_MS)) === null)
       fail(`git could not clone ${repo}`, 'Check the URL, your network and your ssh keys');
     writeFileSync(marker, 'This folder is managed by openprojectmap. It is reset to the remote.\n');
     return;
@@ -106,7 +106,7 @@ function ensureClone(
       `${dir} exists but was not made by openprojectmap, so it is left alone`,
       'Remove it, or choose another --cache-dir',
     );
-  const remote = git(['remote', 'get-url', 'origin'], dir)?.trim();
+  const remote = (await gitAsync(['remote', 'get-url', 'origin'], dir))?.trim();
   if (remote !== repo)
     fail(
       `${dir} was cloned from a different remote`,
@@ -115,30 +115,31 @@ function ensureClone(
   if (!fetch) return;
   let branch = wantBranch;
   if (branch === undefined) {
-    const head = git(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], dir)?.trim() ?? '';
+    const head =
+      (await gitAsync(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'], dir))?.trim() ?? '';
     branch = head.replace(/^origin\//, '');
   }
   if (!isSafeBranch(branch))
     fail(`could not tell which branch of ${repo} to follow`, 'Set "branch" in the hub file');
   if (
-    git(
+    (await gitAsync(
       [...PROTOCOLS, 'fetch', '--quiet', '--no-tags', 'origin', branch],
       dir,
       CLONE_TIMEOUT_MS,
-    ) === null
+    )) === null
   )
     fail(`git could not fetch ${branch} from ${repo}`, 'Check the URL and your network');
-  if (git(['reset', '--hard', '--quiet', `origin/${branch}`], dir) === null)
+  if ((await gitAsync(['reset', '--hard', '--quiet', `origin/${branch}`], dir)) === null)
     fail(`git could not move to origin/${branch}`, 'Check that the branch exists');
 }
 
-function projectDir(
+async function projectDir(
   p: HubProject,
   slug: string,
   hubDir: string,
   cacheDir: string,
   fetch: boolean,
-): string {
+): Promise<string> {
   if (p.path !== undefined) {
     const abs = isAbsolute(p.path) ? p.path : resolve(hubDir, p.path);
     let real: string;
@@ -152,12 +153,12 @@ function projectDir(
     return real;
   }
   const dir = join(cacheDir, slug);
-  ensureClone(p.repo ?? '', p.branch, dir, cacheDir, fetch);
+  await ensureClone(p.repo ?? '', p.branch, dir, cacheDir, fetch);
   return dir;
 }
 
 /** Build every project, then the index. A project that fails gets a card that says so. */
-export function buildHub(options: HubOptions): HubResult {
+export async function buildHub(options: HubOptions): Promise<HubResult> {
   const log = options.log ?? (() => undefined);
   const env = options.env ?? process.env;
   const hubFile = resolve(options.cwd, options.hubFile);
@@ -181,10 +182,10 @@ export function buildHub(options: HubOptions): HubResult {
   mkdirSync(out, { recursive: true });
 
   const cards: HubCard[] = [];
-  hub.projects.forEach((p, i) => {
+  for (const [i, p] of hub.projects.entries()) {
     const slug = slugs[i] ?? `project-${i + 1}`;
     try {
-      const dir = projectDir(p, slug, dirname(hubFile), cacheDir, options.fetch !== false);
+      const dir = await projectDir(p, slug, dirname(hubFile), cacheDir, options.fetch !== false);
       const { data, config } = buildData({
         cwd: dir,
         env: projectEnv,
@@ -204,7 +205,7 @@ export function buildHub(options: HubOptions): HubResult {
       cards.push(failedCard(p.name, slug, message));
       log(`could not build ${p.name}: ${message}`);
     }
-  });
+  }
 
   const page = renderHubHtml(hub.title, cards, {
     version: VERSION,

@@ -30,7 +30,7 @@ export interface Serving {
 
 const MAX_CLIENTS = 20;
 const HEARTBEAT_MS = 25_000;
-const SECURITY_HEADERS = {
+export const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer',
   'Cross-Origin-Opener-Policy': 'same-origin',
