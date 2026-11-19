@@ -1,6 +1,6 @@
 // Client entry: reads the embedded data, renders the tabs and the current view.
 import type { ProjectData } from '../../core/types.js';
-import { chip, stateChip } from './components.js';
+import { stateChip } from './components.js';
 import { append, h } from './h.js';
 import { formatHash, parseHash, VIEWS } from './router.js';
 import type { State, View } from './router.js';
@@ -92,12 +92,22 @@ export function boot(doc: Document = document): () => void {
       { class: 'meta' },
       current ? [h('span', null, current.id, ' '), stateChip(current.state)] : null,
       data.now?.updated ? h('span', { class: 'muted' }, ` Updated ${data.now.updated}`) : null,
-      data.derived.stale.isStale
-        ? chip(`stale: ${data.derived.stale.reason ?? ''}`, 'blocked')
-        : null,
     ),
     themeButton,
   );
+
+  // The staleness banner (spec 03 §3.6): the map is only as good as the Now block behind it.
+  const stale = data.derived.stale;
+  const banner = stale.isStale
+    ? h(
+        'div',
+        { class: 'banner', role: 'status' },
+        h('strong', null, 'This map may be out of date. '),
+        `${stale.reason ?? 'The Now block has not been updated'}. Update the Now block and its Updated date (`,
+        h('code', null, 'opmap now'),
+        ').',
+      )
+    : null;
 
   const tabs = h('div', { role: 'tablist', 'aria-label': 'Views', class: 'tabs' });
   // <main> is the landmark; the tab panel inside it is what the tabs control.
@@ -191,7 +201,7 @@ export function boot(doc: Document = document): () => void {
   };
 
   app.replaceChildren();
-  append(app, [header, nav, main, footer]);
+  append(app, [header, banner, nav, main, footer]);
   const win = doc.defaultView;
   win?.addEventListener('hashchange', paint);
   win?.addEventListener('beforeprint', beforePrint);

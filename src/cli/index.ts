@@ -83,6 +83,7 @@ Commands:
   now                       Update the Now block (--current, --next, --why, --fact key=value)
   decide <ID> "<outcome>"    Record a decision (--defaulted)
   serve   Preview the map in a browser and reload it when the docs change
+  export  Print the project data as JSON (--pretty)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
@@ -133,6 +134,7 @@ const OPTIONS = {
   fetch: { type: 'boolean' },
   out: { type: 'string' },
   json: { type: 'boolean' },
+  pretty: { type: 'boolean' },
   open: { type: 'boolean' },
   yes: { type: 'boolean', short: 'y' },
   name: { type: 'string' },
@@ -360,6 +362,7 @@ function run(argv: readonly string[], io: Io): number {
     return 0;
   }
   if (command === 'doctor') return doctor(values, io);
+  if (command === 'export') return exportData(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
@@ -491,4 +494,30 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
   if (io.waitForExit) await io.waitForExit();
   await serving.close();
   return 0;
+}
+
+/** `opmap export`: ProjectData as JSON on stdout, for other tools (schema/project-data.v1.json). */
+function exportData(values: Values, rest: string[], io: Io): number {
+  if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const maxWarnings =
+    values['max-warnings'] === undefined ? undefined : Number(values['max-warnings']);
+  if (maxWarnings !== undefined && (!Number.isInteger(maxWarnings) || maxWarnings < 0))
+    throw new UsageError('--max-warnings must be a whole number');
+  const { data } = buildData({
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    tz: pick<'utc' | 'local'>(values.tz, ['utc', 'local'], '--tz', 'utc'),
+    git: values['no-git'] ? false : undefined,
+    fetch: values.fetch,
+  });
+  io.stdout(`${JSON.stringify(data, null, values.pretty ? 2 : undefined)}\n`);
+  const counts = summarize(data.diagnostics);
+  const failed =
+    counts.errors > 0 ||
+    (values.strict === true && counts.warnings > 0) ||
+    (maxWarnings !== undefined && counts.warnings > maxWarnings);
+  return failed ? 1 : 0;
 }

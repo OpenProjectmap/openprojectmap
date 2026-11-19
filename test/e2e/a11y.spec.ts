@@ -40,3 +40,26 @@ for (const theme of THEMES) {
     });
   }
 }
+
+// The staleness banner only shows when the Now block is old, so check that page too.
+test.describe('stale map', () => {
+  let stale: ReturnType<typeof buildTidepool>;
+  test.beforeAll(() => {
+    stale = buildTidepool('2027-01-15');
+  });
+  test.afterAll(() => stale.cleanup());
+  for (const theme of THEMES) {
+    test(`axe: the staleness banner, ${theme} theme`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: theme });
+      await page.goto(`${stale.url}#/overview`);
+      await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+      await expect(page.locator('.banner')).toContainText('This map may be out of date.');
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(
+        results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical'),
+      ).toEqual([]);
+    });
+  }
+});

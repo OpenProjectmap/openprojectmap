@@ -143,6 +143,14 @@ button.filter,
   cursor: pointer;
   min-height: 36px;
 }
+.banner {
+  background: var(--surface-2);
+  border: 1px solid var(--warn);
+  border-left-width: 6px;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 10px 0 0;
+}
 .tabs {
   display: flex;
   gap: 8px;

@@ -14,7 +14,7 @@ export const VIEWS = [
 ] as const;
 
 /** Build the Tidepool example with a fixed clock into a temp folder. */
-export function buildTidepool(): { url: string; cleanup: () => void } {
+export function buildTidepool(now = '2026-11-25'): { url: string; cleanup: () => void } {
   const dir = mkdtempSync(join(tmpdir(), 'opmap-e2e-'));
   execFileSync(
     'node',
@@ -25,7 +25,7 @@ export function buildTidepool(): { url: string; cleanup: () => void } {
       'examples/tidepool',
       '--no-git',
       '--now',
-      '2026-11-25',
+      now,
       '--out',
       dir,
       '-q',

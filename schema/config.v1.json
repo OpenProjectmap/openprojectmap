@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://openprojectmap.dev/schema/config.v1.json",
+  "title": "OpenProjectMap config v1",
+  "description": "opmap.config.json. Every key is optional; the defaults are shown in the descriptions.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": 1, "description": "The config format. Must be 1." },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "The project name. Default: the repo folder name."
+    },
+    "docs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "roadmap": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "Default: docs/project/ROADMAP.md"
+        },
+        "decisions": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "Default: docs/project/DECISIONS.md if it exists. null turns it off."
+        },
+        "changelog": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "Default: CHANGELOG.md if it exists. null turns it off."
+        }
+      }
+    },
+    "idPattern": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "format": "regex",
+      "description": "How deliverable IDs look. Default: ^(?<version>\\d+\\.\\d+\\.\\d+)-D\\d+$"
+    },
+    "requireDoneRef": {
+      "type": "boolean",
+      "default": false,
+      "description": "Warn when a deliverable is done without a date or a reference."
+    },
+    "staleAfterDays": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 365,
+      "default": 14,
+      "description": "Days after the Now block's Updated date when it counts as stale."
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "branches": {
+          "type": "object",
+          "description": "Role to branch name, e.g. { \"live\": \"main\", \"staging\": \"beta\" }. Default: { \"live\": \"main\" }.",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$",
+            "not": { "pattern": "\\.\\." }
+          }
+        },
+        "areas": {
+          "type": "array",
+          "description": "Folder prefixes for the activity chart; a trailing /* means every folder under it. Default: [\"*\"].",
+          "items": {
+            "type": "string",
+            "pattern": "^(\\*|[^*\\s][^*]*(/\\*)?)$",
+            "not": { "anyOf": [{ "pattern": "^/" }, { "pattern": "(^|/)\\.\\.(/|$)" }] }
+          }
+        },
+        "activityWeeks": { "type": "integer", "minimum": 1, "maximum": 52, "default": 12 }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "default": ".opmap",
+          "description": "Where `build` writes. Must be inside the repo."
+        },
+        "json": { "type": "boolean", "default": false, "description": "Also write data.json." }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$", "default": "#2f6fed" },
+        "mode": { "enum": ["auto", "light", "dark"], "default": "auto" },
+        "density": { "enum": ["comfortable", "compact"], "default": "comfortable" }
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "description": "Extra roadmaps (v0.6).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "file"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]{1,32}$" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "file": { "type": "string", "minLength": 1, "maxLength": 4096 },
+          "blockPattern": { "type": "string", "minLength": 1, "maxLength": 200, "format": "regex" },
+          "idPattern": { "type": "string", "minLength": 1, "maxLength": 200, "format": "regex" }
+        }
+      }
+    }
+  }
+}
