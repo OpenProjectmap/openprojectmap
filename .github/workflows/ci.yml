@@ -214,6 +214,8 @@ jobs:
       - id: map
         uses: ./action
         with:
+          # The newest version that is already on npm: the Action installs from the registry.
+          version: '0.4'
           strict: 'true'
           out: ${{ runner.temp }}/map
       - name: The map was written
