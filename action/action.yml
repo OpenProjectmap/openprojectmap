@@ -1,0 +1,57 @@
+name: OpenProjectMap
+description: Build the project map from your roadmap, decisions and changelog docs
+author: OpenProjectMap contributors
+branding:
+  icon: map
+  color: blue
+inputs:
+  version:
+    description: openprojectmap npm version (for example 0.4 or 0.4.0)
+    default: '0.4'
+  config:
+    description: Path to opmap.config.json (default is found by walking up from the folder)
+    default: ''
+  strict:
+    description: Fail on warnings ("true" or "false")
+    default: 'false'
+  out:
+    description: Output directory for the map
+    default: '.opmap'
+outputs:
+  out:
+    description: The output directory
+    value: ${{ steps.build.outputs.out }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: 22
+    - id: build
+      shell: bash
+      # Inputs reach the script only as environment variables, never through ${{ }} in the script.
+      env:
+        OPMAP_VERSION: ${{ inputs.version }}
+        OPMAP_CONFIG_IN: ${{ inputs.config }}
+        OPMAP_STRICT: ${{ inputs.strict }}
+        OPMAP_OUT: ${{ inputs.out }}
+      run: |
+        set -euo pipefail
+        if ! [[ "$OPMAP_VERSION" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+          echo "::error::The version input must look like 0.4 or 0.4.0"
+          exit 2
+        fi
+        if [[ "$OPMAP_STRICT" != "true" && "$OPMAP_STRICT" != "false" ]]; then
+          echo "::error::The strict input must be true or false"
+          exit 2
+        fi
+        args=(build --out "$OPMAP_OUT" --format github)
+        if [[ -n "$OPMAP_CONFIG_IN" ]]; then args+=(--config "$OPMAP_CONFIG_IN"); fi
+        if [[ "$OPMAP_STRICT" == "true" ]]; then args+=(--strict); fi
+        echo "::notice::GitHub Pages sites are public on free plans, even for private repositories. Publish only what you would put on your website."
+        # Install into a temporary folder and run that copy: npx would pick a local package with the
+        # same name (this repo, for example) instead of the version asked for.
+        tool="$(mktemp -d)"
+        npm install --prefix "$tool" --silent --no-audit --no-fund "openprojectmap@$OPMAP_VERSION"
+        "$tool/node_modules/.bin/openprojectmap" "${args[@]}"
+        echo "out=$OPMAP_OUT" >> "$GITHUB_OUTPUT"

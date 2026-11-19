@@ -6,6 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A GitHub Action (`action/action.yml`) that builds the map in your workflow and writes problems in the docs as annotations. It installs the version you pin, takes its inputs only through the environment, and warns that GitHub Pages sites are public on free plans. A Pages recipe is in `action/README.md`.
+
 ## [0.4.0] - 2026-11-19
 
 ### Changed

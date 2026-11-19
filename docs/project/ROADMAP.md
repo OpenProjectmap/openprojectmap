@@ -150,10 +150,11 @@ the newest status line in a version goes last; windows live only on the version 
 **Goal:** Publish a map on every push, review roadmap changes in PRs, and run one self-hosted page for all your projects.
 **Exit:** One `docker compose up` serves maps for 3 repos behind TLS and auth, refreshing within 5 minutes of a push; the Action deploys tidepool to Pages and annotates a PR.
 **Status 2026-11-16:** planned.
+**Status 2026-11-19:** started. D1 (GitHub Action) is in `review`: the composite Action lives in `action/` and is tested in CI against this repo's docs.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.5.0-D1 | **GitHub Action** (`action.yml`, composite): installs a pinned package version and builds; inputs passed through `env:`, never interpolated into shell; Pages deploy recipe | todo | spec 06 §2, spec 07 §5 |
+| 0.5.0-D1 | **GitHub Action** (`action.yml`, composite): installs a pinned package version and builds; inputs passed through `env:`, never interpolated into shell; Pages deploy recipe | review | spec 06 §2, spec 07 §5. `action/action.yml` (composite) installs the pinned version into a temporary folder, validates `version` and `strict`, passes inputs through `env:` only and prints the Pages privacy notice; `action/README.md` has the Pages recipe; CI runs the Action on this repo's docs (`action` job, part of `CI result`). Left: the mirror repo `OpenProjectmap/action` for the Marketplace and `v1` tag (founder's call, listed in the map), and raising the default `version` to `0.5` when 0.5.0 is released |
 | 0.5.0-D2 | **PR checks**: `check --format github` annotations; optional sticky PR comment summarising status changes between base and head ProjectData (`diff` command) | todo | spec 06 §2.3 |
 | 0.5.0-D3 | **Hub**: `hub` command + `opmap.hub.json`; an index with one card per project (current version, progress, next step, Needs-your-call count, staleness) linking to each map | todo | spec 06 §3 |
 | 0.5.0-D4 | **Docker image** `ghcr.io/openprojectmap/openprojectmap`: `node:22-alpine` + git, non-root, `serve --hub` with a periodic fetch of read-only clones, healthcheck; multi-arch amd64/arm64; signed with cosign | todo | spec 06 §4 |

@@ -27,7 +27,7 @@ function git(args: string[], cwd: string): string | null {
 
 ## 2. GitHub Action (v0.5)
 
-### 2.1 `action.yml` (repo `openprojectmap/action`)
+### 2.1 `action.yml` (in this repo under `action/`; mirrored to `openprojectmap/action` for the Marketplace)
 
 ```yaml
 name: OpenProjectMap
@@ -47,6 +47,8 @@ runs:
       with: { node-version: 22 }
     - id: build
       shell: bash
+      # the implementation installs the pinned version into a temporary folder and runs that copy:
+      # npx would pick a same-named local package
       env:
         OPMAP_VERSION: ${{ inputs.version }}
         OPMAP_CONFIG_IN: ${{ inputs.config }}
