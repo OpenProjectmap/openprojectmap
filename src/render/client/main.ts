@@ -11,6 +11,7 @@ import { renderParked } from './views/parked.js';
 import { renderTimeline } from './views/timeline.js';
 import { renderOverview } from './views/overview.js';
 import { renderVersions } from './views/versions.js';
+import { parsePicked, readFiles } from './open-docs.js';
 
 const LABELS: Record<View, string> = {
   overview: 'Overview',
@@ -59,8 +60,17 @@ export function connectLive(doc: Document, reload?: () => void): () => void {
   return () => source.close();
 }
 
+/** Render the page from the embedded data. Returns a function that undoes it. */
 export function boot(doc: Document = document): () => void {
-  const data = readData(doc);
+  return mount(doc, readData(doc));
+}
+
+interface Opened {
+  used: string[];
+  ignored: string[];
+}
+
+function mount(doc: Document, data: ProjectData, opened: Opened | null = null): () => void {
   const app = doc.getElementById('app');
   if (!app) return () => undefined;
   const root = doc.documentElement;
@@ -114,11 +124,66 @@ export function boot(doc: Document = document): () => void {
   const panel = h('div', { id: 'panel', role: 'tabpanel', tabindex: '-1' });
   const main = h('main', { id: 'main' }, panel);
   const nav = h('nav', { 'aria-label': 'Project map' }, tabs);
+  const note = h('p', { class: 'muted', role: 'status', id: 'open-note' });
+  if (opened) {
+    note.textContent = `Showing ${opened.used.join(', ')}${opened.ignored.length > 0 ? ` (left out: ${opened.ignored.join(', ')})` : ''}. These files stay in your browser and are not saved; reload the page to go back.`;
+  }
+  const win = doc.defaultView;
+  // The mount that replaced this one when files were opened (so one undo stops everything).
+  let child = (): void => undefined;
+  let stopSelf = (): void => undefined;
+  const openFiles = async (list: ArrayLike<File>): Promise<void> => {
+    const { picked, tooBig } = await readFiles(list);
+    const result = parsePicked(picked, new Date().toISOString());
+    if (!result.ok) {
+      note.textContent = `${result.error}${tooBig.length > 0 ? ` (too big to open: ${tooBig.join(', ')})` : ''}`;
+      return;
+    }
+    stopSelf();
+    child();
+    child = mount(doc, result.data, { used: result.used, ignored: [...result.ignored, ...tooBig] });
+  };
+  const picker = h('input', {
+    type: 'file',
+    id: 'open-docs-input',
+    accept: '.md,.markdown,.txt,text/markdown,text/plain',
+    multiple: true,
+    'aria-label': 'Open markdown files',
+    class: 'visually-hidden',
+    tabindex: '-1',
+    onChange: (e: Event) => {
+      const input = e.target as HTMLInputElement;
+      if (input.files && input.files.length > 0) void openFiles(input.files);
+    },
+  });
   const footer = h(
     'footer',
     null,
-    `Generated ${data.generatedAt.slice(0, 10)} by openprojectmap ${data.tool.version}`,
+    h(
+      'p',
+      null,
+      `Generated ${data.generatedAt.slice(0, 10)} by openprojectmap ${data.tool.version}. `,
+      h(
+        'button',
+        { type: 'button', class: 'link', onClick: () => (picker as HTMLInputElement).click() },
+        'Open docs…',
+      ),
+      h(
+        'span',
+        { class: 'muted' },
+        ' or drop ROADMAP.md, DECISIONS.md and CHANGELOG.md on this page. Nothing is uploaded.',
+      ),
+    ),
+    picker,
+    note,
   );
+  const onDragOver = (e: Event): void => e.preventDefault();
+  const onDrop = (e: Event): void => {
+    const files = (e as DragEvent).dataTransfer?.files;
+    if (!files || files.length === 0) return;
+    e.preventDefault();
+    void openFiles(files);
+  };
 
   const paint = (): void => {
     const state = parseHash(doc.defaultView?.location.hash ?? '');
@@ -202,17 +267,24 @@ export function boot(doc: Document = document): () => void {
 
   app.replaceChildren();
   append(app, [header, banner, nav, main, footer]);
-  const win = doc.defaultView;
   win?.addEventListener('hashchange', paint);
+  win?.addEventListener('dragover', onDragOver);
+  win?.addEventListener('drop', onDrop);
   win?.addEventListener('beforeprint', beforePrint);
   win?.addEventListener('afterprint', afterPrint);
   paint();
   const stopLive = connectLive(doc);
-  return () => {
+  stopSelf = () => {
     stopLive();
+    win?.removeEventListener('dragover', onDragOver);
+    win?.removeEventListener('drop', onDrop);
     win?.removeEventListener('hashchange', paint);
     win?.removeEventListener('beforeprint', beforePrint);
     win?.removeEventListener('afterprint', afterPrint);
+  };
+  return () => {
+    stopSelf();
+    child();
   };
 }
 

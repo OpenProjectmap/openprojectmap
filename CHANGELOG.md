@@ -12,6 +12,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `opmap serve` previews the map in your browser and reloads it when you save a doc. It listens on 127.0.0.1 only unless you pass `--host`.
 - `opmap export` prints the project data as JSON for other tools, and JSON Schemas for it and for `opmap.config.json` are published in `schema/` (your editor can use the config schema for autocomplete).
 - A banner on the map when the Now block is out of date.
+- "Open docs…" on the map: pick or drop your ROADMAP, DECISIONS and CHANGELOG files and the page shows them, parsed in your browser. Nothing is uploaded or saved.
 - `opmap init` sets up a project: it asks a few questions (or takes flags with `--yes`), writes `opmap.config.json`, the roadmap, decisions and changelog from templates, adds `.opmap/` to .gitignore and runs the checker. It never overwrites your files without `--force`.
 - `opmap init --example` writes the fictional Tidepool project so you can explore a finished map before writing your own.
 - `opmap init --agents claude,cursor,codex` installs instructions for your AI agents: the Claude Code skill, a Cursor rule, and a section in `AGENTS.md`.
