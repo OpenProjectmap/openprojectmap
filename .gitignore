@@ -9,3 +9,6 @@ reference/
 *.log
 .DS_Store
 .project-map/
+
+# Private drafts (posts, outreach): never commit
+docs/launch/
