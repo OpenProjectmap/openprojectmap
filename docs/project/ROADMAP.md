@@ -10,10 +10,10 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-19
 **Current version:** v0.4.0
-**Next step:** Merge the release PR from `beta` to `main` (founder), tag `v0.4.0` so `release.yml` publishes to npm, then check that the demo loads at https://openprojectmap.github.io/openprojectmap/ and mark 0.3.0-D6 done. After that v0.5.0 (the GitHub Action, `diff`, the hub and Docker) is next.
+**Next step:** Tag `v0.4.0` on `main` (founder) so `release.yml` publishes 0.4.0 to npm; then check the npm page and mark 0.1.0-D13's publish done. After that v0.5.0 (the GitHub Action, `diff`, the hub and Docker) is next.
 **Why:** v0.3.0 (onboarding) and v0.4.0 (live preview, authoring commands, JSON export) are complete on `beta`, the repo is public in the OpenProjectmap org, and the licence for new releases is AGPL-3.0-only.
 **Target:** Public alpha (M2) by 2027-01-17
-**Live:** v0.2.0 is on npm (`latest`) and on `main`; it is a pre-release snapshot, and 0.4.0 supersedes it. The repo is public at https://github.com/OpenProjectmap/openprojectmap.
+**Live:** `main` is at release 0.4.0 (merge commit e6998a0) and the demo is up at https://openprojectmap.github.io/openprojectmap/. npm still has 0.2.0 until the tag is pushed.
 
 ## Phase 1 — Foundations
 
@@ -110,6 +110,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-16:** planned.
 **Status 2026-11-18:** D1 (`init`) done in PR #46; D2 (templates and `init --example`) in PR #48; D4 (agent integration) in PR #48; D5 (`doctor`) in PR #48; D6 (README and demo workflow) in PR #49. On 2026-11-19 the work that does not need other people is finished (PR #69): D3, D6 and D7 are in `review`. What is left is people and publishing: three founders reading the handbook, the repo going public for the live demo and the posts, and the first npm publish.
 **Status 2026-11-19:** all deliverables are done except the live demo (D6), parked until the release reaches `main`, where it deploys. The founder reviewed the handbook (D3) and posts the launch by hand (D7). Ships together with v0.4.0 as release 0.4.0 (the work is interleaved on `beta`).
+**Status 2026-11-19:** released on `main` with 0.4.0 (PR #77); the demo is live (D6 done). The exit check with three new-to-roadmaps users is still open and belongs to the launch.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
@@ -118,7 +119,7 @@ the newest status line in a version goes last; windows live only on the version 
 | 0.3.0-D3 | **Founder Handbook final**: `docs/guide/` reviewed by 3 non-technical founders; plain-language pass | done | PR #69 (plain-language pass and review sheet); the founder reviewed the handbook on 2026-11-19 (issue #63) |
 | 0.3.0-D4 | **Agent integration**: `skills/openprojectmap/SKILL.md`, the AGENTS.md snippet, a Cursor rule; `init --agents claude,cursor,codex` installs them | done | spec 06 §5. PR #48: `opmap init --agents claude,cursor,codex` (or `all`, `none`; asked in a terminal): the Claude Code skill to `.claude/skills/openprojectmap/SKILL.md`, a Cursor rule with `alwaysApply: true`, and a section in `AGENTS.md` (added once, never duplicated; an existing skill or rule is kept unless `--force`). The skill text is bundled into the CLI. Risk R5 asks for the skill to be tried in 2 or more agents; that manual test is still to do |
 | 0.3.0-D5 | **`doctor`**: checks the Node version, git, config, doc paths and format marker; prints a fix for each problem | done | spec 04 §2. PR #48: `opmap doctor` (`node/doctor.ts`) checks the Node version (20.11 or newer), git, the git repository, the config, the roadmap, decisions and changelog files, the format marker, a summary of the docs, and that the output folder is in .gitignore; each warning or failure prints a fix. Exit 1 only on a failure; `--format json` for tools |
-| 0.3.0-D6 | **Demo and README**: the tidepool map published on GitHub Pages, a screenshot/GIF in the README | parked | PRs #49, #69 and #73: the README has real screenshots; `pages.yml` builds the Tidepool map and deploys it to https://openprojectmap.github.io/openprojectmap/ on the first push to `main` (the release). Parked until the release: the Pages environment only accepts deploys from `main`, so the page cannot be checked earlier. Mark it done once the page loads; issue #65 asks for a short screen capture |
+| 0.3.0-D6 | **Demo and README**: the tidepool map published on GitHub Pages, a screenshot/GIF in the README | done | PRs #49, #69 and #73: the README has real screenshots; `pages.yml` builds the Tidepool map and deploys it to https://openprojectmap.github.io/openprojectmap/ on the first push to `main` (the release). Live at https://openprojectmap.github.io/openprojectmap/ since the release merge (PR #77, e6998a0). Issue #65 asks for a short screen capture |
 | 0.3.0-D7 | **Launch**: issue and PR templates, `good first issue` labels on 10 or more roadmap rows, announcement posts (Show HN, r/SideProject, X) | done | PRs #49, #69 and #73: issue templates (bug, idea), 13 issues labelled `good first issue` covering 10 roadmap rows (#56 to #68). The post drafts were taken out of the repo on 2026-11-19; the founder posts by hand |
 
 ## Phase 3 — Daily driver
