@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -48,5 +48,19 @@ describe('action/action.yml (spec 06 §2, spec 07 §5)', () => {
   });
   it('tells people that Pages sites are public', () => {
     expect(text).toContain('GitHub Pages sites are public on free plans');
+  });
+});
+
+describe('workflows pin every third-party action by commit SHA', () => {
+  it('has a 40-character SHA after every @ in a uses line', () => {
+    const dir = join(import.meta.dirname, '../../.github/workflows');
+    for (const file of readdirSync(dir)) {
+      const text = readFileSync(join(dir, file), 'utf8');
+      for (const m of text.matchAll(/^\s*-?\s*uses: (\S+)/gm)) {
+        const ref = m[1] ?? '';
+        if (ref.startsWith('./')) continue;
+        expect(`${file}: ${ref}`).toMatch(/: \S+@[0-9a-f]{40}$/);
+      }
+    }
   });
 });

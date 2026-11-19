@@ -154,21 +154,32 @@ decisions closed.
 
 ### 4.1 Image
 
+The `Dockerfile` at the repo root builds the CLI from the source tree (a multi-stage build: `pnpm build`,
+`npm pack`, then a global install of that tarball into a small runtime stage), so the image always
+matches the commit it came from.
+
 ```dockerfile
 FROM node:22-alpine
-RUN apk add --no-cache git openssh-client tini \
- && npm install -g openprojectmap@${OPMAP_VERSION} \
- && mkdir -p /data/repos && chown -R node:node /data
+RUN apk add --no-cache git openssh-client tini
+# ... npm install --global --omit=dev <the packed tarball>; mkdir /data/repos /config; chown node /data
 USER node
-ENV NODE_ENV=production
+ENV NODE_ENV=production OPMAP_REPOS_DIR=/data/repos
 EXPOSE 4173
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:4173/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=120s CMD wget -qO- http://127.0.0.1:4173/healthz || exit 1
 ENTRYPOINT ["/sbin/tini", "--", "opmap"]
 CMD ["serve", "--hub", "/config/opmap.hub.json", "--host", "0.0.0.0", "--pull-interval", "300"]
 ```
 
-Built multi-arch (amd64, arm64) in the release workflow, pushed to GHCR, and signed with cosign
-(keyless); an SBOM is attached.
+`opmap serve --hub <file>` builds the hub once before it listens (so the first start waits for the first
+clones), holds the whole site in memory, answers `GET`/`HEAD` only, and rebuilds every
+`--pull-interval` seconds (`git fetch` and reset of each `repo` entry). Clones run asynchronously, so
+`/healthz` stays responsive during a refresh. If a rebuild fails, the last good site stays up; a hub file
+that is invalid at start stops the server. `CI` runs `scripts/docker-smoke.sh` on every change: it builds
+the image, serves Tidepool, and checks the index, a map's CSP header, the non-root user and `opmap hub`.
+
+Built multi-arch (amd64, arm64) by `.github/workflows/docker.yml` when a version tag is pushed to `main`,
+pushed to GHCR as `X.Y.Z` and `X.Y`, with build provenance and an SBOM attached and a keyless cosign
+signature on the digest. It is a separate workflow so an image problem never holds back the npm release.
 
 ### 4.2 Compose + Caddy (for a VPS or a Coder host)
 
@@ -182,8 +193,6 @@ services:
       - ./deploy_key:/home/node/.ssh/id_ed25519:ro      # read-only deploy key, mode 600
       - ./known_hosts:/home/node/.ssh/known_hosts:ro
       - opmap-data:/data
-    environment:
-      GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=yes"
     expose: ["4173"]                # not published; only Caddy reaches it
   caddy:
     image: caddy:2
@@ -203,6 +212,13 @@ map.example.com {
 ```
 
 Notes for the guide (0.5.0-D5):
+
+- The tool removes every `GIT_*` variable before it runs git, so `GIT_SSH_COMMAND` has no effect. ssh uses
+  its defaults: the key at `~/.ssh/id_ed25519` and `~/.ssh/known_hosts`, and with no terminal it refuses a
+  host it does not know (`StrictHostKeyChecking` asks). Mount both files as shown.
+- A project mounted into the container with `path` can be refused by git ("dubious ownership") when it
+  belongs to another user; the map still builds, without git facts. Prefer `repo` entries, which the
+  container clones itself.
 
 - Use one read-only **deploy key** per repository (GitHub → Settings → Deploy keys, without write).
 - On a Coder workspace you can skip Caddy for personal use: run

@@ -14,6 +14,7 @@ import { diffRefs } from '../node/diff.js';
 import { buildHub } from '../node/hub.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
+import { startHubServe } from '../node/serve-hub.js';
 import { AUTHORING, runAuthoring } from './authoring.js';
 import { UsageError } from './errors.js';
 import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
@@ -110,6 +111,8 @@ Options:
       --dry-run          editing commands: print the diff, change nothing
       --port <n>         serve: port (default 4173; 0 picks a free one)
       --host <h>         serve: address (default 127.0.0.1)
+      --hub <file>       serve: serve a hub (many projects) instead of one map
+      --pull-interval <s> serve --hub: seconds between rebuilds and git fetches (default 300; 0 builds once)
       --yes              init: accept the defaults, ask nothing
       --name <s>         init: project name
       --goal <s>         init: one sentence about the project
@@ -140,6 +143,8 @@ const OPTIONS = {
   fetch: { type: 'boolean' },
   'no-fetch': { type: 'boolean' },
   'cache-dir': { type: 'string' },
+  hub: { type: 'string' },
+  'pull-interval': { type: 'string' },
   out: { type: 'string' },
   json: { type: 'boolean' },
   pretty: { type: 'boolean' },
@@ -238,6 +243,8 @@ export async function mainAsync(argv: readonly string[], io: Io = processIo()): 
       return await runInit(values, positionals.slice(1), io);
     if (positionals[0] === 'serve' && !values.help && !values.version)
       return await runServe(values, positionals.slice(1), io);
+    if (positionals[0] === 'hub' && !values.help && !values.version)
+      return await runHub(values, positionals.slice(1), io);
     return run(argv, io);
   } catch (e) {
     return handleError(e, io);
@@ -372,11 +379,11 @@ function run(argv: readonly string[], io: Io): number {
   if (command === 'doctor') return doctor(values, io);
   if (command === 'export') return exportData(values, rest, io);
   if (command === 'diff') return runDiff(values, rest, io);
-  if (command === 'hub') return runHub(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
     throw new UsageError('serve keeps running, so it runs through mainAsync');
+  if (command === 'hub') throw new UsageError('hub runs through mainAsync');
   if (command !== 'build' && command !== 'check')
     throw new UsageError(`unknown command "${command}"`);
   if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
@@ -482,6 +489,35 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
       `warning: --host ${host} has no authentication. Anyone who can reach this port can read your roadmap: put it behind a reverse proxy with auth.\n`,
     );
   }
+  if (values.hub !== undefined) {
+    const interval = values['pull-interval'] === undefined ? 300 : Number(values['pull-interval']);
+    if (!Number.isInteger(interval) || interval < 0)
+      throw new UsageError('--pull-interval must be a whole number of seconds (0 builds once)');
+    let hubServing;
+    try {
+      hubServing = await startHubServe({
+        hubFile: values.hub,
+        cwd,
+        env: io.env,
+        now: values.now ?? io.env['OPMAP_NOW'],
+        fetch: values['no-fetch'] !== true,
+        cacheDir: values['cache-dir'],
+        host,
+        port,
+        pullIntervalSec: interval,
+        log: (m) => io.stdout(`${m}\n`),
+      });
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === 'EADDRINUSE')
+        throw new UsageError(`port ${port} is already in use; pick another with --port`);
+      throw e;
+    }
+    io.stdout(`Serving the hub at ${hubServing.url} (press Ctrl+C to stop)\n`);
+    if (values.open) io.open(hubServing.url);
+    if (io.waitForExit) await io.waitForExit();
+    await hubServing.close();
+    return 0;
+  }
   let serving;
   try {
     serving = await startServe({
@@ -506,8 +542,7 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
   return 0;
 }
 
-/** `opmap export`: ProjectData as JSON on stdout, for other tools (schema/project-data.v1.json). */
-function runHub(values: Values, rest: string[], io: Io): number {
+async function runHub(values: Values, rest: string[], io: Io): Promise<number> {
   const [hubFile, ...extra] = rest;
   if (hubFile === undefined)
     throw new UsageError(
@@ -516,7 +551,7 @@ function runHub(values: Values, rest: string[], io: Io): number {
   if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
   const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
   const quiet = values.quiet === true;
-  const result = buildHub({
+  const result = await buildHub({
     hubFile,
     out: values.out ?? '.opmap/hub',
     cwd,
@@ -558,6 +593,7 @@ function runDiff(values: Values, rest: string[], io: Io): number {
   return 0;
 }
 
+/** `opmap export`: ProjectData as JSON on stdout, for other tools (schema/project-data.v1.json). */
 function exportData(values: Values, rest: string[], io: Io): number {
   if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
   const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);

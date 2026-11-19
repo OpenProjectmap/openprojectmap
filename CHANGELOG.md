@@ -8,6 +8,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `opmap serve --hub <file>` serves a hub on one port and rebuilds it on a timer (`--pull-interval`, default 300 seconds), fetching the git repos in the hub file. It keeps the last good site if a rebuild fails and answers `/healthz`.
+- A `Dockerfile` for self-hosting, with a smoke test that runs in CI. A workflow publishes a signed multi-arch image to GitHub Container Registry for each release tag.
 - `opmap hub <hub.json>` builds many projects into one folder with an index page: a card per project with its current version and progress, next step, decisions waiting on you, a staleness badge and the last commit. Projects can be folders or git remotes (cloned into a cache folder the tool owns). Each map links back to the index. A project that fails still gets a card that says why.
 - `opmap diff <base> [<head>]` shows what changed in the roadmap between two git refs (or a ref and your files): status changes, new and removed deliverables, windows, the Now block and decisions, as text, markdown or json. A recipe for checking pull requests is in `action/README.md`.
 - A GitHub Action (`action/action.yml`) that builds the map in your workflow and writes problems in the docs as annotations. It installs the version you pin, takes its inputs only through the environment, and warns that GitHub Pages sites are public on free plans. A Pages recipe is in `action/README.md`.
