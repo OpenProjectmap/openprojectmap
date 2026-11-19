@@ -1,0 +1,13 @@
+# One entry per private repository: GitHub lets a deploy key work for one repository only, so each
+# repository gets its own key and its own host alias. The alias is what you write in opmap.hub.json.
+Host github-tidepool
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/tidepool_key
+  IdentitiesOnly yes
+
+Host github-side-quest
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/side_quest_key
+  IdentitiesOnly yes

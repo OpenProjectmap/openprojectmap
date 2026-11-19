@@ -1,0 +1,8 @@
+{
+  "title": "Our projects",
+  "projects": [
+    { "name": "Tidepool", "repo": "git@github-tidepool:acme/tidepool.git", "branch": "main" },
+    { "name": "Side quest", "repo": "git@github-side-quest:acme/side-quest.git", "branch": "main" },
+    { "name": "A public one", "repo": "https://github.com/OpenProjectmap/openprojectmap.git", "branch": "main" }
+  ]
+}
