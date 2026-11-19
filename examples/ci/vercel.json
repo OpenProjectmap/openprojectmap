@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npx --yes openprojectmap@0.5 build --out public",
+  "outputDirectory": "public"
+}
