@@ -51,7 +51,9 @@ entry fails a coverage test that compares the ProjectData keys rendered against 
 - Git through `execFile` with an argument array, validated refs, `GIT_TERMINAL_PROMPT=0`, timeouts.
 - No other subprocesses, except the OS "open" command for `--open` (fixed binary, the path as a
   single argument).
-- No outbound network, except `git fetch` when explicitly asked (`--fetch`, hub refresh).
+- No outbound network, except `git fetch` when explicitly asked (`--fetch`, hub refresh) and the clone of a
+  hub `repo` entry. Those git calls allow only the https, ssh and file transports, take the URL after `--`,
+  and reset only folders that carry the tool's `.opmap-managed` marker.
 - `serve` binds `127.0.0.1` by default; `--host 0.0.0.0` prints a warning ("no authentication: put
   it behind a reverse proxy with auth"). It serves only files under the output dir, resolved with
   `path.resolve` + a prefix check after decoding, rejects `..`, NUL and backslashes, allows GET/HEAD

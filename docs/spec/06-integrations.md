@@ -27,7 +27,7 @@ function git(args: string[], cwd: string): string | null {
 
 ## 2. GitHub Action (v0.5)
 
-### 2.1 `action.yml` (repo `openprojectmap/action`)
+### 2.1 `action.yml` (in this repo under `action/`; mirrored to `openprojectmap/action` for the Marketplace)
 
 ```yaml
 name: OpenProjectMap
@@ -47,6 +47,8 @@ runs:
       with: { node-version: 22 }
     - id: build
       shell: bash
+      # the implementation installs the pinned version into a temporary folder and runs that copy:
+      # npx would pick a same-named local package
       env:
         OPMAP_VERSION: ${{ inputs.version }}
         OPMAP_CONFIG_IN: ${{ inputs.config }}
@@ -132,31 +134,52 @@ decisions closed.
   mode) and writes `site/index.html` with one card per project: name, current version and state,
   current-version progress, next step, Needs-your-call count, stale badge, last commit date.
 - `slug` = the name lowercased, `[^a-z0-9]+` → `-`, deduplicated with a numeric suffix.
-- `repo` entries are cloned into a cache dir (`~/.cache/openprojectmap/repos/<slug>` or
-  `/data/repos/<slug>` in Docker) with `git clone --filter=blob:none`; refreshed with
+- `path` entries are folders on this machine (relative paths are taken from the hub file's folder). The hub
+  file is trusted like a command line: it may point anywhere you can read.
+- A project that cannot be built (missing folder, bad docs, failed clone) still gets a card that says why;
+  the command exits 1 and writes everything else.
+- `repo` must be an `https://`, `ssh://` or `file://` URL or `git@host:path`; git runs with only those
+  transports enabled, so a value can never start a helper program. `branch` must be a plain branch name.
+- `repo` entries are cloned into a cache dir (`~/.cache/openprojectmap/repos/<slug>`, or `$OPMAP_REPOS_DIR`,
+  or `--cache-dir`; `/data/repos/<slug>` in Docker) with `git clone --filter=blob:none`; refreshed with
   `git fetch origin <branch>` + `git reset --hard origin/<branch>`. That is safe because the
   directory is owned by the tool, never a user's working copy, and the tool refuses to reset a
-  directory without its `.opmap-managed` marker.
+  directory without its `.opmap-managed` marker, or one cloned from a different remote.
+  `--no-fetch` skips the refresh and uses the clones already there.
+- Each project page is built in hub-child mode, which adds a "← All projects" link to `../index.html`.
+  The index page is static HTML without script (CSP: its own style by hash only); card text is plain
+  words (inline markdown is stripped) and every value is escaped.
 
 ## 4. Docker self-host (v0.5)
 
 ### 4.1 Image
 
+The `Dockerfile` at the repo root builds the CLI from the source tree (a multi-stage build: `pnpm build`,
+`npm pack`, then a global install of that tarball into a small runtime stage), so the image always
+matches the commit it came from.
+
 ```dockerfile
 FROM node:22-alpine
-RUN apk add --no-cache git openssh-client tini \
- && npm install -g openprojectmap@${OPMAP_VERSION} \
- && mkdir -p /data/repos && chown -R node:node /data
+RUN apk add --no-cache git openssh-client tini
+# ... npm install --global --omit=dev <the packed tarball>; mkdir /data/repos /config; chown node /data
 USER node
-ENV NODE_ENV=production
+ENV NODE_ENV=production OPMAP_REPOS_DIR=/data/repos
 EXPOSE 4173
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:4173/healthz || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=120s CMD wget -qO- http://127.0.0.1:4173/healthz || exit 1
 ENTRYPOINT ["/sbin/tini", "--", "opmap"]
 CMD ["serve", "--hub", "/config/opmap.hub.json", "--host", "0.0.0.0", "--pull-interval", "300"]
 ```
 
-Built multi-arch (amd64, arm64) in the release workflow, pushed to GHCR, and signed with cosign
-(keyless); an SBOM is attached.
+`opmap serve --hub <file>` builds the hub once before it listens (so the first start waits for the first
+clones), holds the whole site in memory, answers `GET`/`HEAD` only, and rebuilds every
+`--pull-interval` seconds (`git fetch` and reset of each `repo` entry). Clones run asynchronously, so
+`/healthz` stays responsive during a refresh. If a rebuild fails, the last good site stays up; a hub file
+that is invalid at start stops the server. `CI` runs `scripts/docker-smoke.sh` on every change: it builds
+the image, serves Tidepool, and checks the index, a map's CSP header, the non-root user and `opmap hub`.
+
+Built multi-arch (amd64, arm64) by `.github/workflows/docker.yml` when a version tag is pushed to `main`,
+pushed to GHCR as `X.Y.Z` and `X.Y`, with build provenance and an SBOM attached and a keyless cosign
+signature on the digest. It is a separate workflow so an image problem never holds back the npm release.
 
 ### 4.2 Compose + Caddy (for a VPS or a Coder host)
 
@@ -170,8 +193,6 @@ services:
       - ./deploy_key:/home/node/.ssh/id_ed25519:ro      # read-only deploy key, mode 600
       - ./known_hosts:/home/node/.ssh/known_hosts:ro
       - opmap-data:/data
-    environment:
-      GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=yes"
     expose: ["4173"]                # not published; only Caddy reaches it
   caddy:
     image: caddy:2
@@ -191,6 +212,13 @@ map.example.com {
 ```
 
 Notes for the guide (0.5.0-D5):
+
+- The tool removes every `GIT_*` variable before it runs git, so `GIT_SSH_COMMAND` has no effect. ssh uses
+  its defaults: the key at `~/.ssh/id_ed25519` and `~/.ssh/known_hosts`, and with no terminal it refuses a
+  host it does not know (`StrictHostKeyChecking` asks). Mount both files as shown.
+- A project mounted into the container with `path` can be refused by git ("dubious ownership") when it
+  belongs to another user; the map still builds, without git facts. Prefer `repo` entries, which the
+  container clones itself.
 
 - Use one read-only **deploy key** per repository (GitHub → Settings → Deploy keys, without write).
 - On a Coder workspace you can skip Caddy for personal use: run

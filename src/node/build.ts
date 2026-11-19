@@ -57,16 +57,13 @@ export function resolveNow(
   return { now: d.toISOString() };
 }
 
-/** Parse the project into ProjectData (git facts attached, diagnostics sorted). */
-export function buildData(options: BuildOptions): BuildResult {
-  const config = loadConfig({
-    cwd: options.cwd,
-    configPath: options.configPath,
-    ...(options.env ? { env: options.env } : {}),
-  });
-  const sources = readSources(config);
+/** The options every parse of this project shares (the same for any ref of it). */
+export function parseOptionsFor(
+  config: ResolvedConfig,
+  options: BuildOptions,
+): ParseProjectOptions {
   const { now, today } = resolveNow(options.now, options.tz ?? 'utc');
-  const base: ParseProjectOptions = {
+  return {
     now,
     ...(today === undefined ? {} : { today }),
     name: config.name,
@@ -75,6 +72,17 @@ export function buildData(options: BuildOptions): BuildResult {
     staleAfterDays: config.staleAfterDays,
     requireDoneRef: config.requireDoneRef,
   };
+}
+
+/** Parse the project into ProjectData (git facts attached, diagnostics sorted). */
+export function buildData(options: BuildOptions): BuildResult {
+  const config = loadConfig({
+    cwd: options.cwd,
+    configPath: options.configPath,
+    ...(options.env ? { env: options.env } : {}),
+  });
+  const sources = readSources(config);
+  const base = parseOptionsFor(config, options);
 
   let data = parseProject(sources, base);
   const wantGit = options.git ?? config.git.enabled;
@@ -113,12 +121,17 @@ export function renderMapLive(
   return { html: r.html, csp: r.csp };
 }
 
-export function renderMap(data: ProjectData, theme?: ResolvedConfig['theme']): { html: string } {
+export function renderMap(
+  data: ProjectData,
+  theme?: ResolvedConfig['theme'],
+  options: { hubChild?: boolean } = {},
+): { html: string } {
   return {
     html: renderHtml(
       data,
       { clientJs: CLIENT_JS, stylesCss: STYLES_CSS, templateHtml: TEMPLATE_HTML },
       theme,
+      options,
     ).html,
   };
 }

@@ -65,6 +65,7 @@ npx openprojectmap doctor           # checks your setup and says how to fix what
 ## Documentation
 
 - [Founder Handbook](docs/guide/README.md): how to plan a project, explained for people who've never done it
+- [Self-hosting](docs/guide/self-hosting.md): one private page with a map for every project, behind a password
 - [Doc format v1](docs/spec/02-doc-format.md): exactly what the tool reads
 - [Architecture](docs/spec/01-architecture.md) · [CLI](docs/spec/04-cli.md) · [Security](docs/spec/07-security.md)
 - [Contributing](CONTRIBUTING.md)

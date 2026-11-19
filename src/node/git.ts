@@ -1,6 +1,6 @@
 // Git facts (spec 06 §1). This is the only place git is called: `execFile`, never a shell, with
 // validated refs. Every failure soft-fails to null so a missing git never breaks a build.
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { basename } from 'node:path';
 import { fromDayNumber, parseIsoDay, toDayNumber } from '../core/dates.js';
 import type { ISODate } from '../core/dates.js';
@@ -44,6 +44,30 @@ export function git(args: readonly string[], cwd: string, timeout = GIT_TIMEOUT_
   } catch {
     return null;
   }
+}
+
+/** Like `git()`, for work that may take a while (clone, fetch): the event loop keeps running. */
+export function gitAsync(
+  args: readonly string[],
+  cwd: string,
+  timeout = GIT_TIMEOUT_MS,
+): Promise<string | null> {
+  return new Promise((resolve) => {
+    const child = execFile(
+      'git',
+      [...args],
+      {
+        cwd,
+        encoding: 'utf8',
+        timeout,
+        maxBuffer: 32 * 1024 * 1024,
+        env: gitEnv(),
+        windowsHide: true,
+      },
+      (error, stdout) => resolve(error === null ? stdout : null),
+    );
+    child.stdin?.end();
+  });
 }
 
 function parseCommit(out: string | null): Commit | null {

@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+dist
+.opmap
+.project-map
+test-results
+playwright-report
+coverage
+*.log

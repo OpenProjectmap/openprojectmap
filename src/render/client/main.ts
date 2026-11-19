@@ -93,9 +93,14 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
   );
 
   const current = data.versions.find((v) => v.id === data.derived.currentVersionId);
+  // Built as one project of a hub (spec 05 §1): a way back to the index page next to it.
+  const back = doc.querySelector('meta[name="opmap-hub"]')
+    ? h('a', { class: 'back', href: '../index.html' }, '← All projects')
+    : null;
   const header = h(
     'header',
     { class: 'top' },
+    back,
     h('h1', null, data.project.title),
     h(
       'p',

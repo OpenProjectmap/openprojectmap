@@ -195,17 +195,68 @@ jobs:
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: e2e-results
           path: test-results/
           if-no-files-found: ignore
 
+  # The composite Action in action/, run against this repo's own docs.
+  action:
+    name: action
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: map
+        uses: ./action
+        with:
+          # The newest version that is already on npm: the Action installs from the registry.
+          version: '0.4'
+          strict: 'true'
+          out: ${{ runner.temp }}/map
+      - name: The map was written
+        env:
+          OUT: ${{ steps.map.outputs.out }}
+        run: test -s "$OUT/index.html"
+
+  # What this pull request changes in the roadmap, in the run summary. Advisory: not part of `CI result`.
+  roadmap-diff:
+    name: roadmap diff
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Roadmap changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node dist/cli.js diff "origin/$BASE_REF" --format markdown >> "$GITHUB_STEP_SUMMARY"
+
+  # Builds the self-host image and checks what a self-hoster would see. Advisory until it has proven stable.
+  docker:
+    name: docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: scripts/docker-smoke.sh
+
   ci-result:
     name: CI result
     if: always()
-    needs: [plan, test, quality, branch-flow]
+    needs: [plan, test, quality, branch-flow, action]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

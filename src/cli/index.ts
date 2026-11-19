@@ -8,8 +8,13 @@ import { parseArgs } from 'node:util';
 import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
+import { formatDiff } from '../core/diff.js';
+import type { DiffFormat } from '../core/diff.js';
+import { diffRefs } from '../node/diff.js';
+import { buildHub } from '../node/hub.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
+import { startHubServe } from '../node/serve-hub.js';
 import { AUTHORING, runAuthoring } from './authoring.js';
 import { UsageError } from './errors.js';
 import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
@@ -84,6 +89,8 @@ Commands:
   decide <ID> "<outcome>"    Record a decision (--defaulted)
   serve   Preview the map in a browser and reload it when the docs change
   export  Print the project data as JSON (--pretty)
+  hub <hub.json>            Build many projects into one folder with an index page (--out, --no-fetch, --cache-dir)
+  diff <base> [<head>]      Show what changed in the roadmap between two git refs (default head: the files now)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
@@ -93,7 +100,7 @@ Options:
   -c, --config <file>    Config path (default: found by walking up from the folder)
       --now <date>       Override today (ISO date or timestamp); also OPMAP_NOW
       --tz <utc|local>   How today is computed (default utc)
-      --format <f>       text, json or github (default text)
+      --format <f>       text, json or github (default text); diff: text, markdown or json
       --strict           Warnings fail the run
       --max-warnings <n> Fail when there are more than n warnings
       --no-git           Skip git facts
@@ -104,6 +111,8 @@ Options:
       --dry-run          editing commands: print the diff, change nothing
       --port <n>         serve: port (default 4173; 0 picks a free one)
       --host <h>         serve: address (default 127.0.0.1)
+      --hub <file>       serve: serve a hub (many projects) instead of one map
+      --pull-interval <s> serve --hub: seconds between rebuilds and git fetches (default 300; 0 builds once)
       --yes              init: accept the defaults, ask nothing
       --name <s>         init: project name
       --goal <s>         init: one sentence about the project
@@ -132,6 +141,10 @@ const OPTIONS = {
   'max-warnings': { type: 'string' },
   'no-git': { type: 'boolean' },
   fetch: { type: 'boolean' },
+  'no-fetch': { type: 'boolean' },
+  'cache-dir': { type: 'string' },
+  hub: { type: 'string' },
+  'pull-interval': { type: 'string' },
   out: { type: 'string' },
   json: { type: 'boolean' },
   pretty: { type: 'boolean' },
@@ -230,6 +243,8 @@ export async function mainAsync(argv: readonly string[], io: Io = processIo()): 
       return await runInit(values, positionals.slice(1), io);
     if (positionals[0] === 'serve' && !values.help && !values.version)
       return await runServe(values, positionals.slice(1), io);
+    if (positionals[0] === 'hub' && !values.help && !values.version)
+      return await runHub(values, positionals.slice(1), io);
     return run(argv, io);
   } catch (e) {
     return handleError(e, io);
@@ -363,10 +378,12 @@ function run(argv: readonly string[], io: Io): number {
   }
   if (command === 'doctor') return doctor(values, io);
   if (command === 'export') return exportData(values, rest, io);
+  if (command === 'diff') return runDiff(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
     throw new UsageError('serve keeps running, so it runs through mainAsync');
+  if (command === 'hub') throw new UsageError('hub runs through mainAsync');
   if (command !== 'build' && command !== 'check')
     throw new UsageError(`unknown command "${command}"`);
   if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
@@ -472,6 +489,35 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
       `warning: --host ${host} has no authentication. Anyone who can reach this port can read your roadmap: put it behind a reverse proxy with auth.\n`,
     );
   }
+  if (values.hub !== undefined) {
+    const interval = values['pull-interval'] === undefined ? 300 : Number(values['pull-interval']);
+    if (!Number.isInteger(interval) || interval < 0)
+      throw new UsageError('--pull-interval must be a whole number of seconds (0 builds once)');
+    let hubServing;
+    try {
+      hubServing = await startHubServe({
+        hubFile: values.hub,
+        cwd,
+        env: io.env,
+        now: values.now ?? io.env['OPMAP_NOW'],
+        fetch: values['no-fetch'] !== true,
+        cacheDir: values['cache-dir'],
+        host,
+        port,
+        pullIntervalSec: interval,
+        log: (m) => io.stdout(`${m}\n`),
+      });
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code === 'EADDRINUSE')
+        throw new UsageError(`port ${port} is already in use; pick another with --port`);
+      throw e;
+    }
+    io.stdout(`Serving the hub at ${hubServing.url} (press Ctrl+C to stop)\n`);
+    if (values.open) io.open(hubServing.url);
+    if (io.waitForExit) await io.waitForExit();
+    await hubServing.close();
+    return 0;
+  }
   let serving;
   try {
     serving = await startServe({
@@ -493,6 +539,57 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
   if (values.open) io.open(serving.url);
   if (io.waitForExit) await io.waitForExit();
   await serving.close();
+  return 0;
+}
+
+async function runHub(values: Values, rest: string[], io: Io): Promise<number> {
+  const [hubFile, ...extra] = rest;
+  if (hubFile === undefined)
+    throw new UsageError(
+      'hub needs the hub file, for example: opmap hub opmap.hub.json --out site',
+    );
+  if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const quiet = values.quiet === true;
+  const result = await buildHub({
+    hubFile,
+    out: values.out ?? '.opmap/hub',
+    cwd,
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    tz: pick<'utc' | 'local'>(values.tz, ['utc', 'local'], '--tz', 'utc'),
+    fetch: values['no-fetch'] !== true,
+    cacheDir: values['cache-dir'],
+    log: (line) => {
+      if (!quiet) io.stderr(`${line}\n`);
+    },
+  });
+  const built = result.cards.length - result.failed;
+  const rel = relative(cwd, result.out);
+  const shown = rel === '' ? '.' : rel.startsWith('..') ? result.out : rel;
+  io.stdout(
+    `hub built: ${built} of ${result.cards.length} projects${result.failed > 0 ? `, ${result.failed} failed` : ''} → ${shown}/index.html\n`,
+  );
+  return result.failed > 0 ? 1 : 0;
+}
+
+function runDiff(values: Values, rest: string[], io: Io): number {
+  const [base, head, ...extra] = rest;
+  if (base === undefined)
+    throw new UsageError('diff needs a base ref, for example: opmap diff origin/main');
+  if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
+  const format = pick<DiffFormat>(values.format, ['text', 'markdown', 'json'], '--format', 'text');
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const { diff, labels } = diffRefs({
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    tz: pick<'utc' | 'local'>(values.tz, ['utc', 'local'], '--tz', 'utc'),
+    base,
+    head,
+  });
+  io.stdout(formatDiff(diff, format, labels));
   return 0;
 }
 

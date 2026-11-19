@@ -83,6 +83,8 @@ export function noscriptSummary(data: ProjectData): string {
 export interface RenderOptions {
   /** `opmap serve`: the page may open an EventSource to its own origin to reload on changes. */
   live?: boolean;
+  /** Built as one project of a hub: the page links back to `../index.html`. */
+  hubChild?: boolean;
 }
 
 /** The CSP for a page with the given inline script and style hashes. */
@@ -108,6 +110,7 @@ export function renderHtml(
     title: escapeHtml(data.project.title),
     styles,
     live: options.live === true ? '<meta name="opmap-live" content="1">' : '',
+    hub: options.hubChild === true ? '<meta name="opmap-hub" content="1">' : '',
     noscript: noscriptSummary(data),
     data: embedJson(data),
     script,
