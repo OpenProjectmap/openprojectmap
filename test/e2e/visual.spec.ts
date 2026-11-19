@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test';
 import { VIEWS, buildTidepool } from './helpers.js';
 
 // Screenshots of the Tidepool example in light, dark and mobile (spec 08 §2). Baselines live in
-// test/e2e/visual.spec.ts-snapshots/ and are per platform; update them on purpose with
-// `pnpm test:e2e --update-snapshots` and review the images in the diff.
+// test/e2e/visual.spec.ts-snapshots/ and are per platform. Fonts decide the pixels, so make them on
+// GitHub's ubuntu-latest image: run the "Update screenshots" workflow, download its artifact, copy the
+// images over the old ones and review them in the diff.
 let site: ReturnType<typeof buildTidepool>;
 test.beforeAll(() => {
   site = buildTidepool();
@@ -25,6 +26,8 @@ for (const shot of SHOTS) {
       await page.waitForSelector('#panel h2, #panel h3');
       await expect(page).toHaveScreenshot(`${view}-${shot.name}.png`, {
         fullPage: true,
+        // The footer holds the tool version, which changes with every release.
+        mask: [page.locator('footer')],
         maxDiffPixelRatio: 0.02,
       });
     });
