@@ -76,10 +76,16 @@ describe('property tests', () => {
   });
   it('the next day is exactly one day number later and sorts after', () => {
     fc.assert(
-      fc.property(day, (d) => {
-        const next = addDays(d, 1);
-        return diffDays(d, next) === 1 && next > d;
-      }),
+      // 9999-12-31 is left out: the next day is 10000-01-01, which no longer fits the four-digit
+      // year of the format, so it cannot sort after it as text. fast-check favours range ends, so
+      // some seeds hit it and others never do.
+      fc.property(
+        day.filter((d) => d !== '9999-12-31'),
+        (d) => {
+          const next = addDays(d, 1);
+          return diffDays(d, next) === 1 && next > d;
+        },
+      ),
     );
   });
   it('every valid day parses to itself as a day point', () => {
