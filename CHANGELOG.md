@@ -18,6 +18,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - A self-hosting guide (`docs/guide/self-hosting.md`) and ready-to-copy files (`examples/self-host/`): one private page for all your projects with Docker, Caddy, a password and read-only deploy keys.
 - Recipes for publishing the map from GitLab CI (Pages, and a merge request check), Netlify, Cloudflare Pages and Vercel (`examples/ci/`, `docs/guide/other-hosts.md`), each with a warning about who can open the page.
 
+### Fixed
+
+- The hub tests build file URLs with `pathToFileURL`, so they pass on Windows (a `file://` URL with a drive path needs three slashes).
+
 ## [0.4.0] - 2026-11-19
 
 ### Changed
