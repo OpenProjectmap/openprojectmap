@@ -7,7 +7,7 @@ reports problems in the docs as annotations on the run.
 
 | Input | Default | What it does |
 | --- | --- | --- |
-| `version` | `0.4` | The `openprojectmap` version from npm, like `0.4` or `0.4.0` |
+| `version` | `0.5` | The `openprojectmap` version from npm, like `0.5` or `0.5.0` |
 | `config` | none | Path to `opmap.config.json`; found automatically when empty |
 | `strict` | `false` | Fail the run on warnings |
 | `out` | `.opmap` | Where to write the map |

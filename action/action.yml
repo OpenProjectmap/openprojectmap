@@ -6,8 +6,8 @@ branding:
   color: blue
 inputs:
   version:
-    description: openprojectmap npm version (for example 0.4 or 0.4.0)
-    default: '0.4'
+    description: openprojectmap npm version (for example 0.5 or 0.5.0)
+    default: '0.5'
   config:
     description: Path to opmap.config.json (default is found by walking up from the folder)
     default: ''
