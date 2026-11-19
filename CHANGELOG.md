@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Editing commands that change one cell or line and nothing else: `set-status`, `add`, `new-version`, `log`, `now` and `decide`. Each supports `--dry-run` (prints the diff) and refuses a change that would add a problem to your docs. Writes are atomic.
 - `opmap init` sets up a project: it asks a few questions (or takes flags with `--yes`), writes `opmap.config.json`, the roadmap, decisions and changelog from templates, adds `.opmap/` to .gitignore and runs the checker. It never overwrites your files without `--force`.
 - `opmap init --example` writes the fictional Tidepool project so you can explore a finished map before writing your own.
 - `opmap init --agents claude,cursor,codex` installs instructions for your AI agents: the Claude Code skill, a Cursor rule, and a section in `AGENTS.md`.

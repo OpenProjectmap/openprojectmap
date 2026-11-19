@@ -9,6 +9,8 @@ import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
+import { AUTHORING, runAuthoring } from './authoring.js';
+import { UsageError } from './errors.js';
 import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
 import {
   conflicts,
@@ -66,6 +68,12 @@ Usage: opmap <command> [options]
 
 Commands:
   init    Set up the three project docs and the config in this folder
+  set-status <ID> <status>  Change a deliverable's status (--date, --ref, --note)
+  add <version> "<text>"    Add a deliverable (--status, --notes)
+  new-version <semver>      Add a version (--title, --window, --goal, --exit, --after)
+  log <version> "<text>"     Add a status line (--date)
+  now                       Update the Now block (--current, --next, --why, --fact key=value)
+  decide <ID> "<outcome>"    Record a decision (--defaulted)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
@@ -83,6 +91,7 @@ Options:
       --out <dir>        build: output folder (default from config)
       --json             build: also write data.json
       --open             build: open the map when done
+      --dry-run          editing commands: print the diff, change nothing
       --yes              init: accept the defaults, ask nothing
       --name <s>         init: project name
       --goal <s>         init: one sentence about the project
@@ -124,13 +133,25 @@ const OPTIONS = {
   force: { type: 'boolean' },
   example: { type: 'boolean' },
   agents: { type: 'string' },
+  'dry-run': { type: 'boolean' },
+  status: { type: 'string' },
+  date: { type: 'string' },
+  ref: { type: 'string' },
+  note: { type: 'string' },
+  notes: { type: 'string' },
+  title: { type: 'string' },
+  after: { type: 'string' },
+  exit: { type: 'string' },
+  current: { type: 'string' },
+  next: { type: 'string' },
+  why: { type: 'string' },
+  fact: { type: 'string', multiple: true },
+  defaulted: { type: 'boolean' },
   quiet: { type: 'boolean', short: 'q' },
   'no-color': { type: 'boolean' },
   help: { type: 'boolean', short: 'h' },
   version: { type: 'boolean', short: 'v' },
 } as const;
-
-class UsageError extends Error {}
 
 function pick<T extends string>(
   value: string | undefined,
@@ -324,6 +345,7 @@ function run(argv: readonly string[], io: Io): number {
     return 0;
   }
   if (command === 'doctor') return doctor(values, io);
+  if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command !== 'build' && command !== 'check')
     throw new UsageError(`unknown command "${command}"`);
