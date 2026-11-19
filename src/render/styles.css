@@ -121,6 +121,9 @@ code {
   gap: 8px 16px;
   justify-content: space-between;
 }
+.top .back {
+  flex: 1 1 100%;
+}
 .top h1 {
   flex: 1 1 100%;
 }

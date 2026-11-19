@@ -35,7 +35,7 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
 | `decide` | 0.4 | `opmap decide <ID> "<outcome>" [--defaulted] [--dry-run]` |
 | `export` | 0.4 | `opmap export [--json] [--pretty]`, ProjectData to stdout |
 | `diff` | 0.5 | `opmap diff <base-ref> [<head-ref>] [--format text\|markdown\|json]`, what changed between two git refs, or between a ref and the working tree when `<head-ref>` is left out. Refs are branch, tag or commit names (`origin/main`, `v0.4.0`, a SHA); the docs are read with `git show` and both sides use one "today". Markdown output starts with `<!-- opmap-diff -->` |
-| `hub` | 0.5 | `opmap hub <hub.json> [--out <dir>]` |
+| `hub` | 0.5 | `opmap hub <hub.json> [--out <dir>] [--no-fetch] [--cache-dir <dir>]`; `--out` defaults to `.opmap/hub`. Exit 1 when a project could not be built (its card says why) |
 | `import` | 0.6 | `opmap import github [--repo o/r] [--milestones]` · `opmap import csv <file>`, writes `ROADMAP.import.md` |
 | `mcp` | 0.6 | provided by `@openprojectmap/mcp` (`npx @openprojectmap/mcp`) |
 

@@ -18,6 +18,17 @@ export { CATALOGUE, codeInfo, withHints } from './codes.js';
 export type { CodeInfo } from './codes.js';
 export { diffProjects, formatDiff, DIFF_MARKER } from './diff.js';
 export type { DiffFormat, ProjectDiff } from './diff.js';
+export {
+  cardFor,
+  failedCard,
+  isSafeBranch,
+  isSafeRepoUrl,
+  parseHubConfig,
+  plainText,
+  slugify,
+  uniqueSlugs,
+} from './hub.js';
+export type { HubCard, HubConfig, HubProject } from './hub.js';
 export type { Source } from './parse-roadmap.js';
 export type * from './types.js';
 

@@ -121,12 +121,17 @@ export function renderMapLive(
   return { html: r.html, csp: r.csp };
 }
 
-export function renderMap(data: ProjectData, theme?: ResolvedConfig['theme']): { html: string } {
+export function renderMap(
+  data: ProjectData,
+  theme?: ResolvedConfig['theme'],
+  options: { hubChild?: boolean } = {},
+): { html: string } {
   return {
     html: renderHtml(
       data,
       { clientJs: CLIENT_JS, stylesCss: STYLES_CSS, templateHtml: TEMPLATE_HTML },
       theme,
+      options,
     ).html,
   };
 }
