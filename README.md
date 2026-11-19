@@ -71,4 +71,4 @@ npx openprojectmap doctor           # checks your setup and says how to fix what
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE).
+AGPL-3.0-only. See [LICENSE](LICENSE). Versions up to and including 0.2.0 on npm were published under MIT.

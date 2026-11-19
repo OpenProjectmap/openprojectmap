@@ -34,3 +34,9 @@ Don't open a public issue. See [SECURITY.md](SECURITY.md).
 - Branch from `beta`, one task, feature or bug per branch: `<deliverable-id>/<slug>`.
 - Open your PR against **`beta`**. We test it there. PRs to `main` are release PRs from `beta`
   only, opened by a maintainer when a whole version is complete.
+
+## Licence
+
+OpenProjectMap is licensed under AGPL-3.0-only. By contributing you agree your contribution is
+licensed under it. Before outside contributions are merged, a Contributor License Agreement
+will be required so the project owner can also license the code separately.
