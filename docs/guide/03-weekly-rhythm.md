@@ -28,6 +28,20 @@ can do most of it.
 
 Or tell your agent: "Do the OpenProjectMap close-out."
 
+You can also do the whole close-out with commands that change only the line you name and nothing
+else (add `--dry-run` to any of them to see what would change first):
+
+```bash
+npx openprojectmap set-status 0.2.0-D2 done --date 2026-11-18 --ref "#22"
+npx openprojectmap log v0.2.0 "permission flow merged; reminders next."
+npx openprojectmap now --next "Build quiet hours (0.2.0-D3)." --why "Testers asked for it."
+npx openprojectmap check
+```
+
+`now` also sets the **Updated** date, so the map never claims to be fresher than it is. If you
+forget, the map shows a yellow notice: "This map may be out of date."
+
+
 ## Shipping a version
 
 - [ ] Every deliverable is `done` or `parked` (with the reason in Notes)
