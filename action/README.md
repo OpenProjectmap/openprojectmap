@@ -56,6 +56,37 @@ Pin every third-party action by full commit SHA in your own workflow, as this re
 **Privacy:** GitHub Pages sites are public on free plans, even for private repositories. Publish
 only what you would put on your website. The Action prints this as a notice in the log.
 
+## Check the roadmap on pull requests
+
+```yaml
+on: pull_request # never pull_request_target
+permissions:
+  contents: read
+jobs:
+  roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the base branch must be available
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npx --yes openprojectmap@0.5 check --format github
+      - env:
+          BASE_REF: ${{ github.base_ref }}
+        run: npx --yes openprojectmap@0.5 diff "origin/$BASE_REF" --format markdown >> "$GITHUB_STEP_SUMMARY"
+```
+
+`check --format github` turns each problem in the docs into an annotation on the changed line.
+`diff` lists status changes, new and removed deliverables, window changes, Now block changes and
+decisions opened or closed between the base branch and your files, as markdown. The output starts
+with `<!-- opmap-diff -->`, so a workflow with `pull-requests: write` can find and update one
+comment. Pull requests from forks get a read-only token and cannot post comments, which is why the
+run summary is the default.
+
+Refs given to `diff` are branch, tag or commit names such as `origin/main`, `v0.4.0` or a SHA.
+
 ## Safety
 
 - Inputs are read from environment variables only and are never placed in the script text.

@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `opmap diff <base> [<head>]` shows what changed in the roadmap between two git refs (or a ref and your files): status changes, new and removed deliverables, windows, the Now block and decisions, as text, markdown or json. A recipe for checking pull requests is in `action/README.md`.
 - A GitHub Action (`action/action.yml`) that builds the map in your workflow and writes problems in the docs as annotations. It installs the version you pin, takes its inputs only through the environment, and warns that GitHub Pages sites are public on free plans. A Pages recipe is in `action/README.md`.
 
 ## [0.4.0] - 2026-11-19
