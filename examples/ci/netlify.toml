@@ -1,0 +1,11 @@
+# Netlify: builds the map on every push and serves the "public" folder.
+#
+# PRIVACY: a Netlify site is public unless you turn on password protection, which depends on your
+# plan. If you are not sure, treat the site as public.
+
+[build]
+  command = "npx --yes openprojectmap@0.5 build --out public"
+  publish = "public"
+
+[build.environment]
+  NODE_VERSION = "22"

@@ -1,0 +1,32 @@
+# GitLab CI: publish the map to GitLab Pages from the default branch, and check roadmap changes on
+# merge requests. Copy the jobs you want into your .gitlab-ci.yml.
+#
+# PRIVACY: GitLab Pages access control depends on your plan and project settings. If you are not sure
+# who can open the page, treat it as public and publish only what you would put on your website.
+
+pages:
+  image: node:22-alpine
+  variables:
+    GIT_DEPTH: '0' # full history, for git activity on the map
+  before_script:
+    - apk add --no-cache git
+  script:
+    - npx --yes openprojectmap@0.5 build --out public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+roadmap-check:
+  image: node:22-alpine
+  variables:
+    GIT_DEPTH: '0'
+  before_script:
+    - apk add --no-cache git
+  script:
+    - npx --yes openprojectmap@0.5 check --strict
+    - git fetch --quiet origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+    - npx --yes openprojectmap@0.5 diff "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"

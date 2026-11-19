@@ -8,6 +8,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Recipes for publishing the map from GitLab CI (Pages, and a merge request check), Netlify, Cloudflare Pages and Vercel (`examples/ci/`, `docs/guide/other-hosts.md`), each with a warning about who can open the page.
 - A self-hosting guide (`docs/guide/self-hosting.md`) and ready-to-copy files (`examples/self-host/`): one private page for all your projects with Docker, Caddy, a password and read-only deploy keys.
 - `opmap serve --hub <file>` serves a hub on one port and rebuilds it on a timer (`--pull-interval`, default 300 seconds), fetching the git repos in the hub file. It keeps the last good site if a rebuild fails and answers `/healthz`.
 - A `Dockerfile` for self-hosting, with a smoke test that runs in CI. A workflow publishes a signed multi-arch image to GitHub Container Registry for each release tag.

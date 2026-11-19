@@ -43,6 +43,8 @@ in an empty project folder: it asks five questions and writes the files for you.
 
 When you have several projects and want one private page for all of them, read
 [Putting your maps on one private page](self-hosting.md).
+To publish on GitLab, Netlify, Cloudflare Pages or Vercel, see
+[Other places to publish your map](other-hosts.md).
 
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
