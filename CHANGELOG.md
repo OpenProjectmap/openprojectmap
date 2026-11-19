@@ -23,6 +23,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Windows: files are checked out with LF line endings (`.gitattributes`), which fixes the schema and agent-file tests there.
 - The Now block no longer counts as stale because of commits made before the roadmap was last edited, so refreshing it clears the warning on a busy day.
 
 ## [0.3.0] - 2026-11-19
