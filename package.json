@@ -6,11 +6,11 @@
   "author": "OpenProjectMap contributors",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alkomy/openprojectmap.git"
+    "url": "git+https://github.com/OpenProjectmap/openprojectmap.git"
   },
-  "homepage": "https://github.com/alkomy/openprojectmap#readme",
+  "homepage": "https://github.com/OpenProjectmap/openprojectmap#readme",
   "bugs": {
-    "url": "https://github.com/alkomy/openprojectmap/issues"
+    "url": "https://github.com/OpenProjectmap/openprojectmap/issues"
   },
   "keywords": [
     "roadmap",
