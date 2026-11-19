@@ -18,6 +18,19 @@ chat windows. After a few weeks:
 A short written plan in your repo fixes all four. Your agent reads it, you read it, and
 OpenProjectMap turns it into a page anyone can understand at a glance.
 
+## Try it first (5 minutes)
+
+You can see a finished map before you write anything:
+
+```bash
+npx openprojectmap init --example   # writes a fictional project called Tidepool
+npx openprojectmap build --open     # builds the map and opens it in your browser
+```
+
+Click through the tabs: Overview, Timeline, Versions, Decisions, History, Parked. Everything on that
+page came from three plain text files. When you're ready for your own, run `npx openprojectmap init`
+in an empty project folder: it asks five questions and writes the files for you.
+
 ## Read in this order
 
 | # | Chapter | Time | You'll be able to… |
@@ -27,6 +40,8 @@ OpenProjectMap turns it into a page anyone can understand at a glance.
 | 3 | [The weekly rhythm](03-weekly-rhythm.md) | 10 min | Keep the plan true with 5 minutes per session |
 | 4 | [Working with AI agents](04-working-with-ai.md) | 10 min | Make your agent follow and update the plan |
 | 5 | [Mistakes everyone makes](05-anti-patterns.md) | 10 min | Spot and fix the common traps |
+
+Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
 ## The 30-second version
 
