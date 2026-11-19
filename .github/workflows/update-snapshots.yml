@@ -1,0 +1,26 @@
+name: Update screenshots
+# Regenerates the visual baselines on the same image CI uses (fonts decide the pixels). Run it by
+# hand, download the `snapshots` artifact, copy the images into test/e2e/visual.spec.ts-snapshots/
+# and review them in the PR diff.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test test/e2e/visual.spec.ts --update-snapshots=all
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: snapshots
+          path: test/e2e/visual.spec.ts-snapshots/

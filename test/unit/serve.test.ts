@@ -114,6 +114,17 @@ function events(
   return { done, close: () => close() };
 }
 
+/** Poll until the served body has the text: a slow file watcher can report older events first. */
+async function bodyHas(s: Parameters<typeof get>[0], path: string, text: string): Promise<string> {
+  let body = '';
+  for (let i = 0; i < 100; i++) {
+    body = (await get(s, path)).body;
+    if (body.includes(text)) return body;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return body;
+}
+
 describe('hostAllowed', () => {
   it('accepts the bound host and loopback names on a loopback server', () => {
     const b = { host: '127.0.0.1', port: 4173 };
@@ -219,7 +230,7 @@ describe('startServe', () => {
     ev.close();
     expect(text).toContain('retry: 2000');
     expect(text).toContain('event: reload\ndata: 1');
-    expect((await get(s, '/')).body).toContain('Changed live.');
+    expect(await bodyHas(s, '/', 'Changed live.')).toContain('Changed live.');
     expect(logs.some((l) => l.startsWith('map rebuilt:'))).toBe(true);
   });
   it('follows a file that is replaced, the way editors save', async () => {
@@ -236,7 +247,9 @@ describe('startServe', () => {
     cpSync(`${file}.tmp`, file);
     await ev.done;
     ev.close();
-    expect((await get(s, '/data.json')).body).toContain('Replaced file reminder');
+    expect(await bodyHas(s, '/data.json', 'Replaced file reminder')).toContain(
+      'Replaced file reminder',
+    );
   });
   it('keeps the last good map when a rebuild fails', async () => {
     const dir = tidepool();
