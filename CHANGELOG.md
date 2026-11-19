@@ -11,9 +11,6 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - CI runs on GitHub-hosted runners (free now that the repo is public) instead of a self-hosted one.
-
-### Changed
-
 - Licence: new releases are AGPL-3.0-only (was MIT). Versions up to 0.2.0 stay MIT.
 
 ### Added
@@ -23,6 +20,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `opmap export` prints the project data as JSON for other tools, and JSON Schemas for it and for `opmap.config.json` are published in `schema/` (your editor can use the config schema for autocomplete).
 - A banner on the map when the Now block is out of date.
 - "Open docs…" on the map: pick or drop your ROADMAP, DECISIONS and CHANGELOG files and the page shows them, parsed in your browser. Nothing is uploaded or saved.
+
+### Fixed
+
+- The Now block no longer counts as stale because of commits made before the roadmap was last edited, so refreshing it clears the warning on a busy day.
 
 ## [0.3.0] - 2026-11-19
 

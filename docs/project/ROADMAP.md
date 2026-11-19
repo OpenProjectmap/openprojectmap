@@ -8,7 +8,7 @@ the newest status line in a version goes last; windows live only on the version 
 
 ## Now
 
-**Updated:** 2026-11-20
+**Updated:** 2026-11-19
 **Current version:** v0.4.0
 **Next step:** Merge the release PR from `beta` to `main` (founder), tag `v0.4.0` so `release.yml` publishes to npm, then check that the demo loads at https://openprojectmap.github.io/openprojectmap/ and mark 0.3.0-D6 done. After that v0.5.0 (the GitHub Action, `diff`, the hub and Docker) is next.
 **Why:** v0.3.0 (onboarding) and v0.4.0 (live preview, authoring commands, JSON export) are complete on `beta`, the repo is public in the OpenProjectmap org, and the licence for new releases is AGPL-3.0-only.

@@ -87,6 +87,7 @@ export function buildData(options: BuildOptions): BuildResult {
     areas: config.git.areas,
     activityWeeks: config.git.activityWeeks,
     updated: data.now?.updated ?? null,
+    roadmapPath: config.docs.roadmap,
     today: data.today,
     fetch: options.fetch === true,
   });
