@@ -10,8 +10,8 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-19
 **Current version:** v0.5.0
-**Next step:** Run the v0.5.0 exit checks (the Action deploying Tidepool to Pages and annotating a pull request; a real `docker compose up` for three repos behind TLS and a password), verify the image signature with `cosign verify` (command in the self-hosting guide), and deprecate `openprojectmap@0.2.0` on npm. After that v0.6.0 (tracks, the MCP server, importers) is next.
-**Why:** v0.1.0 to v0.5.0 are released: the repo is public (AGPL-3.0-only), 0.5.0 is on npm with provenance, and the signed image is public on GitHub Container Registry. The exit checks of v0.5.0 need real services, so they stay open.
+**Next step:** Decide D21 (the default refresh interval: the image's 300 seconds only just meets the v0.5.0 exit of five minutes), and deprecate `openprojectmap@0.2.0` on npm (founder). After that v0.6.0 (tracks, the MCP server, importers) is next; it has not been started.
+**Why:** v0.1.0 to v0.5.0 are released and the v0.5.0 exit checks pass on real services: pull request annotations, the Tidepool Pages build, the compose setup behind TLS and a password, and the verified image signature.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** npm `openprojectmap@0.5.0` (`latest`, with provenance), the GitHub Release v0.5.0, `ghcr.io/openprojectmap/openprojectmap:0.5` and the demo at https://openprojectmap.github.io/openprojectmap/.
 
@@ -158,6 +158,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-19:** D6 (other CI and hosts) done in PR #88. Every v0.5.0 deliverable is now done except D4, which stays in `review` until the first image is published at the v0.5.0 tag. What is left of the exit: a real `docker compose up` for three repos behind TLS and auth, and the Action deploying Tidepool to Pages and annotating a PR, both after the release.
 **Status 2026-11-19:** release PR prepared (version 0.5.0, the Action's default version raised to 0.5, dated changelog entry). The CI `action` job stays on `0.4` until 0.5.0 is on npm.
 **Status 2026-11-19:** released as 0.5.0 (tag `v0.5.0`): npm `latest` with provenance, the GitHub Release, and the signed multi-arch image on GHCR, now public. D4 is done. Left of the exit: a real `docker compose up` for three repos behind TLS and a password, and the Action deploying Tidepool to Pages and annotating a pull request.
+**Status 2026-11-19:** exit checks run on GitHub's runners with the published 0.5.0 (a throwaway pull request, closed unmerged). (1) The Action annotates a pull request: two warnings landed on the changed roadmap lines (ROADMAP.md:169 and :146), plus the Pages privacy notice. (2) The Action builds Tidepool and the Pages artifact uploads (27 KB); the live Tidepool demo is deployed to Pages by `pages.yml`; a full Action-to-`deploy-pages` run on a separate Pages site was not done. (3) `docker compose up` with Caddy: the image is healthy in about 10 seconds; no password gives 401, a wrong one 401, the right one 200; http redirects (308); port 4173 is not open on the host; three hub entries (three branches of this public repo) all served with a CSP header; TLS used Caddy's local certificate, not a public one. A commit pushed to one of them showed up after 296 seconds with the default 300-second interval: inside five minutes, but only just, since the worst case is the interval plus the build time (decision D21). (4) `cosign verify` passed against the release workflow's identity, and the image lists linux/amd64 and linux/arm64.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
