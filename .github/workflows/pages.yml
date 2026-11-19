@@ -1,6 +1,5 @@
 name: Demo map
 # Publishes the Tidepool example map to GitHub Pages: on every push to main (a release) and by hand.
-# Runs on the self-hosted runner because GitHub-hosted runners are not available to this org yet.
 on:
   push:
     branches: [main]
@@ -14,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
       name: github-pages

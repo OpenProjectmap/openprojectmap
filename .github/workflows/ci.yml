@@ -9,13 +9,13 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # What blocks a merge runs on the self-hosted Linux runner: Node 22 for task PRs, Node 20 and 22
-  # for release PRs (to main) and pushes to main. macOS and Windows run on GitHub-hosted runners as
-  # an advisory job (`cross-os`) on those same release runs, so billing or minutes problems there
-  # cannot block a release. macOS minutes cost 10x and Windows 2x.
+  # Everything runs on GitHub-hosted runners (free for public repos). What blocks a merge runs on
+  # Ubuntu: Node 22 for task PRs, Node 20 and 22 for release PRs (to main) and pushes to main. macOS
+  # and Windows run as an advisory job (`cross-os`) on those same release runs; it is not part of
+  # `CI result`.
   plan:
     name: plan
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.pick.outputs.matrix }}
@@ -27,9 +27,9 @@ jobs:
         run: |
           echo "full=$FULL" >> "$GITHUB_OUTPUT"
           if [ "$FULL" = "true" ]; then
-            echo 'matrix={"include":[{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":20},{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":22}]}' >> "$GITHUB_OUTPUT"
+            echo 'matrix={"include":[{"os":"ubuntu-latest","runner":"ubuntu-latest","node":20},{"os":"ubuntu-latest","runner":"ubuntu-latest","node":22}]}' >> "$GITHUB_OUTPUT"
           else
-            echo 'matrix={"include":[{"os":"self-hosted","runner":["self-hosted","Linux","X64"],"node":22}]}' >> "$GITHUB_OUTPUT"
+            echo 'matrix={"include":[{"os":"ubuntu-latest","runner":"ubuntu-latest","node":22}]}' >> "$GITHUB_OUTPUT"
           fi
 
   test:
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # Node first: pnpm's installer runs on the Node in PATH, and a self-hosted runner's can be old.
+      # Node first: pnpm's installer runs on the Node in PATH.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
@@ -84,11 +84,11 @@ jobs:
 
   quality:
     name: quality report
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Node first: pnpm's installer runs on the Node in PATH, and a self-hosted runner's can be old.
+      # Node first: pnpm's installer runs on the Node in PATH.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
@@ -157,7 +157,7 @@ jobs:
 
   branch-flow:
     name: branch flow
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: A PR to main must come from beta
@@ -206,7 +206,7 @@ jobs:
     name: CI result
     if: always()
     needs: [plan, test, quality, branch-flow]
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Require every job to pass
