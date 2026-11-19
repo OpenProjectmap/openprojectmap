@@ -221,6 +221,27 @@ jobs:
           OUT: ${{ steps.map.outputs.out }}
         run: test -s "$OUT/index.html"
 
+  # What this pull request changes in the roadmap, in the run summary. Advisory: not part of `CI result`.
+  roadmap-diff:
+    name: roadmap diff
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Roadmap changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node dist/cli.js diff "origin/$BASE_REF" --format markdown >> "$GITHUB_STEP_SUMMARY"
+
   ci-result:
     name: CI result
     if: always()

@@ -8,6 +8,9 @@ import { parseArgs } from 'node:util';
 import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
+import { formatDiff } from '../core/diff.js';
+import type { DiffFormat } from '../core/diff.js';
+import { diffRefs } from '../node/diff.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
 import { AUTHORING, runAuthoring } from './authoring.js';
@@ -84,6 +87,7 @@ Commands:
   decide <ID> "<outcome>"    Record a decision (--defaulted)
   serve   Preview the map in a browser and reload it when the docs change
   export  Print the project data as JSON (--pretty)
+  diff <base> [<head>]      Show what changed in the roadmap between two git refs (default head: the files now)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
@@ -93,7 +97,7 @@ Options:
   -c, --config <file>    Config path (default: found by walking up from the folder)
       --now <date>       Override today (ISO date or timestamp); also OPMAP_NOW
       --tz <utc|local>   How today is computed (default utc)
-      --format <f>       text, json or github (default text)
+      --format <f>       text, json or github (default text); diff: text, markdown or json
       --strict           Warnings fail the run
       --max-warnings <n> Fail when there are more than n warnings
       --no-git           Skip git facts
@@ -363,6 +367,7 @@ function run(argv: readonly string[], io: Io): number {
   }
   if (command === 'doctor') return doctor(values, io);
   if (command === 'export') return exportData(values, rest, io);
+  if (command === 'diff') return runDiff(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
@@ -497,6 +502,26 @@ async function runServe(values: Values, rest: string[], io: Io): Promise<number>
 }
 
 /** `opmap export`: ProjectData as JSON on stdout, for other tools (schema/project-data.v1.json). */
+function runDiff(values: Values, rest: string[], io: Io): number {
+  const [base, head, ...extra] = rest;
+  if (base === undefined)
+    throw new UsageError('diff needs a base ref, for example: opmap diff origin/main');
+  if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
+  const format = pick<DiffFormat>(values.format, ['text', 'markdown', 'json'], '--format', 'text');
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const { diff, labels } = diffRefs({
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    tz: pick<'utc' | 'local'>(values.tz, ['utc', 'local'], '--tz', 'utc'),
+    base,
+    head,
+  });
+  io.stdout(formatDiff(diff, format, labels));
+  return 0;
+}
+
 function exportData(values: Values, rest: string[], io: Io): number {
   if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
   const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
