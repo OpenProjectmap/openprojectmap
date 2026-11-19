@@ -3,6 +3,26 @@
   "version": "0.2.0",
   "description": "Turn three markdown files (ROADMAP, DECISIONS, CHANGELOG) into one self-contained HTML project map.",
   "license": "MIT",
+  "author": "OpenProjectMap contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alkomy/openprojectmap.git"
+  },
+  "homepage": "https://github.com/alkomy/openprojectmap#readme",
+  "bugs": {
+    "url": "https://github.com/alkomy/openprojectmap/issues"
+  },
+  "keywords": [
+    "roadmap",
+    "project-management",
+    "markdown",
+    "changelog",
+    "decisions",
+    "project-map",
+    "ai-agents",
+    "vibe-coding",
+    "cli"
+  ],
   "type": "module",
   "bin": {
     "openprojectmap": "dist/cli.js",
@@ -59,5 +79,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
