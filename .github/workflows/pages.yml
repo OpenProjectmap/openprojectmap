@@ -1,8 +1,9 @@
 name: Demo map
-# Publishes the Tidepool example map to GitHub Pages. Manual for now: Pages needs a public repo (or a
-# paid plan), and the repo is private (decision D14). When the repo opens, turn on Pages with the
-# source "GitHub Actions" in the repo settings, and add `push: branches: [main]` below.
+# Publishes the Tidepool example map to GitHub Pages: on every push to main (a release) and by hand.
+# Runs on the self-hosted runner because GitHub-hosted runners are not available to this org yet.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     timeout-minutes: 15
     environment:
       name: github-pages

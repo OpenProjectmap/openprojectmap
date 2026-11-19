@@ -26,7 +26,7 @@ open source (AGPL-3.0-only), has zero runtime dependencies, and never makes netw
 
 ## 4. Code rules
 
-- TypeScript `strict`, ESM only, Node 20.11+ (CI also runs 22). Relative imports use `.js` extensions.
+- TypeScript `strict`, ESM only, Node 20.11+ (CI also runs 22). Relative imports use `.js` extensions.aeted
 - **Zero runtime dependencies** (decision D5). Dev dependencies are fine. Adding a runtime
   dependency needs a new decision row first.
 - `src/core/**` is isomorphic: no `node:*` imports, no `process`, no `Date.now()`. The current time
