@@ -9,3 +9,4 @@ templates/
 *.md
 src/render/assets.generated.ts
 src/render/template.html
+schema/project-data.v1.json

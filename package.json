@@ -1,8 +1,28 @@
 {
   "name": "openprojectmap",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Turn three markdown files (ROADMAP, DECISIONS, CHANGELOG) into one self-contained HTML project map.",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
+  "author": "OpenProjectMap contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenProjectmap/openprojectmap.git"
+  },
+  "homepage": "https://github.com/OpenProjectmap/openprojectmap#readme",
+  "bugs": {
+    "url": "https://github.com/OpenProjectmap/openprojectmap/issues"
+  },
+  "keywords": [
+    "roadmap",
+    "project-management",
+    "markdown",
+    "changelog",
+    "decisions",
+    "project-map",
+    "ai-agents",
+    "vibe-coding",
+    "cli"
+  ],
   "type": "module",
   "bin": {
     "openprojectmap": "dist/cli.js",
@@ -26,6 +46,7 @@
   "packageManager": "pnpm@10.34.1",
   "scripts": {
     "assets": "node scripts/build-assets.mjs",
+    "schema": "node scripts/gen-schema.mjs",
     "prebuild": "pnpm assets",
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
@@ -47,14 +68,19 @@
     "@types/jsdom": "^30.0.0",
     "@types/node": "^20.19.43",
     "@vitest/coverage-v8": "^5.1.0",
+    "ajv": "^8.20.0",
     "axe-core": "^4.14.1",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "fast-check": "^4.10.2",
     "jsdom": "^29.1.1",
     "prettier": "^3.10.1",
+    "ts-json-schema-generator": "^2.9.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,0 +1,1189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/ProjectData",
+  "definitions": {
+    "ProjectData": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "openprojectmap/project-data@1"
+        },
+        "tool": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "const": "openprojectmap"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "generatedAt": {
+          "type": "string"
+        },
+        "today": {
+          "$ref": "#/definitions/ISODate"
+        },
+        "project": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "formatVersion": {
+              "type": "number",
+              "const": 1
+            }
+          },
+          "required": [
+            "name",
+            "title",
+            "formatVersion"
+          ],
+          "additionalProperties": false
+        },
+        "now": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/NowBlock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Phase"
+          }
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Version"
+          }
+        },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Milestone"
+          }
+        },
+        "parked": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ParkedItem"
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Decision"
+          }
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Risk"
+          }
+        },
+        "releases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Release"
+          }
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Track"
+          }
+        },
+        "git": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/GitInfo"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "derived": {
+          "$ref": "#/definitions/Derived"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Diagnostic"
+          }
+        }
+      },
+      "required": [
+        "schema",
+        "tool",
+        "generatedAt",
+        "today",
+        "project",
+        "now",
+        "phases",
+        "versions",
+        "milestones",
+        "parked",
+        "decisions",
+        "risks",
+        "releases",
+        "tracks",
+        "git",
+        "derived",
+        "diagnostics"
+      ],
+      "additionalProperties": false
+    },
+    "ISODate": {
+      "type": "string",
+      "description": "`YYYY-MM-DD`."
+    },
+    "NowBlock": {
+      "type": "object",
+      "properties": {
+        "updated": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nextStep": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "why": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "target": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "$ref": "#/definitions/RichText"
+              }
+            },
+            "required": [
+              "key",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "updated",
+        "currentVersion",
+        "nextStep",
+        "why",
+        "target",
+        "facts",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "RichText": {
+      "type": "string",
+      "description": "Inline markdown subset kept raw; rendered only by rich() (spec 05 §3)."
+    },
+    "SourceRef": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "file",
+        "line"
+      ],
+      "additionalProperties": false
+    },
+    "Phase": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "versionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "versionIds",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Version": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "semver": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "phaseId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DateWindow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "milestoneId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "goal": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exit": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "$ref": "#/definitions/VersionState"
+        },
+        "stateExplicit": {
+          "type": "boolean"
+        },
+        "statusLines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatusLine"
+          }
+        },
+        "deliverables": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Deliverable"
+          }
+        },
+        "progress": {
+          "$ref": "#/definitions/Progress"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "semver",
+        "title",
+        "phaseId",
+        "window",
+        "milestoneId",
+        "goal",
+        "exit",
+        "state",
+        "stateExplicit",
+        "statusLines",
+        "deliverables",
+        "progress",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "DateWindow": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "$ref": "#/definitions/ISODate"
+        },
+        "end": {
+          "$ref": "#/definitions/ISODate"
+        },
+        "raw": {
+          "type": "string",
+          "description": "The text as written."
+        },
+        "note": {
+          "type": "string",
+          "description": "Text after the dates, without surrounding parentheses."
+        },
+        "tentative": {
+          "type": "boolean",
+          "description": "True when the note says \"tentative\" or contains a \"?\"."
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "raw",
+        "tentative"
+      ],
+      "additionalProperties": false
+    },
+    "VersionState": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "active",
+        "shipped"
+      ]
+    },
+    "StatusLine": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "text": {
+          "$ref": "#/definitions/RichText"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "date",
+        "text",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Deliverable": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "detail": {
+          "$ref": "#/definitions/RichText"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "statusRaw": {
+          "type": "string"
+        },
+        "statusDate": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "extra": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/RichText"
+          }
+        },
+        "versionId": {
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "detail",
+        "status",
+        "statusRaw",
+        "statusDate",
+        "owner",
+        "ref",
+        "notes",
+        "extra",
+        "versionId",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "doing",
+        "review",
+        "blocked",
+        "done",
+        "parked"
+      ]
+    },
+    "Progress": {
+      "type": "object",
+      "properties": {
+        "done": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "parked": {
+          "type": "number"
+        },
+        "byStatus": {
+          "type": "object",
+          "properties": {
+            "todo": {
+              "type": "number"
+            },
+            "doing": {
+              "type": "number"
+            },
+            "review": {
+              "type": "number"
+            },
+            "blocked": {
+              "type": "number"
+            },
+            "done": {
+              "type": "number"
+            },
+            "parked": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "todo",
+            "doing",
+            "review",
+            "blocked",
+            "done",
+            "parked"
+          ],
+          "additionalProperties": false
+        },
+        "pct": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "done",
+        "total",
+        "parked",
+        "byStatus",
+        "pct"
+      ],
+      "additionalProperties": false
+    },
+    "Milestone": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "reachedWhen": {
+          "$ref": "#/definitions/RichText"
+        },
+        "reachedOn": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dependsOn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "versionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "reachedWhen",
+        "reachedOn",
+        "dependsOn",
+        "versionIds",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "ParkedItem": {
+      "type": "object",
+      "properties": {
+        "item": {
+          "$ref": "#/definitions/RichText"
+        },
+        "why": {
+          "$ref": "#/definitions/RichText"
+        },
+        "revisitWhen": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "item",
+        "why",
+        "revisitWhen",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Decision": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "question": {
+          "$ref": "#/definitions/RichText"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "default": {
+          "$ref": "#/definitions/RichText"
+        },
+        "neededBy": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "open",
+            "decided",
+            "defaulted"
+          ]
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "overdue": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "question",
+        "options",
+        "default",
+        "neededBy",
+        "status",
+        "outcome",
+        "overdue",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Risk": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "risk": {
+          "$ref": "#/definitions/RichText"
+        },
+        "likelihood": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Level"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "impact": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Level"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "score": {
+          "type": "number"
+        },
+        "mitigation": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RichText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "open": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "id",
+        "risk",
+        "likelihood",
+        "impact",
+        "score",
+        "mitigation",
+        "owner",
+        "open",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Level": {
+      "type": "string",
+      "enum": [
+        "L",
+        "M",
+        "H"
+      ]
+    },
+    "Release": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "date": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ISODate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unreleased": {
+          "type": "boolean"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "heading": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RichText"
+                }
+              }
+            },
+            "required": [
+              "heading",
+              "items"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "versionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/definitions/SourceRef"
+        }
+      },
+      "required": [
+        "version",
+        "date",
+        "title",
+        "unreleased",
+        "sections",
+        "versionId",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "Track": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Version"
+          }
+        },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Milestone"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "versions",
+        "milestones"
+      ],
+      "additionalProperties": false
+    },
+    "GitInfo": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "string"
+        },
+        "head": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Commit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "branches": {
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Commit"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "activity": {
+          "type": "object",
+          "properties": {
+            "weekStarts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ISODate"
+              }
+            },
+            "commits": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "areas": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "weekStarts",
+            "commits",
+            "areas"
+          ],
+          "additionalProperties": false
+        },
+        "shallow": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "root",
+        "head",
+        "branches",
+        "activity",
+        "shallow"
+      ],
+      "additionalProperties": false
+    },
+    "Commit": {
+      "type": "object",
+      "properties": {
+        "sha": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "sha",
+        "date",
+        "subject"
+      ],
+      "additionalProperties": false
+    },
+    "Derived": {
+      "type": "object",
+      "properties": {
+        "currentVersionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nextVersionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "overall": {
+          "$ref": "#/definitions/Progress"
+        },
+        "needsYourCall": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "topRisks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stale": {
+          "type": "object",
+          "properties": {
+            "isStale": {
+              "type": "boolean"
+            },
+            "days": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "commitsSince": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "isStale",
+            "days",
+            "commitsSince",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "timeline": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ISODate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ISODate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        "milestoneProgress": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "reached": {
+                "type": "boolean"
+              },
+              "pct": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "reached",
+              "pct"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "currentVersionId",
+        "nextVersionId",
+        "overall",
+        "needsYourCall",
+        "topRisks",
+        "stale",
+        "timeline",
+        "milestoneProgress"
+      ],
+      "additionalProperties": false
+    },
+    "Diagnostic": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/Severity"
+        },
+        "message": {
+          "type": "string",
+          "description": "One sentence that names the offending value."
+        },
+        "hint": {
+          "type": "string",
+          "description": "How to fix it, imperative."
+        },
+        "file": {
+          "type": "string",
+          "description": "Display path, repo-relative with `/`."
+        },
+        "line": {
+          "type": "number",
+          "description": "1-based."
+        },
+        "column": {
+          "type": "number",
+          "description": "1-based."
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    }
+  },
+  "$id": "https://openprojectmap.dev/schema/project-data.v1.json",
+  "title": "OpenProjectMap ProjectData v1"
+}

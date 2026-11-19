@@ -61,6 +61,8 @@ const ATTRS = new Set([
   'type',
   'value',
   'checked',
+  'accept',
+  'multiple',
   'disabled',
   'for',
   'name',

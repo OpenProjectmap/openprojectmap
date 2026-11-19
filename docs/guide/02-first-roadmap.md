@@ -4,7 +4,9 @@ Do this with a coffee, alone, or with your AI agent interviewing you ("Interview
 OpenProjectMap handbook chapter 2 and write my roadmap"). The example used throughout is
 **Tidepool**, a fictional habit-tracking app (full files in `examples/tidepool/`).
 
-Start with `npx openprojectmap init`. It creates the files and asks the first questions for you.
+Start with `npx openprojectmap init`. It asks five questions (name, one sentence, launch target, the
+first version's title and dates) and writes your three files, with a short comment in each place
+you still need to fill in. This chapter explains what to put there.
 
 ## Step 1: One sentence (3 min)
 
@@ -100,8 +102,10 @@ What could kill the project or a milestone? Rate L/M/H, and write one mitigation
 ## Step 11: Check and look (1 min)
 
 ```bash
-npx openprojectmap check     # fix anything it lists; each line says how
-npx openprojectmap build     # open .opmap/index.html
+npx openprojectmap check            # fix anything it lists; each line says how
+npx openprojectmap build --open     # build the map and open it
+npx openprojectmap serve            # or: keep it open, and it refreshes each time you save
+npx openprojectmap doctor           # if something odd happens: checks your setup, says how to fix it
 ```
 
 That's it: you have a real plan. Put it in git.

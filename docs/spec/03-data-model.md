@@ -186,7 +186,7 @@ every version from the first version up to and including the one that names it w
 ### 3.6 Staleness
 
 - `days = today − now.updated` (null if `updated` is missing → stale, with reason "no Updated date").
-- `commitsSince` = git commits on HEAD after `updated` (null without git).
+- `commitsSince` = git commits on HEAD after `updated` and after the last commit that edited the roadmap file (null without git). Refreshing the Now block therefore resets the count, however busy the day.
 - `isStale = days > staleAfterDays (default 14) || commitsSince >= 10`.
 - `OPM-W104` is raised when `isStale`.
 

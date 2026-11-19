@@ -146,6 +146,14 @@ describe('gatherGit', () => {
     expect(gatherGit(opts(repo(), { updated: null })).commitsSince).toBeNull();
     expect(gatherGit(opts(repo(), { updated: 'nope' })).commitsSince).toBeNull();
   });
+  it('counts only commits after the last edit of the roadmap file', () => {
+    const dir = repo();
+    expect(gatherGit(opts(dir)).commitsSince).toBe(3);
+    expect(gatherGit(opts(dir, { roadmapPath: 'docs/x.md' })).commitsSince).toBe(1);
+    commit(dir, 'docs/x.md', '2026-11-16T10:00:00Z', 'now block refreshed');
+    expect(gatherGit(opts(dir, { roadmapPath: 'docs/x.md' })).commitsSince).toBe(0);
+    expect(gatherGit(opts(dir, { roadmapPath: 'no/such.md' })).commitsSince).toBe(4);
+  });
   it('OPM-W803 for a missing branch, and never runs an option as a ref', () => {
     const dir = repo();
     const r = gatherGit(

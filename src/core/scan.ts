@@ -132,6 +132,9 @@ function blankComments(line: string, inComment: boolean): { text: string; inComm
 interface Cell {
   text: string;
   column: number;
+  /** Offsets in the line of the raw cell, between its pipes: `[from, to)`. */
+  from: number;
+  to: number;
 }
 
 /** Split a table row on `|` that is neither escaped (`\|`) nor inside a backtick code span. */
@@ -142,9 +145,9 @@ function splitRow(line: string): Cell[] {
   let i = start;
   let cur = '';
   let curStart = start;
-  const push = (): void => {
+  const push = (end: number): void => {
     const lead = cur.length - cur.trimStart().length;
-    cells.push({ text: cur.trim(), column: curStart + lead + 1 });
+    cells.push({ text: cur.trim(), column: curStart + lead + 1, from: curStart, to: end });
     cur = '';
   };
   while (i < line.length) {
@@ -157,7 +160,7 @@ function splitRow(line: string): Cell[] {
       cur += line.slice(i, next).replace(/\\\|/g, '|');
       i = next;
     } else if (ch === 124) {
-      push();
+      push(i);
       i++;
       curStart = i;
     } else {
@@ -166,8 +169,13 @@ function splitRow(line: string): Cell[] {
     }
   }
   // A trailing `|` closes the last cell; text after the last `|` is one more cell.
-  if (cur.trim() !== '') push();
+  if (cur.trim() !== '') push(line.length);
   return cells;
+}
+
+/** Raw cell ranges `[from, to)` of a table row line, between its pipes. Used by the editor. */
+export function cellRanges(line: string): { from: number; to: number }[] {
+  return splitRow(line).map((c) => ({ from: c.from, to: c.to }));
 }
 
 function isTableStart(line: string): boolean {

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { ProjectData } from '../../src/core/types.js';
-import { boot, readData } from '../../src/render/client/main.js';
+import { boot, connectLive, readData } from '../../src/render/client/main.js';
 import { matches } from '../../src/render/client/views/versions.js';
 import { tidepool } from './helpers.js';
 
@@ -23,6 +23,35 @@ async function go(hash: string): Promise<void> {
   await tick();
 }
 const main = (): HTMLElement => document.getElementById('main') as HTMLElement;
+
+describe('staleness banner', () => {
+  it('shows only when the data says the map is stale, with the commit reason too', () => {
+    const fresh = tidepool();
+    fresh.derived.stale = { isStale: false, days: 2, commitsSince: 1, reason: null };
+    mount(fresh);
+    boot(document);
+    expect(document.querySelector('.banner')).toBeNull();
+    const stale = tidepool();
+    stale.derived.stale = {
+      isStale: true,
+      days: 3,
+      commitsSince: 12,
+      reason: '12 commits since 2026-11-10',
+    };
+    mount(stale);
+    boot(document);
+    expect(document.querySelector('.banner')?.textContent).toContain(
+      '12 commits since 2026-11-10.',
+    );
+    const none = tidepool();
+    none.derived.stale = { isStale: true, days: null, commitsSince: null, reason: null };
+    mount(none);
+    boot(document);
+    expect(document.querySelector('.banner')?.textContent).toContain(
+      'The Now block has not been updated.',
+    );
+  });
+});
 
 describe('boot and the overview', () => {
   beforeEach(() => {
@@ -98,9 +127,11 @@ describe('boot and the overview', () => {
     };
     mount(d);
     boot(document);
-    expect(document.querySelector('header')?.textContent).toContain(
-      'stale: 40 days since 2026-10-01',
-    );
+    const banner = document.querySelector('.banner');
+    expect(banner?.getAttribute('role')).toBe('status');
+    expect(banner?.textContent).toContain('This map may be out of date. 40 days since 2026-10-01.');
+    expect(banner?.textContent).toContain('opmap now');
+    expect(document.querySelector('header .banner')).toBeNull();
     expect(main().textContent).toContain('abc1234');
     const empty = tidepool();
     empty.now = null;
@@ -451,5 +482,67 @@ describe('printing', () => {
     stop();
     window.dispatchEvent(new Event('beforeprint'));
     expect(document.getElementById('print-all')).toBeNull();
+  });
+});
+
+describe('live reload', () => {
+  class FakeSource {
+    static all: FakeSource[] = [];
+    handlers = new Map<string, () => void>();
+    closed = false;
+    constructor(public url: string) {
+      FakeSource.all.push(this);
+    }
+    addEventListener(name: string, fn: () => void): void {
+      this.handlers.set(name, fn);
+    }
+    close(): void {
+      this.closed = true;
+    }
+  }
+  const win = window as unknown as { EventSource?: unknown };
+  const live = (): void => {
+    document.head.replaceChildren();
+    const m = document.createElement('meta');
+    m.name = 'opmap-live';
+    m.content = '1';
+    document.head.append(m);
+  };
+
+  it('does nothing without the live marker or without EventSource', () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    document.head.replaceChildren();
+    connectLive(document)();
+    expect(FakeSource.all).toHaveLength(0);
+    live();
+    delete win.EventSource;
+    expect(() => connectLive(document)()).not.toThrow();
+  });
+  it('connects to /events, reloads on a reload event, and closes on stop', () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    live();
+    let reloads = 0;
+    const stop = connectLive(document, () => reloads++);
+    expect(FakeSource.all[0]?.url).toBe('/events');
+    FakeSource.all[0]?.handlers.get('reload')?.();
+    expect(reloads).toBe(1);
+    stop();
+    expect(FakeSource.all[0]?.closed).toBe(true);
+    delete win.EventSource;
+    document.head.replaceChildren();
+  });
+  it('boot connects when the page is live and stops listening when undone', async () => {
+    FakeSource.all = [];
+    win.EventSource = FakeSource;
+    live();
+    mount(tidepool());
+    const stop = boot(document);
+    expect(FakeSource.all).toHaveLength(1);
+    stop();
+    expect(FakeSource.all[0]?.closed).toBe(true);
+    delete win.EventSource;
+    document.head.replaceChildren();
   });
 });

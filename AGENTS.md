@@ -7,7 +7,7 @@ contributor.
 
 OpenProjectMap is a CLI (`openprojectmap`, alias `opmap`) that parses three markdown files
 (ROADMAP, DECISIONS, CHANGELOG) and writes one self-contained HTML project map. It is
-open source (MIT), has zero runtime dependencies, and never makes network requests.
+open source (AGPL-3.0-only), has zero runtime dependencies, and never makes network requests.
 
 ## 2. Read order at the start of every session
 
@@ -26,7 +26,7 @@ open source (MIT), has zero runtime dependencies, and never makes network reques
 
 ## 4. Code rules
 
-- TypeScript `strict`, ESM only, Node 20.11+ (CI also runs 22). Relative imports use `.js` extensions.
+- TypeScript `strict`, ESM only, Node 20.11+ (CI also runs 22). Relative imports use `.js` extensions.aeted
 - **Zero runtime dependencies** (decision D5). Dev dependencies are fine. Adding a runtime
   dependency needs a new decision row first.
 - `src/core/**` is isomorphic: no `node:*` imports, no `process`, no `Date.now()`. The current time

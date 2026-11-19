@@ -87,6 +87,7 @@ export function buildData(options: BuildOptions): BuildResult {
     areas: config.git.areas,
     activityWeeks: config.git.activityWeeks,
     updated: data.now?.updated ?? null,
+    roadmapPath: config.docs.roadmap,
     today: data.today,
     fetch: options.fetch === true,
   });
@@ -96,6 +97,20 @@ export function buildData(options: BuildOptions): BuildResult {
   data.git = facts.info;
   data.diagnostics = sortDiagnostics(withHints([...data.diagnostics, ...facts.diagnostics]));
   return { data, config };
+}
+
+/** The map for `opmap serve`: the page may reload itself, and the CSP is returned for the HTTP header. */
+export function renderMapLive(
+  data: ProjectData,
+  theme?: ResolvedConfig['theme'],
+): { html: string; csp: string } {
+  const r = renderHtml(
+    data,
+    { clientJs: CLIENT_JS, stylesCss: STYLES_CSS, templateHtml: TEMPLATE_HTML },
+    theme,
+    { live: true },
+  );
+  return { html: r.html, csp: r.csp };
 }
 
 export function renderMap(data: ProjectData, theme?: ResolvedConfig['theme']): { html: string } {

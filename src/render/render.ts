@@ -19,6 +19,8 @@ export interface RenderTheme {
 
 export interface RenderResult {
   html: string;
+  /** The Content-Security-Policy that is also in the page's meta tag (for an HTTP header). */
+  csp: string;
   /** The `sha256-…` source tokens that went into the CSP. */
   cspHashes: { script: string; style: string };
 }
@@ -78,15 +80,26 @@ export function noscriptSummary(data: ProjectData): string {
   return parts.join('');
 }
 
+export interface RenderOptions {
+  /** `opmap serve`: the page may open an EventSource to its own origin to reload on changes. */
+  live?: boolean;
+}
+
+/** The CSP for a page with the given inline script and style hashes. */
+export function buildCsp(hashes: { script: string; style: string }, live = false): string {
+  return `default-src 'none'; script-src ${hashes.script}; style-src ${hashes.style}; img-src data:; ${live ? "connect-src 'self'; " : ''}base-uri 'none'; form-action 'none'`;
+}
+
 export function renderHtml(
   data: ProjectData,
   assets: RenderAssets,
   theme: RenderTheme = DEFAULT_THEME,
+  options: RenderOptions = {},
 ): RenderResult {
   const styles = `${assets.stylesCss}\n:root{--accent:${theme.accent};--on-accent:${onAccent(theme.accent)}}`;
   const script = assets.clientJs;
   const hashes = { script: sha256(script), style: sha256(styles) };
-  const csp = `default-src 'none'; script-src ${hashes.script}; style-src ${hashes.style}; img-src data:; base-uri 'none'; form-action 'none'`;
+  const csp = buildCsp(hashes, options.live === true);
   const values: Record<string, string> = {
     theme: theme.mode,
     density: theme.density,
@@ -94,11 +107,12 @@ export function renderHtml(
     version: escapeHtml(data.tool.version),
     title: escapeHtml(data.project.title),
     styles,
+    live: options.live === true ? '<meta name="opmap-live" content="1">' : '',
     noscript: noscriptSummary(data),
     data: embedJson(data),
     script,
   };
   // One pass, so a value that contains `{{x}}` is never expanded again.
   const html = assets.templateHtml.replace(/\{\{(\w+)\}\}/g, (_, key: string) => values[key] ?? '');
-  return { html, cspHashes: hashes };
+  return { html, cspHashes: hashes, csp };
 }
