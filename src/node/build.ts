@@ -98,6 +98,20 @@ export function buildData(options: BuildOptions): BuildResult {
   return { data, config };
 }
 
+/** The map for `opmap serve`: the page may reload itself, and the CSP is returned for the HTTP header. */
+export function renderMapLive(
+  data: ProjectData,
+  theme?: ResolvedConfig['theme'],
+): { html: string; csp: string } {
+  const r = renderHtml(
+    data,
+    { clientJs: CLIENT_JS, stylesCss: STYLES_CSS, templateHtml: TEMPLATE_HTML },
+    theme,
+    { live: true },
+  );
+  return { html: r.html, csp: r.csp };
+}
+
 export function renderMap(data: ProjectData, theme?: ResolvedConfig['theme']): { html: string } {
   return {
     html: renderHtml(

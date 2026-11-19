@@ -45,6 +45,20 @@ function renderView(data: ProjectData, state: State, onChange: (s: State) => voi
 }
 
 /** Render the page. Returns a function that stops listening for hash changes. */
+/** `opmap serve` pages reload themselves when the docs change (spec 04 §2). */
+export function connectLive(doc: Document, reload?: () => void): () => void {
+  const win = doc.defaultView;
+  if (
+    !doc.querySelector('meta[name="opmap-live"]') ||
+    !win ||
+    typeof win.EventSource !== 'function'
+  )
+    return () => undefined;
+  const source = new win.EventSource('/events');
+  source.addEventListener('reload', reload ?? (() => win.location.reload()));
+  return () => source.close();
+}
+
 export function boot(doc: Document = document): () => void {
   const data = readData(doc);
   const app = doc.getElementById('app');
@@ -183,7 +197,9 @@ export function boot(doc: Document = document): () => void {
   win?.addEventListener('beforeprint', beforePrint);
   win?.addEventListener('afterprint', afterPrint);
   paint();
+  const stopLive = connectLive(doc);
   return () => {
+    stopLive();
     win?.removeEventListener('hashchange', paint);
     win?.removeEventListener('beforeprint', beforePrint);
     win?.removeEventListener('afterprint', afterPrint);

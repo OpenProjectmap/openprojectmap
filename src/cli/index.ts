@@ -9,6 +9,7 @@ import { OpmapError } from '../core/errors.js';
 import type { ProjectData } from '../core/types.js';
 import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
+import { startServe } from '../node/serve.js';
 import { AUTHORING, runAuthoring } from './authoring.js';
 import { UsageError } from './errors.js';
 import { INIT_EXAMPLE, INIT_TEMPLATES } from '../render/assets.generated.js';
@@ -41,6 +42,8 @@ export interface Io {
   open: Opener;
   /** Ask a question and return the answer (empty means the default). Only used by `init`. */
   ask: (question: string) => Promise<string>;
+  /** Resolves when the person asks the program to stop (Ctrl+C). Only `serve` waits on it. */
+  waitForExit?: () => Promise<void>;
 }
 
 export function processIo(): Io {
@@ -51,6 +54,11 @@ export function processIo(): Io {
     cwd: process.cwd(),
     isTTY: process.stdout.isTTY === true,
     open: openFile,
+    waitForExit: () =>
+      new Promise<void>((resolve) => {
+        process.once('SIGINT', () => resolve());
+        process.once('SIGTERM', () => resolve());
+      }),
     ask: async (question) => {
       const rl = createInterface({ input: process.stdin, output: process.stdout });
       try {
@@ -74,6 +82,7 @@ Commands:
   log <version> "<text>"     Add a status line (--date)
   now                       Update the Now block (--current, --next, --why, --fact key=value)
   decide <ID> "<outcome>"    Record a decision (--defaulted)
+  serve   Preview the map in a browser and reload it when the docs change
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
   check   List every problem in the docs, with a fix hint
@@ -92,6 +101,8 @@ Options:
       --json             build: also write data.json
       --open             build: open the map when done
       --dry-run          editing commands: print the diff, change nothing
+      --port <n>         serve: port (default 4173; 0 picks a free one)
+      --host <h>         serve: address (default 127.0.0.1)
       --yes              init: accept the defaults, ask nothing
       --name <s>         init: project name
       --goal <s>         init: one sentence about the project
@@ -133,6 +144,8 @@ const OPTIONS = {
   force: { type: 'boolean' },
   example: { type: 'boolean' },
   agents: { type: 'string' },
+  port: { type: 'string' },
+  host: { type: 'string' },
   'dry-run': { type: 'boolean' },
   status: { type: 'string' },
   date: { type: 'string' },
@@ -213,6 +226,8 @@ export async function mainAsync(argv: readonly string[], io: Io = processIo()): 
     });
     if (positionals[0] === 'init' && !values.help && !values.version)
       return await runInit(values, positionals.slice(1), io);
+    if (positionals[0] === 'serve' && !values.help && !values.version)
+      return await runServe(values, positionals.slice(1), io);
     return run(argv, io);
   } catch (e) {
     return handleError(e, io);
@@ -347,6 +362,8 @@ function run(argv: readonly string[], io: Io): number {
   if (command === 'doctor') return doctor(values, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
+  if (command === 'serve')
+    throw new UsageError('serve keeps running, so it runs through mainAsync');
   if (command !== 'build' && command !== 'check')
     throw new UsageError(`unknown command "${command}"`);
   if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
@@ -437,4 +454,41 @@ function doctor(values: Values, io: Io): number {
     `${fails > 0 ? paint('red', `${fails} problem${fails === 1 ? '' : 's'} to fix`) : paint('green', 'All good')}${warns > 0 ? `, ${warns} suggestion${warns === 1 ? '' : 's'}` : ''}\n`,
   );
   return code;
+}
+
+async function runServe(values: Values, rest: string[], io: Io): Promise<number> {
+  if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const port = values.port === undefined ? 4173 : Number(values.port);
+  if (!Number.isInteger(port) || port < 0 || port > 65535)
+    throw new UsageError('--port must be a whole number from 0 to 65535');
+  const host = values.host ?? '127.0.0.1';
+  if (!/^[\w.:[\]-]+$/.test(host)) throw new UsageError('--host must be an address or a name');
+  if (!['127.0.0.1', 'localhost', '::1'].includes(host)) {
+    io.stderr(
+      `warning: --host ${host} has no authentication. Anyone who can reach this port can read your roadmap: put it behind a reverse proxy with auth.\n`,
+    );
+  }
+  let serving;
+  try {
+    serving = await startServe({
+      cwd,
+      configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+      env: io.env,
+      now: values.now ?? io.env['OPMAP_NOW'],
+      git: values['no-git'] ? false : undefined,
+      host,
+      port,
+      log: (m) => io.stdout(`${m}\n`),
+    });
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'EADDRINUSE')
+      throw new UsageError(`port ${port} is already in use; pick another with --port`);
+    throw e;
+  }
+  io.stdout(`Serving the map at ${serving.url} (press Ctrl+C to stop)\n`);
+  if (values.open) io.open(serving.url);
+  if (io.waitForExit) await io.waitForExit();
+  await serving.close();
+  return 0;
 }
