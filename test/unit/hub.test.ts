@@ -11,6 +11,7 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { mainAsync } from '../../src/cli/index.js';
 import type { Io } from '../../src/cli/index.js';
@@ -165,7 +166,7 @@ function remote(): { url: string; change: (text: string) => void } {
   sh(work, ['clone', '-q', '--bare', work, bare]);
   sh(work, ['remote', 'add', 'origin', bare]);
   return {
-    url: `file://${bare}`,
+    url: pathToFileURL(bare).href, // file:///C:/... on Windows
     change: (text) => {
       const file = join(work, 'docs/project/ROADMAP.md');
       writeFileSync(file, readFileSync(file, 'utf8').replace('Finish the streak reminder', text));
@@ -350,5 +351,15 @@ describe('opmap hub', () => {
     const quiet = await run(['hub', 'h.json', '--out', 'site', '-q']);
     expect(quiet.err).toBe('');
     expect((await run(['hub'])).code).not.toBe(0);
+  });
+});
+
+describe('file URLs from real paths', () => {
+  it('accepts what pathToFileURL makes, including a Windows drive path', () => {
+    expect(isSafeRepoUrl(pathToFileURL('/srv/git/my repo.git').href)).toBe(true);
+    expect(isSafeRepoUrl('file:///C:/Users/RUNNER~1/AppData/Local/Temp/opmap-hub-0Q8E2K')).toBe(
+      true,
+    );
+    expect(isSafeRepoUrl('file://C:\\Users\\x')).toBe(false);
   });
 });
