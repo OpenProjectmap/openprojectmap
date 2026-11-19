@@ -6,12 +6,11 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Fixed
-
-- The Now block no longer counts as stale because of commits made before the roadmap was last edited, so refreshing it clears the warning on a busy day.
+## [0.4.0] - 2026-11-19
 
 ### Changed
 
+- CI runs on GitHub-hosted runners (free now that the repo is public) instead of a self-hosted one.
 - Licence: new releases are AGPL-3.0-only (was MIT). Versions up to 0.2.0 stay MIT.
 
 ### Added
@@ -21,6 +20,15 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `opmap export` prints the project data as JSON for other tools, and JSON Schemas for it and for `opmap.config.json` are published in `schema/` (your editor can use the config schema for autocomplete).
 - A banner on the map when the Now block is out of date.
 - "Open docs…" on the map: pick or drop your ROADMAP, DECISIONS and CHANGELOG files and the page shows them, parsed in your browser. Nothing is uploaded or saved.
+
+### Fixed
+
+- The Now block no longer counts as stale because of commits made before the roadmap was last edited, so refreshing it clears the warning on a busy day.
+
+## [0.3.0] - 2026-11-19
+
+### Added
+
 - Founder Handbook: a five-minute "try it first" section, the real commands in the chapters, and a review sheet for first readers.
 - `opmap init` sets up a project: it asks a few questions (or takes flags with `--yes`), writes `opmap.config.json`, the roadmap, decisions and changelog from templates, adds `.opmap/` to .gitignore and runs the checker. It never overwrites your files without `--force`.
 - `opmap init --example` writes the fictional Tidepool project so you can explore a finished map before writing your own.
