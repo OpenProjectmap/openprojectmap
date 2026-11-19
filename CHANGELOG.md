@@ -10,6 +10,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - The self-hosting guide shows how to verify the signed image with `cosign verify`.
 
+### Fixed
+
+- A date property test that failed on some random seeds (the day after 9999-12-31 does not fit a four-digit year) no longer does.
+
 ## [0.5.0] - 2026-11-19
 
 ### Added
