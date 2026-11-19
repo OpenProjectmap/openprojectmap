@@ -202,10 +202,29 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
 
+  # The composite Action in action/, run against this repo's own docs.
+  action:
+    name: action
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: map
+        uses: ./action
+        with:
+          strict: 'true'
+          out: ${{ runner.temp }}/map
+      - name: The map was written
+        env:
+          OUT: ${{ steps.map.outputs.out }}
+        run: test -s "$OUT/index.html"
+
   ci-result:
     name: CI result
     if: always()
-    needs: [plan, test, quality, branch-flow]
+    needs: [plan, test, quality, branch-flow, action]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
