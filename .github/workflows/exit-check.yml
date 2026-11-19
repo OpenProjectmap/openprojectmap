@@ -1,0 +1,150 @@
+name: v0.5.0 exit check (scratch)
+# Throwaway: proves the v0.5.0 exit criteria on GitHub's runners. This pull request is never merged.
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  annotate:
+    name: the Action annotates this pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: ./action
+        with:
+          out: ${{ runner.temp }}/map
+
+  pages-artifact:
+    name: the Action builds Tidepool for Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: map
+        uses: ./action
+        with:
+          config: examples/tidepool/opmap.config.json
+          out: ${{ runner.temp }}/tidepool
+      - name: The map was written and is Tidepool
+        env:
+          OUT: ${{ steps.map.outputs.out }}
+        run: test -s "$OUT/index.html" && grep -q "Tidepool" "$OUT/index.html"
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ steps.map.outputs.out }}
+
+  signature:
+    name: the published image is signed and multi-arch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+      - name: cosign verify
+        run: |
+          cosign verify ghcr.io/openprojectmap/openprojectmap:0.5.0 \
+            --certificate-identity-regexp '^https://github.com/OpenProjectmap/openprojectmap/\.github/workflows/docker\.yml@refs/tags/v' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com
+      - name: Platforms and attestations
+        run: docker buildx imagetools inspect ghcr.io/openprojectmap/openprojectmap:0.5.0 | tee inspect.txt
+      - run: grep -q 'linux/amd64' inspect.txt && grep -q 'linux/arm64' inspect.txt
+
+  compose:
+    name: docker compose behind TLS and a password, three projects, refresh within 5 minutes
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: write # pushes one commit to scratch/refresh-target
+    env:
+      REPO: https://github.com/OpenProjectmap/openprojectmap.git
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Write the self-host files (like examples/self-host, without ssh, with a local certificate)
+        run: |
+          mkdir -p "$RUNNER_TEMP/selfhost" && cd "$RUNNER_TEMP/selfhost"
+          PASS="$(openssl rand -hex 12)"
+          echo "::add-mask::$PASS"
+          echo "PASS=$PASS" >> "$GITHUB_ENV"
+          HASH="$(docker run --rm caddy caddy hash-password --plaintext "$PASS")"
+          cat > opmap.hub.json <<JSON
+          { "title": "Exit check", "projects": [
+            { "name": "Main", "repo": "$REPO", "branch": "main" },
+            { "name": "Beta", "repo": "$REPO", "branch": "beta" },
+            { "name": "Refresh target", "repo": "$REPO", "branch": "scratch/refresh-target" }
+          ] }
+          JSON
+          cat > Caddyfile <<CADDY
+          localhost {
+            tls internal
+            basic_auth {
+              founder $HASH
+            }
+            reverse_proxy opmap:4173
+          }
+          CADDY
+          cat > docker-compose.yml <<'YML'
+          services:
+            opmap:
+              image: ghcr.io/openprojectmap/openprojectmap:0.5
+              volumes:
+                - ./opmap.hub.json:/config/opmap.hub.json:ro
+                - opmap-data:/data
+              expose: ['4173']
+            caddy:
+              image: caddy:2
+              ports: ['80:80', '443:443']
+              volumes:
+                - ./Caddyfile:/etc/caddy/Caddyfile:ro
+                - caddy-data:/data
+              depends_on: [opmap]
+          volumes: { opmap-data: {}, caddy-data: {} }
+          YML
+          docker compose config -q && echo "compose file is valid"
+      - name: docker compose up, wait until healthy
+        working-directory: ${{ runner.temp }}/selfhost
+        run: |
+          docker compose up -d
+          for i in $(seq 1 60); do
+            s="$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose ps -q opmap)")"
+            echo "opmap: $s"; [ "$s" = healthy ] && break; sleep 5
+          done
+          [ "$s" = healthy ]
+      - name: TLS, password, three projects
+        run: |
+          set -x
+          test "$(curl -sk -o /dev/null -w '%{http_code}' https://localhost/)" = 401
+          test "$(curl -sk -o /dev/null -w '%{http_code}' -u "founder:wrong" https://localhost/)" = 401
+          INDEX="$(curl -sk -u "founder:$PASS" https://localhost/)"
+          grep -q '<h1>Exit check</h1>' <<<"$INDEX"
+          for slug in main beta refresh-target; do
+            grep -q "href=\"$slug/index.html\"" <<<"$INDEX"
+            test "$(curl -sk -o /dev/null -w '%{http_code}' -u "founder:$PASS" https://localhost/$slug/)" = 200
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)" = 308
+          if curl -s --connect-timeout 3 http://127.0.0.1:4173/healthz; then echo "port 4173 is open on the host"; exit 1; fi
+          curl -skI -u "founder:$PASS" https://localhost/main/ | grep -i content-security-policy
+      - name: Push a commit and time how long the page takes to show it
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          MARK="refresh-marker-$GITHUB_RUN_ID"
+          git clone --quiet --branch scratch/refresh-target "https://x-access-token:${TOKEN}@github.com/OpenProjectmap/openprojectmap.git" "$RUNNER_TEMP/target"
+          cd "$RUNNER_TEMP/target"
+          git config user.name "exit-check"; git config user.email "exit-check@users.noreply.github.com"
+          sed -i "s/^\*\*Next step:\*\* /**Next step:** $MARK /" docs/project/ROADMAP.md
+          git commit -qam "exit check: $MARK"
+          git push --quiet origin scratch/refresh-target
+          START=$(date +%s)
+          for i in $(seq 1 66); do
+            if curl -sk -u "founder:$PASS" https://localhost/refresh-target/ | grep -q "$MARK"; then
+              echo "REFRESH SECONDS: $(( $(date +%s) - START ))"; exit 0
+            fi
+            sleep 5
+          done
+          echo "the page did not show the commit within 330 seconds"; exit 1
+      - name: Logs
+        if: always()
+        working-directory: ${{ runner.temp }}/selfhost
+        run: docker compose logs --no-color opmap | tail -30
