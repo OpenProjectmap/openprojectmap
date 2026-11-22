@@ -251,14 +251,19 @@ parser and editor). The server's working directory is the repo root (or `--cwd`)
 | Tool | Input | Returns | Writes |
 | --- | --- | --- | --- |
 | `now` | — | Now block + current version summary + needs-your-call | no |
-| `list` | `{ version?, status?: Status[], q?, limit≤200 }` | deliverables (compact) | no |
-| `get` | `{ id }` | a deliverable, version or decision with source line | no |
+| `list` | `{ version?, status?: Status[], q?, limit≤200 }` | deliverables (compact) of the roadmap and every track | no |
+| `get` | `{ id }` | a deliverable, version or track block, decision or risk, with its source line | no |
 | `check` | — | diagnostics | no |
 | `set_status` | `{ id, status, date?, ref?, note? }` | unified diff + new diagnostics | yes |
 | `log` | `{ version, text, date? }` | diff | yes |
 | `decide` | `{ id, outcome, defaulted? }` | diff | yes |
 | `update_now` | `{ current?, next?, why?, facts? }` | diff | yes |
 
+- Ids are plain words (`[A-Za-z0-9][A-Za-z0-9._-]{0,63}`); text inputs are one line and length-capped.
+  `set_status` finds a deliverable in the roadmap or in any track; `log` takes a roadmap version or
+  a track block id.
+- Every tool carries the MCP `readOnlyHint` annotation (true for `now`, `list`, `get`, `check`),
+  and the server runs over stdio only: it opens no port and makes no network request.
 - `--read-only` disables every write tool. Every write goes through the editor (spec 04 §5) and is
   re-validated, so an agent cannot leave the file in a broken format.
 - Text returned to the agent is data; the tool descriptions say so, to limit prompt injection from

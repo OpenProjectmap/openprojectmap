@@ -7,3 +7,15 @@ export type { BuildOptions } from './node/build.js';
 export { loadConfig } from './node/config.js';
 export type { ResolvedConfig } from './node/config.js';
 export type { ProjectData, Diagnostic } from './core/types.js';
+export { queryCheck, queryGet, queryList, queryNow } from './core/index.js';
+export type { Item, ListInput, NowSummary } from './core/index.js';
+export { EditError } from './node/editor.js';
+export { opDecide, opLog, opSetStatus, opUpdateNow } from './node/ops.js';
+export type {
+  DecideInput,
+  LogInput,
+  OpContext,
+  SetStatusInput,
+  UpdateNowInput,
+} from './node/ops.js';
+export type { EditResult } from './node/edit-file.js';

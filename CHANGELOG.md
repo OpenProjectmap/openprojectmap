@@ -12,6 +12,12 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   gets a tab after Versions and a lane in the Timeline, which now spans the roadmap and every
   track. Configure them with `tracks[]` in `opmap.config.json`; `examples/two-tracks` shows one.
 
+- `@openprojectmap/mcp`: an MCP server (stdio) with the tools `now`, `list`, `get`, `check`,
+  `set_status`, `log`, `decide` and `update_now`. Writes go through the same source-preserving
+  editor as the CLI and refuse an edit that would add a format problem; `--read-only` leaves the
+  write tools out. `set-status` and `log` on the CLI now also work on track files.
+- The CLI package exports the editing operations and read-only queries for other packages.
+
 ### Changed
 
 - The self-hosting guide shows how to verify the signed image with `cosign verify`.

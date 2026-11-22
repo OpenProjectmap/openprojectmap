@@ -17,6 +17,8 @@ export const CORE_NAME = 'openprojectmap-core';
 export { OpmapError } from './errors.js';
 export { CATALOGUE, codeInfo, withHints } from './codes.js';
 export type { CodeInfo } from './codes.js';
+export { LIST_DEFAULT, LIST_MAX, queryCheck, queryGet, queryList, queryNow } from './query.js';
+export type { DeliverableSummary, Item, ListInput, NowSummary, VersionSummary } from './query.js';
 export { diffProjects, formatDiff, DIFF_MARKER } from './diff.js';
 export type { DiffFormat, ProjectDiff } from './diff.js';
 export {

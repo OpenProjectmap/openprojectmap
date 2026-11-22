@@ -11,6 +11,7 @@ export default tseslint.config(
       'reference/',
       'src/render/assets.generated.ts',
       'examples/',
+      'packages/*/dist/',
     ],
   },
   js.configs.recommended,

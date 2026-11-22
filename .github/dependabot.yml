@@ -13,3 +13,9 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+  # The MCP server package (0.6.0-D2) has runtime dependencies, so each update is its own pull request.
+  - package-ecosystem: npm
+    directory: /packages/mcp
+    target-branch: beta
+    schedule:
+      interval: weekly

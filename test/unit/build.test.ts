@@ -89,12 +89,21 @@ describe('sources', () => {
 describe('public API', () => {
   it('exports the documented functions', () => {
     expect(Object.keys(api).sort()).toEqual([
+      'EditError',
       'OpmapError',
       'VERSION',
       'buildData',
       'buildProject',
       'loadConfig',
+      'opDecide',
+      'opLog',
+      'opSetStatus',
+      'opUpdateNow',
       'parseProject',
+      'queryCheck',
+      'queryGet',
+      'queryList',
+      'queryNow',
       'renderMap',
     ]);
   });
