@@ -1,4 +1,12 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -213,6 +221,21 @@ describe('on disk', () => {
     );
     expect(() => checkProposal(ctx(), 'no/such/file.md')).toThrow(/neither a table row nor a file/);
     expect(() => checkProposal(ctx(), 'package.json')).toThrow();
+  });
+
+  it('only reads markdown drafts, and will not write through a linked proposals folder', () => {
+    writeFileSync(join(dir, 'secret.env'), '| 0.2.0-D4 | **key=abc** | todo | |\n');
+    expect(() => checkProposal(ctx(), 'secret.env')).toThrow(/markdown file/);
+    const outside = mkdtempSync(join(tmpdir(), 'opmap-outside-'));
+    try {
+      symlinkSync(outside, join(dir, 'docs/project/proposals'));
+      expect(() => saveProposal(ctx(), { slug: 'leak', title: 't', idea: 'x y z' })).toThrow(
+        /inside the repository/,
+      );
+      expect(existsSync(join(outside, 'leak.md'))).toBe(false);
+    } finally {
+      rmSync(outside, { recursive: true, force: true });
+    }
   });
 
   it('the CLI explains placement and checks rows with an exit code', () => {

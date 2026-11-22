@@ -125,3 +125,38 @@ describe('queries', () => {
     expect(queryGet(d, 'nope')).toBeNull();
   });
 });
+
+describe('input that tries to change the structure of the docs', () => {
+  it('refuses a Now field name that could end the marker or start a heading', () => {
+    const before = read('ROADMAP.md');
+    for (const key of [
+      'A:**\n\n### v9.9.9 — Evil\n\n**B',
+      '**Next step',
+      'Next step:** hijack **X',
+      'a'.repeat(61),
+      '',
+      '1abc',
+    ])
+      expect(() => opUpdateNow(ctx(), { facts: [[key, 'v']] }), key).toThrow(EditError);
+    expect(read('ROADMAP.md')).toBe(before);
+    opUpdateNow(ctx(), { facts: [['Beta users', '40']] });
+    expect(read('ROADMAP.md')).toContain('**Beta users:** 40');
+  });
+
+  it('refuses a reference that could close the cell’s parenthesis or split the row', () => {
+    const before = read('ROADMAP.md');
+    for (const ref of ['#1) | x |', '#1)', '(x', 'a|b', '#1\n#2'])
+      expect(
+        () => opSetStatus(ctx(), { id: '0.2.0-D3', status: 'done', date: NOW, ref }),
+        ref,
+      ).toThrow(EditError);
+    expect(read('ROADMAP.md')).toBe(before);
+    opSetStatus(ctx(), {
+      id: '0.2.0-D3',
+      status: 'done',
+      date: NOW,
+      ref: 'https://github.com/o/r/pull/7',
+    });
+    expect(data().diagnostics).toEqual([]);
+  });
+});

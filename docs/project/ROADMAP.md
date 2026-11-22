@@ -10,8 +10,8 @@ the newest status line in a version goes last; windows live only on the version 
 
 **Updated:** 2026-11-22
 **Current version:** v0.6.0
-**Next step:** Build v0.6.0 in ID order: tracks (0.6.0-D1), the MCP server (0.6.0-D2), importers (0.6.0-D3), i18n (0.6.0-D4), feature intake (0.6.0-D5). Still open for the founder: D21 (refresh interval, default 120 s) and D22 to D24, all with defaults.
-**Why:** v0.1.0 to v0.5.0 are released and the v0.5.0 exit checks pass; the founder asked on 2026-11-22 to start v0.6.0 and complete it, so work runs ahead of the 2027-03-08 window.
+**Next step:** Check the v0.6.0 exit with a live agent (add the MCP server to Claude Code and do a session close-out with only its tools), then release v0.6.0. Founder: decide D21 (refresh interval) and D22 to D24; D22 (the npm organisation for `@openprojectmap/mcp`) blocks publishing the MCP package.
+**Why:** All five v0.6.0 deliverables are done on `beta` (tracks, MCP server, importers, i18n, feature intake) with 870 unit tests and 31 real-browser tests passing; what remains is checks that need a live agent session and the founder's go-ahead for the release PR.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** npm `openprojectmap@0.5.0` (`latest`, with provenance), the GitHub Release v0.5.0, `ghcr.io/openprojectmap/openprojectmap:0.5` and the demo at https://openprojectmap.github.io/openprojectmap/.
 
@@ -184,6 +184,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-22:** 0.6.0-D3 (importers) done: `opmap import github|csv` writes a reviewable draft.
 **Status 2026-11-22:** 0.6.0-D4 (i18n) done. Next: feature intake (0.6.0-D5), then the exit checks.
 **Status 2026-11-22:** 0.6.0-D5 (feature intake) done: all five deliverables are built; what is left is the exit checks (Claude Code doing a close-out with only the MCP tools, a two-track project) and the release.
+**Status 2026-11-22:** security review of the new surface (spec 07 §8): the editor now refuses Now field names with markup and references with parentheses or `|` (an agent could have injected a heading through a field name), `check --file` reads only markdown, and the proposal and import writes refuse a link that leads out of the repo; each has a regression test. Real-browser tests (31) cover tracks, the right-to-left page and the accented locale, with axe in both themes.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |

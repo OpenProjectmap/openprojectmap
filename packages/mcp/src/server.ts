@@ -219,7 +219,10 @@ export function createServer(options: ServerOptions): McpServer {
         id: ID,
         status: STATUS,
         date: DATE.optional(),
-        ref: LINE(80).optional(),
+        ref: z
+          .string()
+          .regex(/^[A-Za-z0-9#._/:@ -]{1,120}$/, 'a PR number, commit or URL such as #14')
+          .optional(),
         note: LINE(500).optional(),
       },
       annotations: write,
@@ -261,7 +264,12 @@ export function createServer(options: ServerOptions): McpServer {
         current: LINE(100).optional(),
         next: LINE(1000).optional(),
         why: LINE(1000).optional(),
-        facts: z.record(z.string().min(1).max(60), LINE(500)).optional(),
+        facts: z
+          .record(
+            z.string().regex(/^[A-Za-z][A-Za-z0-9 ._()/'-]{0,59}$/, 'a plain field name'),
+            LINE(500),
+          )
+          .optional(),
       },
       annotations: write,
     },

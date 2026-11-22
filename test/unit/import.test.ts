@@ -1,4 +1,12 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -306,6 +314,18 @@ describe('writing the draft', () => {
     expect(
       importGithub({ cwd: dir, repo: 'acme/app', now: TODAY, env: {}, gh, force: true }).written,
     ).toBe(true);
+  });
+
+  it('with --force it replaces a link at that name instead of writing through it', () => {
+    const victim = join(dir, 'victim.txt');
+    writeFileSync(victim, 'keep me');
+    symlinkSync(victim, join(dir, 'docs/project/ROADMAP.import.md'));
+    expect(() => importGithub({ cwd: dir, repo: 'acme/app', now: TODAY, env: {}, gh })).toThrow(
+      /already exists/,
+    );
+    importGithub({ cwd: dir, repo: 'acme/app', now: TODAY, env: {}, gh, force: true });
+    expect(readFileSync(victim, 'utf8')).toBe('keep me');
+    expect(read('ROADMAP.import.md')).toContain('# Draft: imported from GitHub');
   });
 
   it('a dry run writes nothing', () => {

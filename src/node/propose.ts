@@ -74,6 +74,8 @@ export function checkProposal(ctx: ProposeContext, input: string): CheckedRows {
     const rel = relative(config.root, real);
     if (rel.startsWith('..') || isAbsolute(rel))
       throw new OpmapError('OPM-E001', 'The draft must be inside the repository');
+    if (!/\.(md|markdown|txt)$/i.test(real))
+      throw new OpmapError('OPM-E001', 'The draft must be a markdown file (.md)');
     file = displayPath(config.root, real);
     rows = readFileSync(real, 'utf8')
       .split(/\r?\n/)
@@ -157,6 +159,10 @@ export function saveProposal(
     ].join('\n') + '\n';
   try {
     mkdirSync(dir, { recursive: true });
+    // A `proposals` folder that is a link to somewhere else must not carry the write out of the repo.
+    const real = relative(realpathSync(config.root), realpathSync(dir));
+    if (real.startsWith('..') || isAbsolute(real))
+      throw new OpmapError('OPM-E001', 'The proposals folder must be inside the repository');
     writeFileSync(abs, text, { flag: 'wx' });
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === 'EEXIST')
