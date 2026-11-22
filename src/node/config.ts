@@ -303,6 +303,8 @@ export function validateConfig(input: unknown): { config: RawConfig | null; prob
           }
           return;
         }
+        if (bp !== undefined && !(/\(\?<id>/.test(bp) && /\(\?<title>/.test(bp)))
+          problems.push(`${at}.blockPattern: needs the named groups (?<id>...) and (?<title>...)`);
         tracks.push({
           id,
           title,

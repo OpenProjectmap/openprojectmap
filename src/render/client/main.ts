@@ -2,8 +2,8 @@
 import type { ProjectData } from '../../core/types.js';
 import { stateChip } from './components.js';
 import { append, h } from './h.js';
-import { formatHash, parseHash, VIEWS } from './router.js';
-import type { State, View } from './router.js';
+import { formatHash, parseHash, tabsOf } from './router.js';
+import type { State, Tab } from './router.js';
 import { loadMode, nextMode, saveMode } from './theme.js';
 import { renderDecisions } from './views/decisions.js';
 import { renderHistory } from './views/history.js';
@@ -12,15 +12,6 @@ import { renderTimeline } from './views/timeline.js';
 import { renderOverview } from './views/overview.js';
 import { renderVersions } from './views/versions.js';
 import { parsePicked, readFiles } from './open-docs.js';
-
-const LABELS: Record<View, string> = {
-  overview: 'Overview',
-  versions: 'Versions',
-  timeline: 'Timeline',
-  decisions: 'Decisions',
-  history: 'History',
-  parked: 'Parked',
-};
 
 export function readData(doc: Document): ProjectData {
   const el = doc.getElementById('opmap-data');
@@ -32,6 +23,10 @@ function renderView(data: ProjectData, state: State, onChange: (s: State) => voi
   switch (state.view) {
     case 'versions':
       return renderVersions(data, state, onChange);
+    case 'track': {
+      const track = data.tracks.find((t) => t.id === state.trackId);
+      return track ? renderVersions(data, state, onChange, track) : renderOverview(data);
+    }
     case 'decisions':
       return renderDecisions(data);
     case 'timeline':
@@ -190,38 +185,52 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
     void openFiles(files);
   };
 
-  const paint = (): void => {
+  const allTabs = tabsOf(data.tracks ?? []);
+  // A hash naming a track this page does not have shows the Overview.
+  const currentState = (): State => {
     const state = parseHash(doc.defaultView?.location.hash ?? '');
+    if (state.view === 'track' && !(data.tracks ?? []).some((t) => t.id === state.trackId))
+      return { ...state, view: 'overview', trackId: null, versionId: null };
+    return state;
+  };
+  const tabIdOf = (state: State): string =>
+    state.view === 'track' ? `tab-track-${state.trackId ?? ''}` : `tab-${state.view}`;
+  const goTo = (tab: Tab): void => {
+    if (doc.defaultView)
+      doc.defaultView.location.hash = formatHash({
+        view: tab.view,
+        trackId: tab.trackId,
+        versionId: null,
+        status: [],
+        q: '',
+        zoom: 'month',
+      });
+  };
+
+  const paint = (): void => {
+    const state = currentState();
     const hadFocus = tabs.contains(doc.activeElement);
     tabs.replaceChildren();
-    for (const v of VIEWS) {
+    const selected = tabIdOf(state);
+    for (const tab of allTabs) {
       tabs.appendChild(
         h(
           'button',
           {
             type: 'button',
             role: 'tab',
-            id: `tab-${v}`,
-            'aria-selected': String(v === state.view),
+            id: tab.id,
+            'aria-selected': String(tab.id === selected),
             'aria-controls': 'panel',
-            tabindex: v === state.view ? '0' : '-1',
-            onClick: () => {
-              if (doc.defaultView)
-                doc.defaultView.location.hash = formatHash({
-                  view: v,
-                  versionId: null,
-                  status: [],
-                  q: '',
-                  zoom: 'month',
-                });
-            },
+            tabindex: tab.id === selected ? '0' : '-1',
+            onClick: () => goTo(tab),
           },
-          LABELS[v],
+          tab.label,
         ),
       );
     }
-    if (hadFocus) doc.getElementById(`tab-${state.view}`)?.focus();
-    panel.setAttribute('aria-labelledby', `tab-${state.view}`);
+    if (hadFocus) doc.getElementById(selected)?.focus();
+    panel.setAttribute('aria-labelledby', selected);
     panel.replaceChildren(
       renderView(data, state, (s) => {
         doc.defaultView?.history.replaceState(null, '', formatHash(s));
@@ -231,7 +240,7 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
 
   tabs.addEventListener('keydown', (e) => {
     const ev = e as KeyboardEvent;
-    const index = VIEWS.indexOf(parseHash(doc.defaultView?.location.hash ?? '').view);
+    const index = allTabs.findIndex((t) => t.id === tabIdOf(currentState()));
     const move =
       ev.key === 'ArrowRight'
         ? index + 1
@@ -240,28 +249,28 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
           : ev.key === 'Home'
             ? 0
             : ev.key === 'End'
-              ? VIEWS.length - 1
+              ? allTabs.length - 1
               : null;
     if (move === null) return;
     ev.preventDefault();
-    const view = VIEWS[(move + VIEWS.length) % VIEWS.length] ?? 'overview';
-    if (doc.defaultView)
-      doc.defaultView.location.hash = formatHash({
-        view,
-        versionId: null,
-        status: [],
-        q: '',
-        zoom: 'month',
-      });
+    const tab = allTabs[(move + allTabs.length) % allTabs.length];
+    if (tab) goTo(tab);
   });
 
   // Printing shows every view in sequence (spec 05 §5). The extra copy exists only while printing.
   const beforePrint = (): void => {
     if (doc.getElementById('print-all')) return;
     const all = h('div', { id: 'print-all', 'aria-hidden': 'true' });
-    for (const v of VIEWS) {
-      const state: State = { view: v, versionId: null, status: [], q: '', zoom: 'month' };
-      all.appendChild(h('h2', { class: 'print-title' }, LABELS[v]));
+    for (const tab of allTabs) {
+      const state: State = {
+        view: tab.view,
+        trackId: tab.trackId,
+        versionId: null,
+        status: [],
+        q: '',
+        zoom: 'month',
+      };
+      all.appendChild(h('h2', { class: 'print-title' }, tab.label));
       all.appendChild(renderView(data, state, () => undefined));
     }
     main.appendChild(all);

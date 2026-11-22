@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schema/config.v1.json",
+  "format": 1,
+  "name": "Lantern",
+  "docs": {
+    "roadmap": "docs/project/ROADMAP.md",
+    "decisions": "docs/project/DECISIONS.md"
+  },
+  "git": { "enabled": false },
+  "tracks": [
+    {
+      "id": "business",
+      "title": "Business",
+      "file": "docs/project/BUSINESS.md",
+      "blockPattern": "^(?<id>BM\\d+) +[—–-] +(?<title>.+)$",
+      "idPattern": "^(?<version>BM\\d+)-S\\d+$"
+    }
+  ]
+}

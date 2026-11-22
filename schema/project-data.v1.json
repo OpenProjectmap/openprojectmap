@@ -897,24 +897,72 @@
         "title": {
           "type": "string"
         },
+        "file": {
+          "type": "string",
+          "description": "Display path of the track file."
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Phase"
+          }
+        },
         "versions": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Version"
-          }
+          },
+          "description": "The track's blocks (stages, sprints, versions), in document order."
         },
         "milestones": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Milestone"
           }
+        },
+        "progress": {
+          "$ref": "#/definitions/Progress"
+        },
+        "timeline": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ISODate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ISODate"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "id",
         "title",
+        "file",
+        "phases",
         "versions",
-        "milestones"
+        "milestones",
+        "progress",
+        "timeline"
       ],
       "additionalProperties": false
     },

@@ -179,10 +179,11 @@ the newest status line in a version goes last; windows live only on the version 
 **Status 2026-11-16:** planned.
 **Status 2026-11-16:** 0.6.0-D5 (feature intake) added in the editor and desktop re-plan.
 **Status 2026-11-22:** started early at the founder's request. Decisions D22 (npm scope for the MCP server), D23 (languages) and D24 (importer authentication) added with defaults; none blocks the build, D22 only blocks the first npm publish of `@openprojectmap/mcp`.
+**Status 2026-11-22:** 0.6.0-D1 (tracks) done: a two-track project renders both tracks. Next: the MCP server (0.6.0-D2).
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
-| 0.6.0-D1 | **Tracks**: extra roadmap files with their own ID pattern (e.g. `BM0-S1`), one tab per track, a combined timeline; config `tracks[]` | todo | spec 02 §10 |
+| 0.6.0-D1 | **Tracks**: extra roadmap files with their own ID pattern (e.g. `BM0-S1`), one tab per track, a combined timeline; config `tracks[]` | done | spec 02 §10. PR #96: `parseRoadmap` has a track mode (configurable block pattern with `id` and `title` groups, no Now block, IDs unique across files); a track block is shipped when every row is done; the Timeline has a lane per track and spans all files; a tab per track at `#/track/<id>`; `examples/two-tracks`, `docs/guide/tracks.md`; tracks are in the XSS suite |
 | 0.6.0-D2 | **MCP server**: separate package `@openprojectmap/mcp` (keeps the core zero-dependency); stdio; tools `now`, `list`, `get`, `check`, `set_status`, `log`, `decide`; writes go through the 0.4.0-D2 editor; `--read-only` | todo | spec 06 §6 |
 | 0.6.0-D3 | **Importers**: `import github` (milestones and issues via `gh api`) and `import csv`; always writes a draft file for review, never edits the roadmap directly | todo | spec 04 §2 |
 | 0.6.0-D4 | **i18n**: UI strings in a catalogue, English first, contributor-driven languages; RTL layout (`dir="rtl"`) | todo | spec 05 §8 |

@@ -28,6 +28,15 @@ export interface Source {
 export interface ParseRoadmapOptions {
   /** Deliverable id pattern. Default: `^(?<version>\d+\.\d+\.\d+)-D\d+$`. */
   idPattern?: RegExp;
+  /**
+   * Track file (spec 02 §10): version blocks are found with this pattern, which needs the named
+   * groups `id` and `title`. Without it a track uses the version grammar.
+   */
+  blockPattern?: RegExp;
+  /** Parse a track file: there is no Now block, and `##` headings are optional. */
+  track?: boolean;
+  /** Deliverable IDs already seen in other files (id → line), so duplicates are found across files. */
+  seenDeliverables?: Map<string, string>;
 }
 
 export interface RoadmapParse {
@@ -98,6 +107,10 @@ interface Section {
   phaseId: string | null;
 }
 
+const BLOCK_TEXT_MAX = 300;
+/** A track block id ends up in URLs and element ids, so it is a short word (spec 02 §10). */
+const BLOCK_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+
 export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}): RoadmapParse {
   const idPattern = options.idPattern ?? DEFAULT_ID_PATTERN;
   const file = source.path;
@@ -133,7 +146,23 @@ export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}):
   let current: VersionDraft | null = null;
   let phase: Phase | null = null;
   const versionIds = new Map<string, number>();
-  const deliverableIds = new Map<string, number>();
+  const deliverableIds = options.seenDeliverables ?? new Map<string, string>();
+  const trackMode = options.track === true;
+  const trackRoot: Section | null = trackMode
+    ? ({ kind: 'other', heading: null, phaseId: null } as unknown as Section)
+    : null;
+  if (trackMode) section = trackRoot;
+
+  const matchBlock = (text: string): { id: string; versionId: string; title: string } | null => {
+    if (options.blockPattern) {
+      const g = options.blockPattern.exec(text.slice(0, BLOCK_TEXT_MAX))?.groups;
+      if (g?.id === undefined || g.title === undefined || !BLOCK_ID_RE.test(g.id)) return null;
+      return { id: g.id, versionId: g.id, title: g.title };
+    }
+    const m = VERSION_RE.exec(text);
+    if (m === null) return null;
+    return { id: m[1] ?? '', versionId: `v${m[1] ?? ''}`, title: m[2] ?? '' };
+  };
 
   const closeVersion = (): void => {
     if (!current) return;
@@ -233,16 +262,16 @@ export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}):
           section.kind !== 'milestones' &&
           section.kind !== 'parked' &&
           section.kind !== 'known'
-            ? VERSION_RE.exec(block.text.trim())
+            ? matchBlock(block.text.trim())
             : null;
         if (m && section) {
-          const semver = m[1] ?? '';
-          const id = `v${semver}`;
+          const semver = m.id;
+          const id = m.versionId;
           if (versionIds.has(id)) {
             diagnostics.push(
               diag(
                 'OPM-W208',
-                `Duplicate version ${id} (first on line ${versionIds.get(id)})`,
+                `Duplicate ${trackMode ? 'block' : 'version'} ${id} (first on line ${versionIds.get(id)})`,
                 file,
                 block.line,
               ),
@@ -253,7 +282,7 @@ export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}):
           const version: Version = {
             id,
             semver,
-            title: plainText(m[2] ?? ''),
+            title: plainText(m.title),
             phaseId: section.phaseId,
             window: null,
             milestoneId: null,
@@ -298,7 +327,9 @@ export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}):
   closeVersion();
 
   // Cross-checks that need the whole file.
-  if (now === null) {
+  if (trackMode) {
+    now = null; // a track has no Now block; the project's Now block is in the roadmap
+  } else if (now === null) {
     diagnostics.push(diag('OPM-W101', 'No Now block found', file, 1));
   } else {
     if (now.nextStep === null)
@@ -489,10 +520,10 @@ export function parseRoadmap(source: Source, options: ParseRoadmapOptions = {}):
       const seen = deliverableIds.get(id);
       if (seen !== undefined) {
         diagnostics.push(
-          diag('OPM-W302', `Duplicate deliverable ID ${id} (first on line ${seen})`, file, line),
+          diag('OPM-W302', `Duplicate deliverable ID ${id} (first ${seen})`, file, line),
         );
       } else {
-        deliverableIds.set(id, line);
+        deliverableIds.set(id, `on line ${line}${trackMode ? ` of ${file}` : ''}`);
       }
       const cell = (i: number | undefined): string =>
         i === undefined ? '' : (row[i] ?? '').trim();

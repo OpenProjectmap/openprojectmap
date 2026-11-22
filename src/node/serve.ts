@@ -81,6 +81,7 @@ export async function startServe(options: ServeOptions): Promise<Serving> {
         config.docs.roadmap,
         config.docs.decisions,
         config.docs.changelog,
+        ...config.tracks.map((t) => t.file),
       ]);
       if (!first) for (const c of clients) c.write('event: reload\ndata: 1\n\n');
     } catch (e) {

@@ -1,4 +1,4 @@
-import type { Deliverable, ProjectData, Status, Version } from '../../../core/types.js';
+import type { Deliverable, ProjectData, Status, Track, Version } from '../../../core/types.js';
 import { inlineText, parseInline } from '../../../core/inline.js';
 import { chip, emptyNote, progressBar, stateChip, statusChip, table } from '../components.js';
 import { h } from '../h.js';
@@ -37,14 +37,22 @@ function versionCard(
   data: ProjectData,
   v: Version,
   list: Deliverable[],
-  open: boolean,
+  state: State,
 ): HTMLElement {
   const ctx = ctxOf(data);
   const last = v.statusLines[v.statusLines.length - 1];
   return h(
     'article',
     { class: 'card version', id: v.id },
-    h('h2', null, h('a', { href: `#/versions/${v.id}` }, `${v.id} · ${v.title}`)),
+    h(
+      'h2',
+      null,
+      h(
+        'a',
+        { href: formatHash({ ...state, versionId: v.id, status: [], q: '' }) },
+        `${v.id} · ${v.title}`,
+      ),
+    ),
     h(
       'p',
       { class: 'meta' },
@@ -83,30 +91,32 @@ function versionCard(
           v.deliverables.length === 0 ? 'No deliverables.' : 'No deliverable matches the filters.',
         )
       : deliverableTable(data, v, list),
-    open ? null : null,
   ) as HTMLElement;
 }
 
+/** The Versions tab, or, given a track, the tab of that track (spec 02 §10). */
 export function renderVersions(
   data: ProjectData,
   state: State,
   onChange: (s: State) => void,
+  track?: Track,
 ): Node {
+  const all = track ? track.versions : data.versions;
   const results = h('div', { class: 'results', 'aria-live': 'polite' }) as HTMLElement;
   const count = h('p', { class: 'muted count' }) as HTMLElement;
   let current = state;
 
   const paint = (): void => {
-    const shown = data.versions.filter(
-      (v) => current.versionId === null || v.id === current.versionId,
-    );
+    const shown = all.filter((v) => current.versionId === null || v.id === current.versionId);
     let total = 0;
     const cards = shown.map((v) => {
       const list = v.deliverables.filter((d) => matches(d, current.status, current.q));
       total += list.length;
-      return versionCard(data, v, list, current.versionId !== null);
+      return versionCard(data, v, list, current);
     });
-    results.replaceChildren(...(cards.length === 0 ? [emptyNote('No such version.')] : cards));
+    results.replaceChildren(
+      ...(cards.length === 0 ? [emptyNote(track ? 'No such block.' : 'No such version.')] : cards),
+    );
     count.textContent = `${total} deliverable${total === 1 ? '' : 's'} shown`;
   };
 
@@ -159,7 +169,11 @@ export function renderVersions(
       ? h(
           'p',
           null,
-          h('a', { href: formatHash({ ...current, versionId: null }) }, '← All versions'),
+          h(
+            'a',
+            { href: formatHash({ ...current, versionId: null }) },
+            track ? `← All of ${track.title}` : '← All versions',
+          ),
         )
       : null,
     h(

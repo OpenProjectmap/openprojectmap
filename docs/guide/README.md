@@ -46,6 +46,9 @@ When you have several projects and want one private page for all of them, read
 To publish on GitLab, Netlify, Cloudflare Pages or Vercel, see
 [Other places to publish your map](other-hosts.md).
 
+To plan more than code (a business or marketing track next to the product), read
+[Plan more than code with tracks](tracks.md).
+
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
 ## The 30-second version

@@ -69,7 +69,7 @@ describe('layoutTimeline', () => {
     if (second?.window)
       second.window = { ...second.window, start: second.window.end, end: second.window.start };
     const l = layoutTimeline(d);
-    expect(l.unscheduled.map((v) => v.id)).toContain(first?.id);
+    expect(l.unscheduled.map((v) => v.version.id)).toContain(first?.id);
     expect(bars(l.rows).find((r) => r.version.id === second?.id)?.width).toBeGreaterThan(0);
   });
   it('is empty without any window', () => {
