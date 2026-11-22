@@ -149,7 +149,7 @@ button.filter,
 .banner {
   background: var(--surface-2);
   border: 1px solid var(--warn);
-  border-left-width: 6px;
+  border-inline-start-width: 6px;
   border-radius: var(--radius);
   padding: 10px 14px;
   margin: 10px 0 0;
@@ -327,7 +327,7 @@ table {
 }
 th,
 td {
-  text-align: left;
+  text-align: start;
   padding: 8px 10px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
@@ -374,6 +374,8 @@ h4 {
   min-width: 0;
 }
 .timeline-svg {
+  /* Time runs left to right in every language; the labels keep their own text direction. */
+  direction: ltr;
   display: block;
   min-width: 760px;
   width: 100%;

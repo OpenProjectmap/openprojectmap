@@ -124,6 +124,7 @@ existing `ROADMAP.import.md` without `--force`. `--dry-run` prints the draft ins
 | `theme.accent` | `#rrggbb` | `#2f6fed` | regex-validated (CSS-injection guard) |
 | `theme.mode` | `auto\|light\|dark` | `auto` | |
 | `theme.density` | `comfortable\|compact` | `comfortable` | |
+| `locale` | string | `en` | a language tag such as `en`, `ar`, `pt-BR` (spec 05 §8) |
 | `tracks[]` | object[] | `[]` | ids unique, `^[a-z0-9-]{1,32}$`; `file` inside the repo; `blockPattern` has the named groups `id` and `title` |
 
 ### 3.1 Discovery

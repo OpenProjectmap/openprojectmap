@@ -2,6 +2,8 @@ import type { Deliverable, ProjectData, Status, Track, Version } from '../../../
 import { inlineText, parseInline } from '../../../core/inline.js';
 import { chip, emptyNote, progressBar, stateChip, statusChip, table } from '../components.js';
 import { h } from '../h.js';
+import { formatDay, t, tn } from '../i18n/index.js';
+import type { MessageKey } from '../i18n/index.js';
 import { rich } from '../rich.js';
 import { formatHash, STATUS_LIST } from '../router.js';
 import type { State } from '../router.js';
@@ -20,7 +22,14 @@ function deliverableTable(data: ProjectData, v: Version, list: Deliverable[]): H
   const ctx = ctxOf(data);
   const extraKeys = [...new Set(list.flatMap((d) => Object.keys(d.extra)))];
   return table(
-    ['ID', 'Deliverable', 'Status', 'Owner', 'Notes', ...extraKeys],
+    [
+      t('common.id'),
+      t('versions.col.deliverable'),
+      t('common.status'),
+      t('versions.col.owner'),
+      t('versions.col.notes'),
+      ...extraKeys,
+    ],
     list.map((d) => [
       h('code', { id: `d-${d.id}` }, d.id),
       rich(d.detail, ctx),
@@ -29,7 +38,7 @@ function deliverableTable(data: ProjectData, v: Version, list: Deliverable[]): H
       rich(d.notes, ctx),
       ...extraKeys.map((k) => rich(d.extra[k], ctx)),
     ]),
-    `Deliverables of ${v.id}`,
+    t('versions.deliverablesOf', { id: v.id }),
   );
 }
 
@@ -58,17 +67,19 @@ function versionCard(
       { class: 'meta' },
       stateChip(v.state),
       ' ',
-      v.window ? h('span', null, v.window.raw) : chip('no window', 'todo'),
-      v.milestoneId ? h('span', { class: 'muted' }, ` · completes ${v.milestoneId}`) : null,
+      v.window ? h('span', null, v.window.raw) : chip(t('versions.noWindow'), 'todo'),
+      v.milestoneId
+        ? h('span', { class: 'muted' }, t('versions.completes', { id: v.milestoneId }))
+        : null,
     ),
     progressBar(v.progress, v.id),
-    v.goal ? h('p', null, h('strong', null, 'Goal: '), rich(v.goal, ctx)) : null,
-    v.exit ? h('p', null, h('strong', null, 'Exit: '), rich(v.exit, ctx)) : null,
+    v.goal ? h('p', null, h('strong', null, t('versions.goal')), rich(v.goal, ctx)) : null,
+    v.exit ? h('p', null, h('strong', null, t('versions.exit')), rich(v.exit, ctx)) : null,
     last
       ? h(
           'p',
           { class: 'status-line' },
-          h('strong', null, last.date ?? 'Status', ': '),
+          h('strong', null, last.date === null ? t('common.status') : formatDay(last.date), ': '),
           rich(last.text, ctx),
         )
       : null,
@@ -76,19 +87,24 @@ function versionCard(
       ? h(
           'details',
           null,
-          h('summary', null, `History (${v.statusLines.length})`),
+          h('summary', null, t('versions.history', { n: v.statusLines.length })),
           h(
             'ul',
             null,
             v.statusLines.map((s) =>
-              h('li', null, h('strong', null, `${s.date ?? 'undated'}: `), rich(s.text, ctx)),
+              h(
+                'li',
+                null,
+                h('strong', null, `${s.date === null ? t('common.undated') : formatDay(s.date)}: `),
+                rich(s.text, ctx),
+              ),
             ),
           ),
         )
       : null,
     list.length === 0
       ? emptyNote(
-          v.deliverables.length === 0 ? 'No deliverables.' : 'No deliverable matches the filters.',
+          v.deliverables.length === 0 ? t('versions.noDeliverables') : t('versions.noMatch'),
         )
       : deliverableTable(data, v, list),
   ) as HTMLElement;
@@ -115,9 +131,11 @@ export function renderVersions(
       return versionCard(data, v, list, current);
     });
     results.replaceChildren(
-      ...(cards.length === 0 ? [emptyNote(track ? 'No such block.' : 'No such version.')] : cards),
+      ...(cards.length === 0
+        ? [emptyNote(track ? t('versions.noBlock') : t('versions.noVersion'))]
+        : cards),
     );
-    count.textContent = `${total} deliverable${total === 1 ? '' : 's'} shown`;
+    count.textContent = tn('versions.shown', total);
   };
 
   const set = (next: State): void => {
@@ -148,13 +166,13 @@ export function renderVersions(
           });
         },
       },
-      s,
+      t(`status.${s}` as MessageKey),
     ),
   );
   const search = h('input', {
     type: 'search',
-    placeholder: 'Search deliverables',
-    'aria-label': 'Search deliverables',
+    placeholder: t('versions.search'),
+    'aria-label': t('versions.search'),
     value: current.q,
     autocomplete: 'off',
     onInput: (e: Event) =>
@@ -172,7 +190,7 @@ export function renderVersions(
           h(
             'a',
             { href: formatHash({ ...current, versionId: null }) },
-            track ? `← All of ${track.title}` : '← All versions',
+            track ? t('versions.allOf', { title: track.title }) : t('versions.all'),
           ),
         )
       : null,
@@ -180,7 +198,7 @@ export function renderVersions(
       'div',
       { class: 'filters' },
       search,
-      h('div', { class: 'chips', role: 'group', 'aria-label': 'Filter by status' }, chips),
+      h('div', { class: 'chips', role: 'group', 'aria-label': t('versions.filter') }, chips),
       count,
     ),
     results,

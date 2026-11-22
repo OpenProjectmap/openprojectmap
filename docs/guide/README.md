@@ -54,6 +54,9 @@ To let an AI agent read and update the plan through tools, see
 Already have issues in GitHub or a spreadsheet? See
 [Start from the issues you already have](import.md).
 
+To show the map in another language, or to add a translation, see
+[Translate the map into your language](translating.md).
+
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
 ## The 30-second version

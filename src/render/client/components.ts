@@ -2,6 +2,8 @@
 import type { Deliverable, Progress, Status, VersionState } from '../../core/types.js';
 import { h, setVar } from './h.js';
 import type { Child } from './h.js';
+import { formatDay, t } from './i18n/index.js';
+import type { MessageKey } from './i18n/index.js';
 
 const BAR_ORDER: Status[] = ['done', 'review', 'doing', 'blocked', 'todo'];
 
@@ -16,19 +18,19 @@ export function chip(label: string, kind: string): HTMLElement {
 }
 
 export function statusChip(d: Pick<Deliverable, 'status' | 'statusDate' | 'ref'>): HTMLElement {
-  const extra = [d.statusDate, d.ref]
+  const extra = [d.statusDate === null ? null : formatDay(d.statusDate), d.ref]
     .filter((x): x is string => x !== null && x !== '')
     .join(' · ');
   return h(
     'span',
     { class: 'status' },
-    chip(d.status, d.status),
+    chip(t(`status.${d.status}` as MessageKey), d.status),
     extra === '' ? null : h('small', { class: 'muted' }, extra),
   ) as HTMLElement;
 }
 
 export function stateChip(state: VersionState): HTMLElement {
-  return chip(state, `state-${state}`);
+  return chip(t(`state.${state}` as MessageKey), `state-${state}`);
 }
 
 /** A stacked progress bar with the numbers in words for screen readers. */
@@ -36,7 +38,7 @@ export function progressBar(p: Progress, label: string): HTMLElement {
   const bar = h('div', {
     class: 'bar',
     role: 'img',
-    'aria-label': `${label}: ${p.done} of ${p.total} done, ${p.pct}%`,
+    'aria-label': t('progress.label', { label, done: p.done, total: p.total, pct: p.pct }),
   }) as HTMLElement;
   for (const s of BAR_ORDER) {
     const n = p.byStatus[s];

@@ -111,12 +111,13 @@ export function buildData(options: BuildOptions): BuildResult {
 export function renderMapLive(
   data: ProjectData,
   theme?: ResolvedConfig['theme'],
+  locale?: string,
 ): { html: string; csp: string } {
   const r = renderHtml(
     data,
     { clientJs: CLIENT_JS, stylesCss: STYLES_CSS, templateHtml: TEMPLATE_HTML },
     theme,
-    { live: true },
+    { live: true, locale },
   );
   return { html: r.html, csp: r.csp };
 }
@@ -124,7 +125,7 @@ export function renderMapLive(
 export function renderMap(
   data: ProjectData,
   theme?: ResolvedConfig['theme'],
-  options: { hubChild?: boolean } = {},
+  options: { hubChild?: boolean; locale?: string } = {},
 ): { html: string } {
   return {
     html: renderHtml(
@@ -143,5 +144,5 @@ export function buildProject(options: BuildOptions): {
   config: ResolvedConfig;
 } {
   const { data, config } = buildData(options);
-  return { data, config, html: renderMap(data, config.theme).html };
+  return { data, config, html: renderMap(data, config.theme, { locale: config.locale }).html };
 }

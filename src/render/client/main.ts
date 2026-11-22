@@ -2,6 +2,7 @@
 import type { ProjectData } from '../../core/types.js';
 import { stateChip } from './components.js';
 import { append, h } from './h.js';
+import { formatDay, setLocale, t, tParts } from './i18n/index.js';
 import { formatHash, parseHash, tabsOf } from './router.js';
 import type { State, Tab } from './router.js';
 import { loadMode, nextMode, saveMode } from './theme.js';
@@ -57,6 +58,8 @@ export function connectLive(doc: Document, reload?: () => void): () => void {
 
 /** Render the page from the embedded data. Returns a function that undoes it. */
 export function boot(doc: Document = document): () => void {
+  // The renderer sets the page language from the config's `locale` (spec 05 §8).
+  setLocale(doc.documentElement.getAttribute('lang') ?? 'en');
   return mount(doc, readData(doc));
 }
 
@@ -81,16 +84,16 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
         mode = nextMode(mode);
         root.dataset['theme'] = mode;
         saveMode(mode);
-        themeButton.textContent = `Theme: ${mode}`;
+        themeButton.textContent = t('page.theme', { mode });
       },
     },
-    `Theme: ${mode}`,
+    t('page.theme', { mode }),
   );
 
   const current = data.versions.find((v) => v.id === data.derived.currentVersionId);
   // Built as one project of a hub (spec 05 §1): a way back to the index page next to it.
   const back = doc.querySelector('meta[name="opmap-hub"]')
-    ? h('a', { class: 'back', href: '../index.html' }, '← All projects')
+    ? h('a', { class: 'back', href: '../index.html' }, t('page.back'))
     : null;
   const header = h(
     'header',
@@ -101,7 +104,13 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
       'p',
       { class: 'meta' },
       current ? [h('span', null, current.id, ' '), stateChip(current.state)] : null,
-      data.now?.updated ? h('span', { class: 'muted' }, ` Updated ${data.now.updated}`) : null,
+      data.now?.updated
+        ? h(
+            'span',
+            { class: 'muted' },
+            ` ${t('page.updated', { date: formatDay(data.now.updated) })}`,
+          )
+        : null,
     ),
     themeButton,
   );
@@ -112,21 +121,28 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
     ? h(
         'div',
         { class: 'banner', role: 'status' },
-        h('strong', null, 'This map may be out of date. '),
-        `${stale.reason ?? 'The Now block has not been updated'}. Update the Now block and its Updated date (`,
-        h('code', null, 'opmap now'),
-        ').',
+        h('strong', null, t('banner.stale')),
+        tParts('banner.update', {
+          reason: stale.reason ?? t('banner.staleDefault'),
+          command: h('code', null, 'opmap now'),
+        }),
       )
     : null;
 
-  const tabs = h('div', { role: 'tablist', 'aria-label': 'Views', class: 'tabs' });
+  const tabs = h('div', { role: 'tablist', 'aria-label': t('nav.views'), class: 'tabs' });
   // <main> is the landmark; the tab panel inside it is what the tabs control.
   const panel = h('div', { id: 'panel', role: 'tabpanel', tabindex: '-1' });
   const main = h('main', { id: 'main' }, panel);
-  const nav = h('nav', { 'aria-label': 'Project map' }, tabs);
+  const nav = h('nav', { 'aria-label': t('nav.project') }, tabs);
   const note = h('p', { class: 'muted', role: 'status', id: 'open-note' });
   if (opened) {
-    note.textContent = `Showing ${opened.used.join(', ')}${opened.ignored.length > 0 ? ` (left out: ${opened.ignored.join(', ')})` : ''}. These files stay in your browser and are not saved; reload the page to go back.`;
+    note.textContent = t('page.showing', {
+      used: opened.used.join(', '),
+      ignored:
+        opened.ignored.length > 0
+          ? t('page.showing.ignored', { names: opened.ignored.join(', ') })
+          : '',
+    });
   }
   const win = doc.defaultView;
   // The mount that replaced this one when files were opened (so one undo stops everything).
@@ -136,7 +152,7 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
     const { picked, tooBig } = await readFiles(list);
     const result = parsePicked(picked, new Date().toISOString());
     if (!result.ok) {
-      note.textContent = `${result.error}${tooBig.length > 0 ? ` (too big to open: ${tooBig.join(', ')})` : ''}`;
+      note.textContent = `${result.error}${tooBig.length > 0 ? t('page.tooBig', { names: tooBig.join(', ') }) : ''}`;
       return;
     }
     stopSelf();
@@ -148,7 +164,7 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
     id: 'open-docs-input',
     accept: '.md,.markdown,.txt,text/markdown,text/plain',
     multiple: true,
-    'aria-label': 'Open markdown files',
+    'aria-label': t('page.openDocsLabel'),
     class: 'visually-hidden',
     tabindex: '-1',
     onChange: (e: Event) => {
@@ -162,17 +178,16 @@ function mount(doc: Document, data: ProjectData, opened: Opened | null = null): 
     h(
       'p',
       null,
-      `Generated ${data.generatedAt.slice(0, 10)} by openprojectmap ${data.tool.version}. `,
+      t('page.generated', {
+        date: formatDay(data.generatedAt.slice(0, 10)),
+        version: data.tool.version,
+      }),
       h(
         'button',
         { type: 'button', class: 'link', onClick: () => (picker as HTMLInputElement).click() },
-        'Open docs…',
+        t('page.openDocs'),
       ),
-      h(
-        'span',
-        { class: 'muted' },
-        ' or drop ROADMAP.md, DECISIONS.md and CHANGELOG.md on this page. Nothing is uploaded.',
-      ),
+      h('span', { class: 'muted' }, t('page.openDocsHint')),
     ),
     picker,
     note,

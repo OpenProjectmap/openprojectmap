@@ -1,5 +1,7 @@
 // View state in the URL hash: `#/versions/v0.2.0?status=doing,blocked&q=timeline`.
 import type { Status } from '../../core/types.js';
+import { t } from './i18n/index.js';
+import type { MessageKey } from './i18n/index.js';
 
 export type View =
   'overview' | 'timeline' | 'versions' | 'track' | 'decisions' | 'history' | 'parked';
@@ -21,15 +23,6 @@ export interface Tab {
   id: string;
 }
 
-const VIEW_LABELS: Record<Exclude<View, 'track'>, string> = {
-  overview: 'Overview',
-  versions: 'Versions',
-  timeline: 'Timeline',
-  decisions: 'Decisions',
-  history: 'History',
-  parked: 'Parked',
-};
-
 /** Tabs in order: the fixed views, with one tab per track after Versions. */
 export function tabsOf(tracks: readonly { id: string; title: string }[]): Tab[] {
   const tabs: Tab[] = [];
@@ -37,7 +30,7 @@ export function tabsOf(tracks: readonly { id: string; title: string }[]): Tab[] 
     tabs.push({
       view,
       trackId: null,
-      label: VIEW_LABELS[view as Exclude<View, 'track'>],
+      label: t(`tab.${view}` as MessageKey),
       id: `tab-${view}`,
     });
     if (view === 'versions') {

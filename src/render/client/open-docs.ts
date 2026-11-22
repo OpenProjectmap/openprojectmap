@@ -2,6 +2,7 @@
 // same core the CLI uses. Nothing is uploaded: the files never leave the page.
 import { OpmapError, parseProject } from '../../core/index.js';
 import type { ProjectData } from '../../core/types.js';
+import { t } from './i18n/index.js';
 
 export interface Picked {
   name: string;
@@ -40,7 +41,7 @@ export function parsePicked(files: readonly Picked[], now: string): OpenResult {
   if (!by.roadmap)
     return {
       ok: false,
-      error: 'Add a file named ROADMAP.md (and, if you have them, DECISIONS.md and CHANGELOG.md).',
+      error: t('page.openDocsNeedRoadmap'),
     };
   try {
     const data = parseProject(
@@ -55,8 +56,7 @@ export function parsePicked(files: readonly Picked[], now: string): OpenResult {
   } catch (e) {
     return {
       ok: false,
-      error:
-        e instanceof OpmapError || e instanceof Error ? e.message : 'Could not read those files.',
+      error: e instanceof OpmapError || e instanceof Error ? e.message : t('page.openDocsFailed'),
     };
   }
 }

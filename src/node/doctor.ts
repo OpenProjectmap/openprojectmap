@@ -1,4 +1,5 @@
 // `opmap doctor`: check the setup and say how to fix each problem (spec 04 §2).
+import { hasTranslation } from '../render/client/i18n/index.js';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { OpmapError } from '../core/errors.js';
@@ -130,6 +131,19 @@ export function runDoctor(options: DoctorOptions): Check[] {
             name: label,
             level: 'ok',
             detail: displayPath(config.root, path),
+          },
+    );
+  }
+
+  if (config.locale !== 'en') {
+    add(
+      hasTranslation(config.locale)
+        ? { name: 'locale', level: 'ok', detail: config.locale }
+        : {
+            name: 'locale',
+            level: 'warn',
+            detail: `${config.locale} has no interface translation yet; the page language is set, but the interface is shown in English`,
+            fix: 'Add a translation (see docs/guide/translating.md), or leave locale as en.',
           },
     );
   }
