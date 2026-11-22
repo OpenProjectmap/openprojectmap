@@ -11,7 +11,6 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Tracks: extra roadmap files (for example a business plan) with their own ID pattern. Each track
   gets a tab after Versions and a lane in the Timeline, which now spans the roadmap and every
   track. Configure them with `tracks[]` in `opmap.config.json`; `examples/two-tracks` shows one.
-
 - `@openprojectmap/mcp`: an MCP server (stdio) with the tools `now`, `list`, `get`, `check`,
   `set_status`, `log`, `decide` and `update_now`. Writes go through the same source-preserving
   editor as the CLI and refuse an edit that would add a format problem; `--read-only` leaves the
