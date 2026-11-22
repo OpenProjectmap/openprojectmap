@@ -11,6 +11,10 @@ Thanks for helping. This project plans in the open, using its own format.
 4. **Open a PR** titled `<deliverable-id>: <what it does>`. CI must be green. Update the spec if
    you change behaviour, and add an `## [Unreleased]` line to `CHANGELOG.md` for visible changes.
 
+## Translations
+
+A new interface language is one file of text and a pull request: see [Translate the map into your language](docs/guide/translating.md).
+
 ## Development
 
 ```bash

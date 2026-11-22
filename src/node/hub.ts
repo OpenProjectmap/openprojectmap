@@ -195,7 +195,7 @@ export async function buildHub(options: HubOptions): Promise<HubResult> {
       mkdirSync(join(out, slug), { recursive: true });
       writeFileSync(
         join(out, slug, 'index.html'),
-        renderMap(data, config.theme, { hubChild: true }).html,
+        renderMap(data, config.theme, { hubChild: true, locale: config.locale }).html,
       );
       cards.push(cardFor(p.name, slug, data));
       log(`built ${p.name} → ${slug}/index.html`);

@@ -438,7 +438,7 @@ function run(argv: readonly string[], io: Io): number {
   const outDir = values.out === undefined ? config.output.dir : resolve(cwd, values.out);
   const outFile = join(outDir, 'index.html');
   mkdirSync(outDir, { recursive: true });
-  writeFileSync(outFile, renderMap(data, config.theme).html);
+  writeFileSync(outFile, renderMap(data, config.theme, { locale: config.locale }).html);
   if (values.json || config.output.json)
     writeFileSync(join(outDir, 'data.json'), `${JSON.stringify(data, null, 2)}\n`);
   if (!quiet && format === 'text') {

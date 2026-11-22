@@ -1,12 +1,13 @@
 import type { ProjectData } from '../../../core/types.js';
 import { card, emptyNote } from '../components.js';
 import { h, setVar } from '../h.js';
+import { formatDay, t } from '../i18n/index.js';
 import { rich } from '../rich.js';
 import { ctxOf } from './overview.js';
 
 function releaseCard(data: ProjectData, r: ProjectData['releases'][number]): HTMLElement {
   const ctx = ctxOf(data);
-  const title = r.unreleased ? 'Unreleased' : `v${r.version ?? '?'}`;
+  const title = r.unreleased ? t('common.unreleased') : `v${r.version ?? '?'}`;
   return h(
     'article',
     { class: 'card release' },
@@ -14,11 +15,11 @@ function releaseCard(data: ProjectData, r: ProjectData['releases'][number]): HTM
       'h3',
       null,
       r.versionId ? h('a', { href: `#/versions/${r.versionId}` }, title) : title,
-      r.date ? h('span', { class: 'muted' }, ` · ${r.date}`) : null,
+      r.date ? h('span', { class: 'muted' }, ` · ${formatDay(r.date)}`) : null,
       r.title ? h('span', { class: 'muted' }, ` · ${r.title}`) : null,
     ),
     r.sections.length === 0
-      ? emptyNote('No entries.')
+      ? emptyNote(t('common.noEntries'))
       : r.sections.map((s) => [
           s.heading === '' ? null : h('h4', null, s.heading),
           h(
@@ -36,7 +37,7 @@ function areaBars(areas: Record<string, number>): HTMLElement {
   const max = Math.max(1, ...entries.map(([, n]) => n));
   return h(
     'ul',
-    { class: 'plain areas', 'aria-label': 'Changed files per area, last 4 weeks' },
+    { class: 'plain areas', 'aria-label': t('history.areasLabel') },
     entries.map(([name, n]) => {
       const bar = h('span', { class: 'area-bar', 'aria-hidden': 'true' }) as HTMLElement;
       setVar(bar, '--w', Math.round((100 * n) / max));
@@ -52,7 +53,7 @@ export function renderHistory(data: ProjectData): Node {
     const heads = Object.entries(g.branches);
     parts.push(
       card(
-        'Branches',
+        t('history.branches'),
         h(
           'ul',
           { class: 'plain' },
@@ -63,28 +64,28 @@ export function renderHistory(data: ProjectData): Node {
               h('strong', null, role),
               ' ',
               c
-                ? [h('code', null, c.sha), ' ', c.date.slice(0, 10), ' ', c.subject]
-                : h('span', { class: 'muted' }, 'not found'),
+                ? [h('code', null, c.sha), ' ', formatDay(c.date.slice(0, 10)), ' ', c.subject]
+                : h('span', { class: 'muted' }, t('history.notFound')),
             ),
           ),
         ),
-        g.shallow ? h('p', { class: 'muted' }, 'Shallow clone: activity is incomplete.') : null,
+        g.shallow ? h('p', { class: 'muted' }, t('history.shallow')) : null,
       ),
       card(
-        'Changed files by area, last 4 weeks',
+        t('history.areas'),
         Object.keys(g.activity.areas).length === 0
-          ? emptyNote('No changes in the configured areas.')
+          ? emptyNote(t('history.noAreas'))
           : areaBars(g.activity.areas),
       ),
     );
   }
   parts.push(
     data.releases.length === 0
-      ? card('Releases', emptyNote('The changelog has no releases yet.'))
+      ? card(t('history.releases'), emptyNote(t('history.noReleases')))
       : h(
           'div',
           null,
-          h('h2', { class: 'section' }, 'Releases'),
+          h('h2', { class: 'section' }, t('history.releases')),
           data.releases.map((r) => releaseCard(data, r)),
         ),
   );

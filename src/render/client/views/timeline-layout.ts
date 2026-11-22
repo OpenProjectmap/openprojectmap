@@ -2,6 +2,7 @@
 import { formatDate, toDayNumber } from '../../../core/dates.js';
 import type { ISODate } from '../../../core/dates.js';
 import type { ProjectData, Version } from '../../../core/types.js';
+import { monthName, t } from '../i18n/index.js';
 
 export type Zoom = 'month' | 'quarter';
 
@@ -55,8 +56,6 @@ export interface TimelineLayout {
   unscheduled: { version: Version; trackId: string | null; trackTitle: string | null }[];
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
 function monthStart(year: number, month: number): ISODate {
   return formatDate(year, month, 1);
 }
@@ -78,10 +77,10 @@ export function makeTicks(
     if (d > end) break;
     const label =
       zoom === 'quarter'
-        ? `Q${Math.floor((m - 1) / 3) + 1} ${y}`
+        ? t('timeline.quarter', { n: Math.floor((m - 1) / 3) + 1, year: y })
         : m === 1
-          ? `${MONTHS[0]} ${y}`
-          : (MONTHS[m - 1] ?? '');
+          ? `${monthName(1)} ${y}`
+          : monthName(m);
     if (d >= start || ticks.length === 0)
       ticks.push({ x: x(d < start ? start : d), label, major: m === 1 });
     m += step;

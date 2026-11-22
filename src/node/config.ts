@@ -13,6 +13,7 @@ const MAX_PATTERN_LENGTH = 200;
 const REF_RE = /^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$/;
 const ACCENT_RE = /^#[0-9a-fA-F]{6}$/;
 const TRACK_ID_RE = /^[a-z0-9-]{1,32}$/;
+const LOCALE_RE = /^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,4}$/;
 const AREA_RE = /^(\*|[^*\s][^*]*(\/\*)?)$/;
 
 export interface TrackConfig {
@@ -43,6 +44,8 @@ export interface ResolvedConfig {
   };
   output: { dir: string; json: boolean };
   theme: { accent: string; mode: 'auto' | 'light' | 'dark'; density: 'comfortable' | 'compact' };
+  /** The language of the page, a tag such as `en`, `ar` or `pt-BR` (spec 05 §8). */
+  locale: string;
   tracks: TrackConfig[];
 }
 
@@ -75,6 +78,7 @@ export interface RawConfig {
   };
   output: { dir: string; json: boolean };
   theme: ResolvedConfig['theme'];
+  locale: string;
   tracks: {
     id: string;
     title: string;
@@ -179,6 +183,7 @@ export function validateConfig(input: unknown): { config: RawConfig | null; prob
       'git',
       'output',
       'theme',
+      'locale',
       'tracks',
     ],
     '',
@@ -271,6 +276,13 @@ export function validateConfig(input: unknown): { config: RawConfig | null; prob
     ),
   };
 
+  let locale = 'en';
+  const loc = str(input, 'locale', 'locale', 2, 35);
+  if (loc !== undefined) {
+    if (LOCALE_RE.test(loc)) locale = loc;
+    else problems.push('locale: use a language tag such as en, ar or pt-BR');
+  }
+
   const tracks: RawConfig['tracks'] = [];
   const rawTracks = input['tracks'];
   if (rawTracks !== undefined) {
@@ -319,7 +331,18 @@ export function validateConfig(input: unknown): { config: RawConfig | null; prob
 
   if (problems.length > 0) return { config: null, problems };
   return {
-    config: { name, docs, idPattern, requireDoneRef, staleAfterDays, git, output, theme, tracks },
+    config: {
+      name,
+      docs,
+      idPattern,
+      requireDoneRef,
+      staleAfterDays,
+      git,
+      output,
+      theme,
+      locale,
+      tracks,
+    },
     problems,
   };
 }
@@ -472,6 +495,7 @@ export function loadConfig(options: LoadConfigOptions): ResolvedConfig {
     git: raw.git,
     output: { dir: contained(raw.output.dir, 'output.dir'), json: raw.output.json },
     theme: raw.theme,
+    locale: raw.locale,
     tracks: raw.tracks.map((t, i) => ({ ...t, file: contained(t.file, `tracks[${i}].file`) })),
   };
 }

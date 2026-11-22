@@ -1,6 +1,7 @@
 // Renders ProjectData into one self-contained HTML file (spec 05 §1, §6).
 import { createHash } from 'node:crypto';
 import type { ProjectData } from '../core/types.js';
+import { describeLocale, setLocale, t } from './client/i18n/index.js';
 
 export interface RenderAssets {
   /** The bundled client IIFE. */
@@ -67,8 +68,11 @@ export function noscriptSummary(data: ProjectData): string {
   const e = escapeHtml;
   const parts = [`<h1>${e(data.project.title)}</h1>`];
   if (data.now) {
-    parts.push(`<p><strong>Next step:</strong> ${e(data.now.nextStep ?? '')}</p>`);
-    if (data.now.why) parts.push(`<p><strong>Why:</strong> ${e(data.now.why)}</p>`);
+    parts.push(
+      `<p><strong>${e(t('page.noscript.next'))}</strong> ${e(data.now.nextStep ?? '')}</p>`,
+    );
+    if (data.now.why)
+      parts.push(`<p><strong>${e(t('page.noscript.why'))}</strong> ${e(data.now.why)}</p>`);
   }
   parts.push('<ul>');
   for (const v of data.versions) {
@@ -76,7 +80,7 @@ export function noscriptSummary(data: ProjectData): string {
       `<li>${e(v.id)} ${e(v.title)}: ${e(v.state)}, ${v.progress.pct}% (${v.progress.done}/${v.progress.total})</li>`,
     );
   }
-  parts.push('</ul>', '<p>Turn on JavaScript to see the full project map.</p>');
+  parts.push('</ul>', `<p>${e(t('page.noscript.enableJs'))}</p>`);
   return parts.join('');
 }
 
@@ -85,6 +89,8 @@ export interface RenderOptions {
   live?: boolean;
   /** Built as one project of a hub: the page links back to `../index.html`. */
   hubChild?: boolean;
+  /** The page language, a tag such as `ar` or `pt-BR` (config `locale`, default `en`). */
+  locale?: string | undefined;
 }
 
 /** The CSP for a page with the given inline script and style hashes. */
@@ -98,6 +104,8 @@ export function renderHtml(
   theme: RenderTheme = DEFAULT_THEME,
   options: RenderOptions = {},
 ): RenderResult {
+  // The language of the page and of its interface; text outside the catalogue stays as written.
+  const locale = setLocale(options.locale ?? 'en');
   const styles = `${assets.stylesCss}\n:root{--accent:${theme.accent};--on-accent:${onAccent(theme.accent)}}`;
   const script = assets.clientJs;
   const hashes = { script: sha256(script), style: sha256(styles) };
@@ -108,6 +116,9 @@ export function renderHtml(
     csp: escapeHtml(csp),
     version: escapeHtml(data.tool.version),
     title: escapeHtml(data.project.title),
+    pageTitle: escapeHtml(t('page.title', { title: data.project.title })),
+    lang: escapeHtml(describeLocale(locale.tag).tag),
+    dir: locale.dir,
     styles,
     live: options.live === true ? '<meta name="opmap-live" content="1">' : '',
     hub: options.hubChild === true ? '<meta name="opmap-hub" content="1">' : '',

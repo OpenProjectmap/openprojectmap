@@ -1,0 +1,166 @@
+// The English catalogue (spec 05 §8): every sentence and label the page shows, by key. Another
+// language is a file like this one with the same keys (see docs/guide/translating.md); a key it
+// leaves out falls back to English. `{name}` marks a value filled in at run time. Plural keys end in
+// `.one` and `.other` (and `.zero`, `.two`, `.few`, `.many` where the language needs them).
+export const en = {
+  // page
+  'page.title': '{title} · Project map',
+  'page.noscript.next': 'Next step:',
+  'page.noscript.why': 'Why:',
+  'page.noscript.enableJs': 'Turn on JavaScript to see the full project map.',
+  'page.back': '← All projects',
+  'page.updated': 'Updated {date}',
+  'page.theme': 'Theme: {mode}',
+  'page.generated': 'Generated {date} by openprojectmap {version}. ',
+  'page.openDocs': 'Open docs…',
+  'page.openDocsHint':
+    ' or drop ROADMAP.md, DECISIONS.md and CHANGELOG.md on this page. Nothing is uploaded.',
+  'page.openDocsLabel': 'Open markdown files',
+  'page.showing':
+    'Showing {used}{ignored}. These files stay in your browser and are not saved; reload the page to go back.',
+  'page.showing.ignored': ' (left out: {names})',
+  'page.tooBig': ' (too big to open: {names})',
+  'page.openDocsNeedRoadmap':
+    'Add a file named ROADMAP.md (and, if you have them, DECISIONS.md and CHANGELOG.md).',
+  'page.openDocsFailed': 'Could not read those files.',
+  'banner.stale': 'This map may be out of date. ',
+  'banner.staleDefault': 'The Now block has not been updated',
+  'banner.update': '{reason}. Update the Now block and its Updated date ({command}).',
+  'nav.views': 'Views',
+  'nav.project': 'Project map',
+
+  // tabs and headings
+  'tab.overview': 'Overview',
+  'tab.timeline': 'Timeline',
+  'tab.versions': 'Versions',
+  'tab.decisions': 'Decisions',
+  'tab.history': 'History',
+  'tab.parked': 'Parked',
+
+  // words of the format
+  'status.todo': 'todo',
+  'status.doing': 'doing',
+  'status.review': 'review',
+  'status.blocked': 'blocked',
+  'status.done': 'done',
+  'status.parked': 'parked',
+  'state.planned': 'planned',
+  'state.active': 'active',
+  'state.shipped': 'shipped',
+
+  // shared
+  'progress.label': '{label}: {done} of {total} done, {pct}%',
+  'common.noEntries': 'No entries.',
+  'common.unreleased': 'Unreleased',
+  'common.undated': 'undated',
+  'common.status': 'Status',
+  'common.id': 'ID',
+  'common.overdue': ' overdue',
+  'common.closed': ' (closed)',
+
+  // overview
+  'overview.now': 'Now',
+  'overview.noNow': 'The roadmap has no Now block.',
+  'overview.target': 'Target: ',
+  'overview.progress': 'Progress',
+  'overview.noCurrent': 'No current version.',
+  'overview.overall': 'Overall',
+  'overview.milestones': 'Milestones',
+  'overview.reached': 'reached {date}',
+  'overview.calls': 'Needs your call',
+  'overview.noCalls': 'Nothing is waiting for a decision.',
+  'overview.default': 'Default: ',
+  'overview.proceeding': 'Proceeding with the default since {date}',
+  'overview.neededBy': 'Needed by {date}',
+  'overview.risks': 'Top risks',
+  'overview.noRisks': 'No open risk scores 6 or more.',
+  'overview.score': 'score {n}',
+  'overview.latest': 'Latest release',
+  'overview.git': 'Git',
+
+  // versions
+  'versions.deliverablesOf': 'Deliverables of {id}',
+  'versions.col.deliverable': 'Deliverable',
+  'versions.col.owner': 'Owner',
+  'versions.col.notes': 'Notes',
+  'versions.noWindow': 'no window',
+  'versions.completes': ' · completes {id}',
+  'versions.goal': 'Goal: ',
+  'versions.exit': 'Exit: ',
+  'versions.history': 'History ({n})',
+  'versions.noDeliverables': 'No deliverables.',
+  'versions.noMatch': 'No deliverable matches the filters.',
+  'versions.noVersion': 'No such version.',
+  'versions.noBlock': 'No such block.',
+  'versions.shown.one': '{n} deliverable shown',
+  'versions.shown.other': '{n} deliverables shown',
+  'versions.search': 'Search deliverables',
+  'versions.filter': 'Filter by status',
+  'versions.all': '← All versions',
+  'versions.allOf': '← All of {title}',
+
+  // timeline
+  'timeline.title': 'Timeline',
+  'timeline.empty': 'No version has a window yet. Add **Window:** to a version to see it here.',
+  'timeline.chart': 'Timeline chart',
+  'timeline.summary.one': 'Timeline from {start} to {end}: {n} scheduled version',
+  'timeline.summary.other': 'Timeline from {start} to {end}: {n} scheduled versions',
+  'timeline.bar': '{id} {title}: {state}, {pct}% done, {window}{milestone}. Press Enter to open.',
+  'timeline.bar.milestone': ', completes {id}',
+  'timeline.zoom': 'Zoom',
+  'timeline.months': 'Months',
+  'timeline.quarters': 'Quarters',
+  'timeline.today': 'today {date}',
+  'timeline.legend': 'Legend',
+  'timeline.legend.outline': ' outline',
+  'timeline.legend.accent': ' accent',
+  'timeline.legend.green': ' green',
+  'timeline.legend.tentative': 'tentative',
+  'timeline.legend.dashed': ' dashed',
+  'timeline.legend.milestone': ' milestone reached by that version',
+  'timeline.legend.today': ' today',
+  'timeline.unscheduled': 'Unscheduled',
+  'timeline.quarter': 'Q{n} {year}',
+
+  // decisions and risks
+  'decision.open': 'open',
+  'decision.decided': 'decided',
+  'decision.defaulted': 'defaulted',
+  'decisions.title': 'Decisions',
+  'decisions.none': 'No decisions are recorded.',
+  'decisions.col.decision': 'Decision',
+  'decisions.col.default': 'Default',
+  'decisions.col.neededBy': 'Needed by',
+  'decisions.col.outcome': 'Outcome',
+  'risks.title': 'Risks',
+  'risks.none': 'No risks are recorded.',
+  'risks.col.risk': 'Risk',
+  'risks.col.likelihood': 'Likelihood',
+  'risks.col.impact': 'Impact',
+  'risks.col.score': 'Score',
+  'risks.col.mitigation': 'Mitigation',
+  'risks.unknown': '?',
+
+  // history
+  'history.branches': 'Branches',
+  'history.notFound': 'not found',
+  'history.shallow': 'Shallow clone: activity is incomplete.',
+  'history.areas': 'Changed files by area, last 4 weeks',
+  'history.areasLabel': 'Changed files per area, last 4 weeks',
+  'history.noAreas': 'No changes in the configured areas.',
+  'history.releases': 'Releases',
+  'history.noReleases': 'The changelog has no releases yet.',
+
+  // parked
+  'parked.title': 'Parked',
+  'parked.hint':
+    "Parked items are ideas you've decided not to do yet. Revisit them when the condition is met.",
+  'parked.none': 'Nothing is parked.',
+  'parked.col.item': 'Item',
+  'parked.col.why': 'Why',
+  'parked.col.revisit': 'Revisit when',
+  'parked.items': 'Parked items',
+} as const;
+
+export type MessageKey = keyof typeof en;
+export type Messages = Partial<Record<MessageKey, string>>;

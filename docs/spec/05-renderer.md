@@ -173,6 +173,12 @@ body { background: var(--bg); color: var(--text); }
 ## 8. i18n (v0.6)
 
 UI strings live in `client/i18n/en.ts` (a key → string map); the page language comes from config
-`locale` (default `en`). RTL locales set `dir="rtl"`, and the layout uses logical properties
-(`margin-inline-start`) from v0.2 onward so RTL needs no rewrite. Dates are formatted with
-`Intl.DateTimeFormat(locale, { timeZone: 'UTC' })`.
+`locale` (default `en`, a tag like `ar` or `pt-BR`). The renderer sets `<html lang>` and, for a
+right-to-left language (ar, he, fa, ur, ps, sd, ug, yi, ckb, dv), `dir="rtl"`; the client reads the
+language from `<html lang>`. The layout uses logical properties (`margin-inline-start`) so RTL
+needs no rewrite; the timeline chart stays left to right. A translation is `client/i18n/<tag>.ts`
+with a subset of the keys (a missing key shows English); `{name}` placeholders must match, and plural
+keys end in `.one`/`.other` and are chosen with `Intl.PluralRules`. Dates are formatted with
+`Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' })`, except in English, which
+keeps the ISO form the documents use. Two locales are generated from English for tests: `en-XA`
+(accented, 30% longer) and `ar-XB` (right to left). The hub index page is English only.

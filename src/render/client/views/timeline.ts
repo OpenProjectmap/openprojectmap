@@ -1,6 +1,8 @@
 import type { ProjectData, Version } from '../../../core/types.js';
 import { card, chip, emptyNote, stateChip } from '../components.js';
 import { h } from '../h.js';
+import { formatDay, t, tn } from '../i18n/index.js';
+import type { MessageKey } from '../i18n/index.js';
 import type { Child } from '../h.js';
 import { formatHash } from '../router.js';
 import type { State } from '../router.js';
@@ -12,9 +14,14 @@ const MAX_LABEL = 26;
 const short = (s: string): string => (s.length > MAX_LABEL ? s.slice(0, MAX_LABEL).trimEnd() : s);
 
 function barSummary(v: Version): string {
-  const win = v.window ? v.window.raw : 'no window';
-  const ms = v.milestoneId ? `, completes ${v.milestoneId}` : '';
-  return `${v.id} ${v.title}: ${v.state}, ${v.progress.pct}% done, ${win}${ms}. Press Enter to open.`;
+  return t('timeline.bar', {
+    id: v.id,
+    title: v.title,
+    state: t(`state.${v.state}` as MessageKey),
+    pct: v.progress.pct,
+    window: v.window ? v.window.raw : t('versions.noWindow'),
+    milestone: v.milestoneId ? t('timeline.bar.milestone', { id: v.milestoneId }) : '',
+  });
 }
 
 function open(id: string, trackId: string | null): void {
@@ -80,13 +87,13 @@ function groupNode(g: Group): Child {
 export function renderTimeline(data: ProjectData, state: State): Node {
   const layout = layoutTimeline(data, state.zoom);
   if (layout.rows.length === 0 && layout.unscheduled.length === 0) {
-    return card(
-      'Timeline',
-      emptyNote('No version has a window yet. Add **Window:** to a version to see it here.'),
-    );
+    return card(t('timeline.title'), emptyNote(t('timeline.empty')));
   }
   const { headerHeight, rightPad } = LAYOUT;
-  const summary = `Timeline from ${layout.start} to ${layout.end}: ${layout.rows.filter((r) => r.kind === 'bar').length} scheduled versions`;
+  const summary = tn('timeline.summary', layout.rows.filter((r) => r.kind === 'bar').length, {
+    start: formatDay(layout.start),
+    end: formatDay(layout.end),
+  });
 
   const svg = h(
     'svg',
@@ -125,7 +132,7 @@ export function renderTimeline(data: ProjectData, state: State): Node {
               y: layout.height - 6,
               class: 'today-label',
             },
-            `today ${layout.today.date}`,
+            t('timeline.today', { date: formatDay(layout.today.date) }),
           ),
         ]
       : null,
@@ -147,33 +154,38 @@ export function renderTimeline(data: ProjectData, state: State): Node {
 
   const legend = h(
     'ul',
-    { class: 'plain legend', 'aria-label': 'Legend' },
-    h('li', null, stateChip('planned'), ' outline'),
-    h('li', null, stateChip('active'), ' accent'),
-    h('li', null, stateChip('shipped'), ' green'),
-    h('li', null, chip('tentative', 'todo'), ' dashed'),
+    { class: 'plain legend', 'aria-label': t('timeline.legend') },
+    h('li', null, stateChip('planned'), t('timeline.legend.outline')),
+    h('li', null, stateChip('active'), t('timeline.legend.accent')),
+    h('li', null, stateChip('shipped'), t('timeline.legend.green')),
+    h('li', null, chip(t('timeline.legend.tentative'), 'todo'), t('timeline.legend.dashed')),
     h(
       'li',
       null,
       h('span', { class: 'diamond-key', 'aria-hidden': 'true' }, '◆'),
-      ' milestone reached by that version',
+      t('timeline.legend.milestone'),
     ),
-    h('li', null, h('span', { class: 'today-key', 'aria-hidden': 'true' }, '|'), ' today'),
+    h(
+      'li',
+      null,
+      h('span', { class: 'today-key', 'aria-hidden': 'true' }, '|'),
+      t('timeline.legend.today'),
+    ),
   );
 
   return h(
     'div',
     null,
     card(
-      'Timeline',
+      t('timeline.title'),
       h(
         'div',
         { class: 'filters' },
         h(
           'div',
-          { class: 'chips', role: 'group', 'aria-label': 'Zoom' },
-          zoomButton('month', 'Months'),
-          zoomButton('quarter', 'Quarters'),
+          { class: 'chips', role: 'group', 'aria-label': t('timeline.zoom') },
+          zoomButton('month', t('timeline.months')),
+          zoomButton('quarter', t('timeline.quarters')),
         ),
       ),
       h(
@@ -181,7 +193,7 @@ export function renderTimeline(data: ProjectData, state: State): Node {
         {
           class: 'table-wrap timeline-wrap',
           role: 'region',
-          'aria-label': 'Timeline chart',
+          'aria-label': t('timeline.chart'),
           tabindex: 0,
         },
         svg,
@@ -191,7 +203,7 @@ export function renderTimeline(data: ProjectData, state: State): Node {
     layout.unscheduled.length === 0
       ? null
       : card(
-          'Unscheduled',
+          t('timeline.unscheduled'),
           h(
             'ul',
             { class: 'plain' },

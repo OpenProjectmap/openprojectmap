@@ -106,6 +106,13 @@
         "density": { "enum": ["comfortable", "compact"], "default": "comfortable" }
       }
     },
+    "locale": {
+      "type": "string",
+      "description": "The language of the page, a tag such as en, ar or pt-BR (v0.6).",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8}){0,4}$",
+      "maxLength": 35,
+      "default": "en"
+    },
     "tracks": {
       "type": "array",
       "description": "Extra roadmaps (v0.6).",

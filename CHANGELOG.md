@@ -18,6 +18,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - The CLI package exports the editing operations and read-only queries for other packages.
 - `opmap import github` and `opmap import csv <file>` write a draft roadmap (`ROADMAP.import.md`) from GitHub milestones and issues (through the GitHub CLI, never a token) or from a CSV export of another tool. The roadmap itself is never edited, and imported text is cleaned to plain single lines.
 
+- Interface language: the map's text is in a catalogue (`src/render/client/i18n/en.ts`); the config option `locale` sets the page language, right-to-left languages mirror the layout, dates and month names follow the language, and a translation is one file of keys (see `docs/guide/translating.md`). English is the only translation in the box; `en-XA` and `ar-XB` are test locales. `opmap doctor` says when a language has no interface translation.
+
 ### Changed
 
 - The self-hosting guide shows how to verify the signed image with `cosign verify`.

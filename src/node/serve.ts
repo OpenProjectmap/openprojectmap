@@ -68,7 +68,7 @@ export async function startServe(options: ServeOptions): Promise<Serving> {
   const doBuild = (): void => {
     try {
       const { data, config } = buildData(options);
-      const result = renderMapLive(data, config.theme);
+      const result = renderMapLive(data, config.theme, config.locale);
       const first = page === null;
       page = { html: result.html, json: `${JSON.stringify(data)}\n`, csp: result.csp };
       const errors = data.diagnostics.filter((d) => d.severity === 'error').length;

@@ -138,6 +138,7 @@ describe('schema/config.v1.json', () => {
       },
       output: { dir: 'out', json: true },
       theme: { accent: '#0F8B8D', mode: 'dark', density: 'compact' },
+      locale: 'pt-BR',
       tracks: [
         {
           id: 'biz',
@@ -167,6 +168,9 @@ describe('schema/config.v1.json', () => {
     { git: { areas: ['/etc'] } },
     { git: { areas: ['a/../b'] } },
     { theme: { accent: 'red' } },
+    { locale: 'english please' },
+    { locale: '' },
+    { locale: 5 },
     { theme: { accent: '#12345' } },
     { theme: { mode: 'neon' } },
     { theme: { density: 'tiny' } },
