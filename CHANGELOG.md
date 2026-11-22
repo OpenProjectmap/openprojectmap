@@ -17,6 +17,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   editor as the CLI and refuse an edit that would add a format problem; `--read-only` leaves the
   write tools out. `set-status` and `log` on the CLI now also work on track files.
 - The CLI package exports the editing operations and read-only queries for other packages.
+- `opmap import github` and `opmap import csv <file>` write a draft roadmap (`ROADMAP.import.md`) from GitHub milestones and issues (through the GitHub CLI, never a token) or from a CSV export of another tool. The roadmap itself is never edited, and imported text is cleaned to plain single lines.
 
 ### Changed
 

@@ -11,6 +11,7 @@ import { buildData, renderMap, resolveNow, VERSION } from '../node/build.js';
 import { formatDiff } from '../core/diff.js';
 import type { DiffFormat } from '../core/diff.js';
 import { diffRefs } from '../node/diff.js';
+import { importCsv, importGithub } from '../node/import.js';
 import { buildHub } from '../node/hub.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
@@ -90,6 +91,7 @@ Commands:
   serve   Preview the map in a browser and reload it when the docs change
   export  Print the project data as JSON (--pretty)
   hub <hub.json>            Build many projects into one folder with an index page (--out, --no-fetch, --cache-dir)
+  import github|csv <file>  Write a draft roadmap (ROADMAP.import.md) from GitHub issues or a CSV file
   diff <base> [<head>]      Show what changed in the roadmap between two git refs (default head: the files now)
   doctor  Check the setup and say how to fix each problem
   build   Write the map (index.html) to the output folder
@@ -108,7 +110,9 @@ Options:
       --out <dir>        build: output folder (default from config)
       --json             build: also write data.json
       --open             build: open the map when done
-      --dry-run          editing commands: print the diff, change nothing
+      --dry-run          editing commands and import: show the result, change nothing
+      --repo <o/r>       import github: the repository (default: from the git remote)
+      --milestones       import github: milestones only, no issues
       --port <n>         serve: port (default 4173; 0 picks a free one)
       --host <h>         serve: address (default 127.0.0.1)
       --hub <file>       serve: serve a hub (many projects) instead of one map
@@ -120,7 +124,7 @@ Options:
       --version-title <s> init: title of the first version
       --window <w>       init: first version window, e.g. 2026-12-01 → 2026-12-14
       --dir <docs dir>   init: docs folder (default docs/project)
-      --force            init: overwrite existing files (never the changelog)
+      --force            init, import: overwrite existing files (never the changelog)
       --example          init: write the fictional Tidepool project to explore, ask nothing
       --agents <list>    init: install agent files: claude, cursor, codex, all or none
   -q, --quiet            Errors only
@@ -141,6 +145,8 @@ const OPTIONS = {
   'max-warnings': { type: 'string' },
   'no-git': { type: 'boolean' },
   fetch: { type: 'boolean' },
+  repo: { type: 'string' },
+  milestones: { type: 'boolean' },
   'no-fetch': { type: 'boolean' },
   'cache-dir': { type: 'string' },
   hub: { type: 'string' },
@@ -379,6 +385,7 @@ function run(argv: readonly string[], io: Io): number {
   if (command === 'doctor') return doctor(values, io);
   if (command === 'export') return exportData(values, rest, io);
   if (command === 'diff') return runDiff(values, rest, io);
+  if (command === 'import') return runImport(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
@@ -571,6 +578,41 @@ async function runHub(values: Values, rest: string[], io: Io): Promise<number> {
     `hub built: ${built} of ${result.cards.length} projects${result.failed > 0 ? `, ${result.failed} failed` : ''} → ${shown}/index.html\n`,
   );
   return result.failed > 0 ? 1 : 0;
+}
+
+function runImport(values: Values, rest: string[], io: Io): number {
+  const [source, file, ...extra] = rest;
+  if (source !== 'github' && source !== 'csv')
+    throw new UsageError(
+      'import needs a source: "opmap import github" or "opmap import csv <file>"',
+    );
+  if (extra.length > 0) throw new UsageError(`unexpected argument "${extra[0]}"`);
+  if (source === 'github' && file !== undefined)
+    throw new UsageError(`unexpected argument "${file}"`);
+  if (source === 'csv' && file === undefined) throw new UsageError('import csv needs a file');
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const base = {
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+    force: values.force === true,
+    dryRun: values['dry-run'] === true,
+  };
+  const result =
+    source === 'github'
+      ? importGithub({ ...base, repo: values.repo, milestonesOnly: values.milestones === true })
+      : importCsv({ ...base, file: resolve(cwd, file ?? '') });
+  if (values['dry-run'] === true) {
+    io.stdout(result.text);
+    io.stdout(`(dry run: ${result.path} was not written)\n`);
+    return 0;
+  }
+  io.stdout(
+    `wrote ${result.path}: ${result.versions} version${result.versions === 1 ? '' : 's'}, ${result.deliverables} deliverable${result.deliverables === 1 ? '' : 's'}, ${result.parked} parked\n` +
+      'It is a draft: review it, copy what you want into your roadmap, then delete it. Nothing else was changed.\n',
+  );
+  return 0;
 }
 
 function runDiff(values: Values, rest: string[], io: Io): number {

@@ -19,6 +19,18 @@ export { CATALOGUE, codeInfo, withHints } from './codes.js';
 export type { CodeInfo } from './codes.js';
 export { LIST_DEFAULT, LIST_MAX, queryCheck, queryGet, queryList, queryNow } from './query.js';
 export type { DeliverableSummary, Item, ListInput, NowSummary, VersionSummary } from './query.js';
+export {
+  CSV_MAX_BYTES,
+  CSV_MAX_ROWS,
+  GITHUB_MAX_ISSUES,
+  buildDraft,
+  cleanText,
+  fromCsv,
+  fromGithub,
+  mapStatus,
+  parseCsv,
+} from './import.js';
+export type { DraftInput, DraftResult, ImportItem, ImportVersion } from './import.js';
 export { diffProjects, formatDiff, DIFF_MARKER } from './diff.js';
 export type { DiffFormat, ProjectDiff } from './diff.js';
 export {

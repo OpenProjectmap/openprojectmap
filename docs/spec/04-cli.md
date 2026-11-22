@@ -36,7 +36,7 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
 | `export` | 0.4 | `opmap export [--json] [--pretty]`, ProjectData to stdout |
 | `diff` | 0.5 | `opmap diff <base-ref> [<head-ref>] [--format text\|markdown\|json]`, what changed between two git refs, or between a ref and the working tree when `<head-ref>` is left out. Refs are branch, tag or commit names (`origin/main`, `v0.4.0`, a SHA); the docs are read with `git show` and both sides use one "today". Markdown output starts with `<!-- opmap-diff -->` |
 | `hub` | 0.5 | `opmap hub <hub.json> [--out <dir>] [--no-fetch] [--cache-dir <dir>]`; `--out` defaults to `.opmap/hub`. Exit 1 when a project could not be built (its card says why) |
-| `import` | 0.6 | `opmap import github [--repo o/r] [--milestones]` · `opmap import csv <file>`, writes `ROADMAP.import.md` |
+| `import` | 0.6 | `opmap import github [--repo o/r] [--milestones]` · `opmap import csv <file>`, writes `ROADMAP.import.md` next to the roadmap (see §2.2) |
 | `mcp` | 0.6 | provided by `@openprojectmap/mcp` (`npx @openprojectmap/mcp`) |
 
 ### 2.1 `init` flow
@@ -56,6 +56,24 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
 - `<out>/index.html` (default `.opmap/`) and, with `--json`, `<out>/data.json`.
 - It prints one summary line: `map built: 6 versions, 41 deliverables (58% done), 3 decisions open, 2 warnings → .opmap/index.html`
 - With `--open`, it opens the file with the OS opener (`open`, `xdg-open`, `start`) via `execFile`.
+
+### 2.2 `import`
+
+Writes a **draft** in the roadmap format; it never edits the roadmap, and it refuses to replace an
+existing `ROADMAP.import.md` without `--force`. `--dry-run` prints the draft instead of writing it.
+
+- `import github`: milestones become versions (due date as the Window), issues become deliverables
+  (closed → `done` with its date, `not_planned` → `parked`, an `in progress` or `blocked` label →
+  that status), issues without a milestone go to the Parked table, pull requests are left out.
+  It reads through the GitHub CLI only (`gh api`, D24): the tool never sees a token. `--repo o/r`
+  names the repository (default: the `origin` remote). At most 12 pages of 100 per list.
+- `import csv <file>`: columns are found by header name (title or summary; status; version,
+  milestone, sprint or release; notes or description; owner or assignee; id or key; a done date).
+  Comma, semicolon or tab separated; at most 5,000 rows and 5 MB. Status words are mapped to the
+  six statuses; one the tool does not know becomes `todo` with the original in the notes.
+- Everything from the other tool is cleaned to one line of plain text (no `|`, `*`, backticks or
+  control characters), so imported text cannot open a new row, heading or block.
+
 
 ## 3. Config (`opmap.config.json`)
 

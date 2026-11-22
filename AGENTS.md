@@ -35,6 +35,8 @@ open source (AGPL-3.0-only), has zero runtime dependencies, and never makes netw
   `document.write`, `eval`, `new Function`, or inline event-handler strings. All document text goes
   through `textContent` or the `rich()` inline renderer. Every `href` goes through `safeHref()`.
 - Git is called only through `src/node/git.ts`, with `execFile` (never a shell) and validated refs.
+  The GitHub CLI is called only through `src/node/gh.ts`, the same way, with fixed arguments and a
+  validated `owner/repo`; the tool never reads, stores or logs a token (D24).
 - Paths from config must resolve (after `realpath`) inside the repo root.
 - No telemetry, analytics or update checks, ever. The one exception (D18): the desktop app may have a
   "Check for updates" button that the user clicks. Nothing checks in the background, and the CLI,

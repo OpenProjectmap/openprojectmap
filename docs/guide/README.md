@@ -51,6 +51,8 @@ To plan more than code (a business or marketing track next to the product), read
 
 To let an AI agent read and update the plan through tools, see
 [Let your AI agent update the plan](mcp.md).
+Already have issues in GitHub or a spreadsheet? See
+[Start from the issues you already have](import.md).
 
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
