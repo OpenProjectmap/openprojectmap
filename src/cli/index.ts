@@ -12,6 +12,7 @@ import { formatDiff } from '../core/diff.js';
 import type { DiffFormat } from '../core/diff.js';
 import { diffRefs } from '../node/diff.js';
 import { importCsv, importGithub } from '../node/import.js';
+import { checkProposal, proposalFor } from '../node/propose.js';
 import { buildHub } from '../node/hub.js';
 import { doctorExit, runDoctor } from '../node/doctor.js';
 import { startServe } from '../node/serve.js';
@@ -91,6 +92,7 @@ Commands:
   serve   Preview the map in a browser and reload it when the docs change
   export  Print the project data as JSON (--pretty)
   hub <hub.json>            Build many projects into one folder with an index page (--out, --no-fetch, --cache-dir)
+  propose "<idea>"          Where an idea fits in the roadmap; --check <row|file> validates a drafted row
   import github|csv <file>  Write a draft roadmap (ROADMAP.import.md) from GitHub issues or a CSV file
   diff <base> [<head>]      Show what changed in the roadmap between two git refs (default head: the files now)
   doctor  Check the setup and say how to fix each problem
@@ -147,6 +149,7 @@ const OPTIONS = {
   fetch: { type: 'boolean' },
   repo: { type: 'string' },
   milestones: { type: 'boolean' },
+  check: { type: 'string' },
   'no-fetch': { type: 'boolean' },
   'cache-dir': { type: 'string' },
   hub: { type: 'string' },
@@ -386,6 +389,7 @@ function run(argv: readonly string[], io: Io): number {
   if (command === 'export') return exportData(values, rest, io);
   if (command === 'diff') return runDiff(values, rest, io);
   if (command === 'import') return runImport(values, rest, io);
+  if (command === 'propose') return runPropose(values, rest, io);
   if (AUTHORING.has(command)) return runAuthoring(command, rest, values, io);
   if (command === 'init') throw new UsageError('init asks questions, so it runs through mainAsync');
   if (command === 'serve')
@@ -578,6 +582,73 @@ async function runHub(values: Values, rest: string[], io: Io): Promise<number> {
     `hub built: ${built} of ${result.cards.length} projects${result.failed > 0 ? `, ${result.failed} failed` : ''} → ${shown}/index.html\n`,
   );
   return result.failed > 0 ? 1 : 0;
+}
+
+function runPropose(values: Values, rest: string[], io: Io): number {
+  const cwd = values.cwd === undefined ? io.cwd : resolve(io.cwd, values.cwd);
+  const ctx = {
+    cwd,
+    configPath: values.config === undefined ? undefined : resolve(cwd, values.config),
+    env: io.env,
+    now: values.now ?? io.env['OPMAP_NOW'],
+  };
+  const json = values.format === 'json';
+  if (values.check !== undefined) {
+    if (rest.length > 0) throw new UsageError(`unexpected argument "${rest[0]}"`);
+    const result = checkProposal(ctx, values.check);
+    if (json) io.stdout(`${JSON.stringify(result, null, 2)}\n`);
+    else {
+      for (const c of result.checks) {
+        io.stdout(`${c.row ? c.row.id : '(not a row)'}: ${c.ok ? 'ok' : 'NOT OK'}\n`);
+        for (const f of c.findings)
+          io.stdout(`  ${f.level === 'error' ? 'error' : 'warning'}: ${f.message}\n`);
+      }
+      io.stdout(
+        result.ok ? 'The row fits.\n' : 'The row does not fit yet: fix the errors above.\n',
+      );
+    }
+    return result.ok ? 0 : 1;
+  }
+  const [idea, ...extra] = rest;
+  if (idea === undefined)
+    throw new UsageError('propose needs the idea in quotes, or --check <row>');
+  if (extra.length > 0)
+    throw new UsageError(`unexpected argument "${extra[0]}"; put the idea in quotes`);
+  const p = proposalFor(ctx, idea);
+  if (json) {
+    io.stdout(`${JSON.stringify(p, null, 2)}\n`);
+    return 0;
+  }
+  io.stdout(`Idea: ${p.idea}\n\nWhere it could go:\n`);
+  p.candidates.forEach((c, i) => {
+    io.stdout(
+      `  ${i + 1}. ${c.version} ${c.title} (${c.state}${c.window ? `, ${c.window}` : ''}${c.track ? `, track ${c.track}` : ''})` +
+        `${c.score > 0 ? `, matches: ${[...c.matchedWords, ...c.matchedDeliverables].join(', ')}` : ''}` +
+        `${c.nextFreeId ? `; next free ID ${c.nextFreeId}` : ''}\n`,
+    );
+  });
+  const rel = p.related;
+  if (rel.deliverables.length > 0) {
+    io.stdout('\nRelated deliverables:\n');
+    for (const d of rel.deliverables) io.stdout(`  ${d.id} [${d.status}] ${d.title}\n`);
+  }
+  if (rel.decisions.length > 0) {
+    io.stdout('\nRelated decisions:\n');
+    for (const d of rel.decisions) io.stdout(`  ${d.id} [${d.status}] ${d.question}\n`);
+  }
+  if (rel.parked.length > 0) {
+    io.stdout('\nParked:\n');
+    for (const d of rel.parked)
+      io.stdout(`  ${d.item}${d.likelyDuplicate ? ' (looks like the same idea)' : ''}\n`);
+  }
+  if (p.notes.length > 0) {
+    io.stdout('\nNotes:\n');
+    for (const n of p.notes) io.stdout(`  - ${n}\n`);
+  }
+  io.stdout(
+    '\nThis only reads the roadmap. Draft the row, then check it with: opmap propose --check "<row>"\n',
+  );
+  return 0;
 }
 
 function runImport(values: Values, rest: string[], io: Io): number {

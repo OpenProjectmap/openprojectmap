@@ -37,6 +37,7 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
 | `diff` | 0.5 | `opmap diff <base-ref> [<head-ref>] [--format text\|markdown\|json]`, what changed between two git refs, or between a ref and the working tree when `<head-ref>` is left out. Refs are branch, tag or commit names (`origin/main`, `v0.4.0`, a SHA); the docs are read with `git show` and both sides use one "today". Markdown output starts with `<!-- opmap-diff -->` |
 | `hub` | 0.5 | `opmap hub <hub.json> [--out <dir>] [--no-fetch] [--cache-dir <dir>]`; `--out` defaults to `.opmap/hub`. Exit 1 when a project could not be built (its card says why) |
 | `import` | 0.6 | `opmap import github [--repo o/r] [--milestones]` · `opmap import csv <file>`, writes `ROADMAP.import.md` next to the roadmap (see §2.2) |
+| `propose` | 0.6 | `opmap propose "<idea>" [--format text\|json]` · `opmap propose --check <row\|file>` (see §2.3) |
 | `mcp` | 0.6 | provided by `@openprojectmap/mcp` (`npx @openprojectmap/mcp`) |
 
 ### 2.1 `init` flow
@@ -74,6 +75,23 @@ existing `ROADMAP.import.md` without `--force`. `--dry-run` prints the draft ins
 - Everything from the other tool is cleaned to one line of plain text (no `|`, `*`, backticks or
   control characters), so imported text cannot open a new row, heading or block.
 
+
+### 2.3 `propose`
+
+Feature intake. Both forms only read; neither edits the roadmap.
+
+- `propose "<idea>"` answers where a plain-language idea could go: the versions (and track blocks)
+  that have not shipped, ranked by how many of the idea's words appear in their title, goal, exit
+  and deliverables, each with its next free deliverable ID; the related deliverables, decisions and
+  Parked items; and notes about conflicts (an open decision that touches it, a Parked item that is
+  the same idea, a stale Now block). With no word match it offers the current and the next roadmap
+  version and says so. There is no language model in it: the caller does the reasoning.
+- `propose --check <row|file>` validates a drafted table row, or every row of a draft file inside
+  the repo: the ID matches the roadmap's (or a track's) ID pattern, is free, names a version that
+  exists and has not shipped, the status is known, and the title does not repeat a Parked item
+  (an error) or look like an existing deliverable (a warning). Exit 1 when a row does not fit.
+- Drafts live in `proposals/` next to the roadmap (the MCP tool `save_proposal` writes one; it
+  refuses to replace a file and never touches the roadmap).
 
 ## 3. Config (`opmap.config.json`)
 

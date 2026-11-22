@@ -6,14 +6,17 @@ import {
   EditError,
   OpmapError,
   buildData,
+  checkProposal,
   opDecide,
   opLog,
   opSetStatus,
   opUpdateNow,
+  proposalFor,
   queryCheck,
   queryGet,
   queryList,
   queryNow,
+  saveProposal,
 } from 'openprojectmap';
 import type { EditResult, OpContext, ProjectData } from 'openprojectmap';
 
@@ -153,7 +156,58 @@ export function createServer(options: ServerOptions): McpServer {
     () => guard(() => json(queryCheck(load()))),
   );
 
+  server.registerTool(
+    'propose',
+    {
+      title: 'Where does an idea fit',
+      description: `For an idea in plain words: the versions (and track blocks) it could go in, ranked by word overlap, with the next free deliverable ID of each; related deliverables, decisions and Parked items; and notes about conflicts (an open decision, a Parked item that is the same idea, a release that has shipped). It only reads: no language model is involved, so read the answer and decide. ${DATA_NOTE}`,
+      inputSchema: { idea: z.string().min(3).max(2000) },
+      annotations: readOnly,
+    },
+    ({ idea }) => guard(() => json(proposalFor(ctx(), idea))),
+  );
+
+  server.registerTool(
+    'check_proposal',
+    {
+      title: 'Check a drafted row',
+      description:
+        'Check one drafted deliverable row (a markdown table row such as `| 0.6.0-D6 | **Title**: what | todo | |`) or a draft file under the docs folder: the ID matches the pattern and is free, its version exists and has not shipped, and it does not repeat a Parked item. Returns errors and warnings; nothing is changed.',
+      inputSchema: { row: z.string().min(3).max(1000) },
+      annotations: readOnly,
+    },
+    ({ row }) => guard(() => json(checkProposal(ctx(), row))),
+  );
+
   if (options.readOnly === true) return server;
+
+  server.registerTool(
+    'save_proposal',
+    {
+      title: 'Save a proposal draft',
+      description:
+        'Write a draft of a new feature to `proposals/<slug>.md` next to the roadmap: the idea, where it fits, and the rows you propose. It never edits the roadmap and refuses to replace a file. Check the rows with `check_proposal` first.',
+      inputSchema: {
+        slug: z.string().regex(/^[a-z0-9][a-z0-9-]{0,59}$/, 'lower-case words and dashes'),
+        title: LINE(120),
+        idea: z.string().min(3).max(2000),
+        rows: z.array(z.string().min(3).max(1000)).max(20).optional(),
+        version: LINE(80).optional(),
+        notes: z.string().max(2000).optional(),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      },
+    },
+    (input) =>
+      guard(() => {
+        const saved = saveProposal(ctx(), input);
+        return json({ file: saved.path, roadmapChanged: false });
+      }),
+  );
 
   server.registerTool(
     'set_status',

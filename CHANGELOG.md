@@ -20,6 +20,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Interface language: the map's text is in a catalogue (`src/render/client/i18n/en.ts`); the config option `locale` sets the page language, right-to-left languages mirror the layout, dates and month names follow the language, and a translation is one file of keys (see `docs/guide/translating.md`). English is the only translation in the box; `en-XA` and `ar-XB` are test locales. `opmap doctor` says when a language has no interface translation.
 
+- Feature intake: `opmap propose "<idea>"` says which versions an idea could go in (with the next free deliverable ID), what it touches, and what to settle first; `opmap propose --check <row|file>` checks a drafted row (free ID, version not shipped, not a repeat of a Parked item). The MCP server has `propose`, `check_proposal` and `save_proposal` (drafts go to `proposals/` and never edit the roadmap).
+
 ### Changed
 
 - The self-hosting guide shows how to verify the signed image with `cosign verify`.
