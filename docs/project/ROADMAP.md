@@ -8,10 +8,10 @@ the newest status line in a version goes last; windows live only on the version 
 
 ## Now
 
-**Updated:** 2026-11-19
-**Current version:** v0.5.0
-**Next step:** Decide D21 (the default refresh interval: the image's 300 seconds only just meets the v0.5.0 exit of five minutes), and deprecate `openprojectmap@0.2.0` on npm (founder). After that v0.6.0 (tracks, the MCP server, importers) is next; it has not been started.
-**Why:** v0.1.0 to v0.5.0 are released and the v0.5.0 exit checks pass on real services: pull request annotations, the Tidepool Pages build, the compose setup behind TLS and a password, and the verified image signature.
+**Updated:** 2026-11-22
+**Current version:** v0.6.0
+**Next step:** Build v0.6.0 in ID order: tracks (0.6.0-D1), the MCP server (0.6.0-D2), importers (0.6.0-D3), i18n (0.6.0-D4), feature intake (0.6.0-D5). Still open for the founder: D21 (refresh interval, default 120 s) and D22 to D24, all with defaults.
+**Why:** v0.1.0 to v0.5.0 are released and the v0.5.0 exit checks pass; the founder asked on 2026-11-22 to start v0.6.0 and complete it, so work runs ahead of the 2027-03-08 window.
 **Target:** Public alpha (M2) by 2027-01-17
 **Live:** npm `openprojectmap@0.5.0` (`latest`, with provenance), the GitHub Release v0.5.0, `ghcr.io/openprojectmap/openprojectmap:0.5` and the demo at https://openprojectmap.github.io/openprojectmap/.
 
@@ -178,6 +178,7 @@ the newest status line in a version goes last; windows live only on the version 
 **Exit:** Claude Code completes a full session close-out using only the MCP tools; a two-track project (product + business) renders both tracks.
 **Status 2026-11-16:** planned.
 **Status 2026-11-16:** 0.6.0-D5 (feature intake) added in the editor and desktop re-plan.
+**Status 2026-11-22:** started early at the founder's request. Decisions D22 (npm scope for the MCP server), D23 (languages) and D24 (importer authentication) added with defaults; none blocks the build, D22 only blocks the first npm publish of `@openprojectmap/mcp`.
 
 | ID | Deliverable | Status | Notes |
 | --- | --- | --- | --- |
