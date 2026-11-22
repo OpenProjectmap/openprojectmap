@@ -21,3 +21,16 @@ await build({
   banner: { js: '#!/usr/bin/env node' },
 });
 await build({ ...common, entryPoints: { index: 'src/index.ts' }, outdir: 'dist' });
+
+// The MCP server package (packages/mcp): its own code is bundled; its dependencies stay external
+// so npm installs them (the CLI package is one of them).
+const mcp = JSON.parse(readFileSync('packages/mcp/package.json', 'utf8'));
+await build({
+  ...common,
+  entryPoints: { bin: 'packages/mcp/src/bin.ts' },
+  outdir: 'packages/mcp/dist',
+  banner: { js: '#!/usr/bin/env node' },
+  external: Object.keys(mcp.dependencies),
+  packages: 'external',
+  define: { __MCP_VERSION__: JSON.stringify(mcp.version) },
+});

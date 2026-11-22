@@ -4,16 +4,8 @@ import { resolve } from 'node:path';
 import { resolveNow } from '../node/build.js';
 import { applyEdit } from '../node/edit-file.js';
 import type { EditResult } from '../node/edit-file.js';
-import {
-  EditError,
-  addDeliverable,
-  addVersion,
-  appendStatusLine,
-  knownStatus,
-  setDecision,
-  setDeliverableStatus,
-  setNowField,
-} from '../node/editor.js';
+import { EditError, addDeliverable, addVersion, knownStatus } from '../node/editor.js';
+import { opDecide, opLog, opSetStatus, opUpdateNow } from '../node/ops.js';
 import { todayOf } from '../node/init.js';
 import { UsageError } from './errors.js';
 import type { Io } from './index.js';
@@ -90,16 +82,7 @@ export function runAuthoring(
         const status = knownStatus(word);
         if (status === null) throw new UsageError(`"${word}" is not a status: use ${STATUS_WORDS}`);
         const date = values.date === undefined ? undefined : isoDate(values.date, '--date');
-        result = applyEdit({
-          ...base,
-          file: 'roadmap',
-          transform: (t) =>
-            setDeliverableStatus(t, id, { status, date, ref: values.ref }, values.note),
-          expect: (d) =>
-            d.versions.flatMap((v) => v.deliverables).find((x) => x.id === id)?.status === status
-              ? null
-              : `${id} is not ${status}`,
-        });
+        result = opSetStatus(base, { id, status, date, ref: values.ref, note: values.note });
         summary = `${id} → ${status}`;
         break;
       }
@@ -157,17 +140,7 @@ export function runAuthoring(
         const text = arg(rest, 1, 'status text');
         noExtra(rest, 2);
         const date = values.date === undefined ? today : isoDate(values.date, '--date');
-        result = applyEdit({
-          ...base,
-          file: 'roadmap',
-          transform: (t) => appendStatusLine(t, version, date, text),
-          expect: (d) => {
-            const v = d.versions.find((x) => x.semver === version.replace(/^v/, ''));
-            return v?.statusLines.some((s) => s.date === date && s.text === text.trim())
-              ? null
-              : 'the status line is missing';
-          },
-        });
+        result = opLog(base, { version, text, date });
         summary = `${version}: logged ${date}`;
         break;
       }
@@ -178,24 +151,15 @@ export function runAuthoring(
           if (i < 1) throw new UsageError(`--fact must look like key=value, not "${f}"`);
           return [f.slice(0, i).trim(), f.slice(i + 1).trim()] as [string, string];
         });
-        const sets: [string, string][] = [
-          ...(values.current === undefined
-            ? []
-            : ([['Current version', values.current]] as [string, string][])),
-          ...(values.next === undefined
-            ? []
-            : ([['Next step', values.next]] as [string, string][])),
-          ...(values.why === undefined ? [] : ([['Why', values.why]] as [string, string][])),
-          ...facts,
-          ['Updated', today],
-        ];
-        result = applyEdit({
-          ...base,
-          file: 'roadmap',
-          transform: (t) => sets.reduce((text, [k, v]) => setNowField(text, k, v), t),
-          expect: (d) => (d.now?.updated === today ? null : 'Updated was not set'),
+        const done = opUpdateNow(base, {
+          current: values.current,
+          next: values.next,
+          why: values.why,
+          facts,
         });
-        summary = `Now block updated (${sets.map(([k]) => k).join(', ')})`;
+        result = done.result;
+        const fields = done.fields;
+        summary = `Now block updated (${fields.join(', ')})`;
         break;
       }
       default: {
@@ -203,15 +167,7 @@ export function runAuthoring(
         const outcome = arg(rest, 1, 'outcome');
         noExtra(rest, 2);
         const status = values.defaulted === true ? 'defaulted' : 'decided';
-        result = applyEdit({
-          ...base,
-          file: 'decisions',
-          transform: (t) => setDecision(t, id, status, outcome),
-          expect: (d) =>
-            d.decisions.find((x) => x.id === id)?.status === status
-              ? null
-              : `${id} is not ${status}`,
-        });
+        result = opDecide(base, { id, outcome, defaulted: values.defaulted === true });
         summary = `${id} → ${status}`;
       }
     }

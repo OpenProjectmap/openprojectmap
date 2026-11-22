@@ -63,6 +63,24 @@ jobs:
       - name: Publish to npm with provenance
         if: steps.published.outputs.already != 'true'
         run: npm publish --provenance --access public
+      # The MCP server package (D22). Off until the founder has created the npm organisation and
+      # linked the trusted publisher for @openprojectmap/mcp, then set the repository variable
+      # MCP_PUBLISH to true. It goes after the CLI package, which it depends on.
+      - name: Publish the MCP server package
+        if: vars.MCP_PUBLISH == 'true'
+        run: |
+          version="$(node -p "require('./packages/mcp/package.json').version")"
+          root="$(node -p "require('./package.json').version")"
+          if [ "$version" != "$root" ]; then
+            echo "::error::packages/mcp is at $version but openprojectmap is at $root"
+            exit 1
+          fi
+          if npm view "@openprojectmap/mcp@$version" version >/dev/null 2>&1; then
+            echo "@openprojectmap/mcp@$version is already on npm; skipping."
+            exit 0
+          fi
+          (cd packages/mcp && pnpm pack --pack-destination "$RUNNER_TEMP")
+          npm publish "$RUNNER_TEMP/openprojectmap-mcp-$version.tgz" --provenance --access public
       - name: Extract the changelog section
         env:
           TAG: ${{ github.ref_name }}

@@ -98,18 +98,34 @@ export interface VersionSpan {
 
 const VERSION_HEADING = /^v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?) +[—–-] +(.+)$/;
 
-export function findVersions(text: string): VersionSpan[] {
+/**
+ * The version blocks of a file. For a track file, `blockPattern` (named group `id`) finds the
+ * blocks and the id is used as written (spec 02 §10).
+ */
+export function findVersions(text: string, blockPattern?: RegExp | null): VersionSpan[] {
   const blocks = blocksOf(text);
   const total = splitLines(text).lines.length;
   const spans: VersionSpan[] = [];
   blocks.forEach((b, i) => {
     if (b.type !== 'heading' || b.level !== 3) return;
-    const m = VERSION_HEADING.exec(b.text.trim());
-    if (!m) return;
+    const heading = b.text.trim();
+    let id: string;
+    let semver: string;
+    if (blockPattern) {
+      const g = blockPattern.exec(heading.slice(0, 300))?.groups;
+      if (g?.id === undefined || g.title === undefined) return;
+      id = g.id;
+      semver = g.id;
+    } else {
+      const m = VERSION_HEADING.exec(heading);
+      if (!m) return;
+      id = `v${m[1]}`;
+      semver = m[1] ?? '';
+    }
     const next = blocks.slice(i + 1).find((n) => n.type === 'heading' && n.level <= 3);
     spans.push({
-      id: `v${m[1]}`,
-      semver: m[1] ?? '',
+      id,
+      semver,
       line: b.line,
       end: next ? next.line - 1 : total,
     });
@@ -117,10 +133,11 @@ export function findVersions(text: string): VersionSpan[] {
   return spans;
 }
 
-export function findVersion(text: string, id: string): VersionSpan {
-  const want = id.replace(/^v/i, '').toLowerCase();
-  const v = findVersions(text).find((s) => s.semver.toLowerCase() === want);
-  if (!v) throw new EditError(`There is no version ${id} in the roadmap`);
+export function findVersion(text: string, id: string, blockPattern?: RegExp | null): VersionSpan {
+  // A roadmap version may be written with or without the `v`; a track block id is exact.
+  const want = blockPattern ? id.toLowerCase() : id.replace(/^v/i, '').toLowerCase();
+  const v = findVersions(text, blockPattern).find((s) => s.semver.toLowerCase() === want);
+  if (!v) throw new EditError(`There is no ${blockPattern ? 'block' : 'version'} ${id}`);
   return v;
 }
 
@@ -278,8 +295,9 @@ export function appendStatusLine(
   versionId: string,
   date: string | null,
   value: string,
+  blockPattern?: RegExp | null,
 ): string {
-  const v = findVersion(text, versionId);
+  const v = findVersion(text, versionId, blockPattern);
   const v1 = oneLine(value, 'A status line');
   if (v1 === '') throw new EditError('A status line cannot be empty');
   const fields = fieldsIn(text, v.line + 1, v.end);

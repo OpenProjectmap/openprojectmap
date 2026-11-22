@@ -49,6 +49,9 @@ To publish on GitLab, Netlify, Cloudflare Pages or Vercel, see
 To plan more than code (a business or marketing track next to the product), read
 [Plan more than code with tracks](tracks.md).
 
+To let an AI agent read and update the plan through tools, see
+[Let your AI agent update the plan](mcp.md).
+
 Reviewing this handbook for us? Use the [review sheet](review-checklist.md).
 
 ## The 30-second version

@@ -11,7 +11,14 @@ import type { ResolvedConfig } from './config.js';
 import { EditError, unifiedDiff } from './editor.js';
 import { readSources } from './sources.js';
 
-export type DocFile = 'roadmap' | 'decisions';
+/** `track:<id>` edits the file of a track (spec 02 §10). */
+export type DocFile = 'roadmap' | 'decisions' | `track:${string}`;
+
+/** What a transform may need to know about the file it edits. */
+export interface FileInfo {
+  /** The block pattern of a track file, null for the roadmap and decisions. */
+  blockPattern: RegExp | null;
+}
 
 export interface EditRequest {
   cwd: string;
@@ -20,7 +27,7 @@ export interface EditRequest {
   now?: string | undefined;
   file: DocFile;
   /** Returns the new text. Throws EditError for a request that cannot be applied. */
-  transform: (text: string, data: ProjectData) => string;
+  transform: (text: string, data: ProjectData, file: FileInfo) => string;
   /** Returns a message when the edited project does not hold the intended value. */
   expect?: (after: ProjectData) => string | null;
   dryRun?: boolean;
@@ -73,17 +80,36 @@ export function applyEdit(req: EditRequest): EditResult {
     ...(req.env ? { env: req.env } : {}),
   });
   const sources = readSources(config);
-  const source = sources[req.file];
-  const abs = req.file === 'roadmap' ? config.docs.roadmap : config.docs.decisions;
+  const trackId = req.file.startsWith('track:') ? req.file.slice('track:'.length) : null;
+  const track = trackId === null ? null : config.tracks.find((t) => t.id === trackId);
+  const trackSource =
+    trackId === null ? null : (sources.tracks?.find((t) => t.id === trackId)?.source ?? null);
+  const source =
+    trackId === null ? sources[req.file as 'roadmap' | 'decisions'] : (trackSource ?? undefined);
+  const abs =
+    trackId !== null
+      ? (track?.file ?? null)
+      : req.file === 'roadmap'
+        ? config.docs.roadmap
+        : config.docs.decisions;
   if (!source || !abs) throw new EditError(`The ${req.file} file is not set up for this project`);
   const { now, today } = resolveNow(req.now, 'utc');
 
   const before = parse(config, sources, now, today);
-  const text = req.transform(source.text, before);
+  const text = req.transform(source.text, before, { blockPattern: track?.blockPattern ?? null });
   if (text === source.text) return { changed: false, path: source.path, diff: '', after: before };
 
   const edited: Source = { path: source.path, text };
-  const after = parse(config, { ...sources, [req.file]: edited }, now, today);
+  const editedSources: ProjectSources =
+    trackId === null
+      ? { ...sources, [req.file]: edited }
+      : {
+          ...sources,
+          tracks: (sources.tracks ?? []).map((t) =>
+            t.id === trackId ? { ...t, source: edited } : t,
+          ),
+        };
+  const after = parse(config, editedSources, now, today);
   const added = newDiagnostics(before.diagnostics, after.diagnostics);
   if (added.length > 0) {
     throw new EditError(
