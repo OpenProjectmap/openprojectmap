@@ -54,6 +54,17 @@ function oneLine(value: string, what: string): string {
   return value.trim();
 }
 
+/** A field name (`Next step`, `Beta users`): words, no markdown or colon, so it cannot end the `**Key:**` marker early. */
+const FIELD_KEY = /^[A-Za-z][A-Za-z0-9 ._()/'-]{0,59}$/;
+
+function fieldKey(key: string): string {
+  if (!FIELD_KEY.test(key.trim()))
+    throw new EditError(
+      `"${key.replace(/\s+/g, ' ').slice(0, 40)}" is not a field name: use letters, digits and spaces (no * or :)`,
+    );
+  return key.trim();
+}
+
 const escapePipes = (s: string): string => s.replace(/\|/g, '\\|');
 
 // ---------- locating things ----------
@@ -208,6 +219,10 @@ export interface StatusInput {
 
 /** `done 2026-12-01 (#14)`: the cell text for a status. */
 export function statusCell(s: StatusInput): string {
+  if (s.ref !== undefined && /[()|\r\n]/.test(s.ref))
+    throw new EditError(
+      'A reference cannot contain parentheses, | or a line break (write #14, a commit or a URL)',
+    );
   return [s.status, s.date, s.ref ? `(${s.ref})` : undefined]
     .filter((x): x is string => x !== undefined && x !== '')
     .join(' ');
@@ -252,6 +267,7 @@ function setFieldIn(
   key: string,
   value: string,
 ): string {
+  key = fieldKey(key);
   const v = oneLine(value, 'A field value');
   if (v === '') throw new EditError(`${key} cannot be empty`);
   const found = fieldsIn(text, from, to).find((f) => sameKey(f.key, key));

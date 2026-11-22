@@ -1,6 +1,6 @@
 // `opmap import` (spec 04 §2): reads another tool's issues and writes a draft roadmap next to the
 // real one. It never edits the roadmap, and it refuses to overwrite an earlier draft without --force.
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { lstatSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { buildDraft, fromCsv, fromGithub, parseCsv, CSV_MAX_BYTES } from '../core/import.js';
 import type { DraftResult } from '../core/import.js';
@@ -44,14 +44,16 @@ function target(options: ImportOptions): { abs: string; path: string; root: stri
 function finish(draft: DraftResult, options: ImportOptions): ImportResult {
   const { abs, path } = target(options);
   if (options.dryRun === true) return { ...draft, path, written: false };
-  if (existsSync(abs) && options.force !== true) {
+  if (lstatSync(abs, { throwIfNoEntry: false }) !== undefined && options.force !== true) {
     throw new OpmapError(
       'OPM-E001',
       `${path} already exists`,
       'Review or delete it, or run the import again with --force to replace it',
     );
   }
-  writeFileSync(abs, draft.text);
+  // Replace the file itself, never what a link at that name points to.
+  if (lstatSync(abs, { throwIfNoEntry: false }) !== undefined) rmSync(abs, { force: true });
+  writeFileSync(abs, draft.text, { flag: 'wx' });
   return { ...draft, path, written: true };
 }
 

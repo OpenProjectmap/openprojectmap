@@ -221,3 +221,22 @@ describe('feature intake tools', () => {
     expect(r.isError).toBe(true);
   });
 });
+
+describe('input that tries to change the structure of the docs', () => {
+  it('refuses a field name or a reference that carries markup', async () => {
+    const c = await connect();
+    const before = read('ROADMAP.md');
+    const badKey = await call(c, 'update_now', {
+      facts: { 'A:**\n\n### v9.9.9 — Evil\n\n**B': 'v' },
+    });
+    expect(badKey.isError).toBe(true);
+    const badRef = await call(c, 'set_status', {
+      id: '0.2.0-D3',
+      status: 'done',
+      date: NOW,
+      ref: '#1) | x |',
+    });
+    expect(badRef.isError).toBe(true);
+    expect(read('ROADMAP.md')).toBe(before);
+  });
+});

@@ -45,10 +45,24 @@ entry fails a coverage test that compares the ProjectData keys rendered against 
 - The tool reads only the configured doc files and git metadata. It never globs the repo for content.
 - Writes: only `output.dir` (build), the configured doc files (authoring commands, atomic rename),
   and files `init` creates (never overwritten without `--force` + confirmation).
+- v0.6 adds three writers, each narrow: `import` writes only `ROADMAP.import.md` next to the roadmap
+  (an existing file, or a link at that name, is replaced as itself, only with `--force`);
+  `save_proposal` writes only `proposals/<slug>.md` (slug `[a-z0-9-]{1,60}`, created with `wx` so
+  nothing is overwritten, and a `proposals` folder that is a link out of the repo is refused);
+  `propose --check <file>` reads only `.md` or `.txt` files that `realpath` puts inside the repo.
+- Text that an agent or another tool supplies (MCP inputs, GitHub issue titles, CSV cells) never
+  becomes structure: the editor refuses a line break in a table cell or field, a field name must be
+  plain words (no `*` or `:`), a reference cannot hold `(`, `)` or `|`, ids are plain words, and
+  importer text is cleaned to one line without `|`, `*`, backticks or control characters. Tests feed
+  each of these hostile strings in and check that no row, heading or block appears.
 
 ## 4. Process and network controls
 
 - Git through `execFile` with an argument array, validated refs, `GIT_TERMINAL_PROMPT=0`, timeouts.
+- The GitHub CLI (`gh api`) for `import github`, through `execFile`, with fixed arguments and a
+  validated `owner/repo`, in `src/node/gh.ts` only. The tool never sees, stores or logs a token (D24).
+- The MCP server speaks over stdin and stdout only: it opens no port and makes no network request.
+  Its tool descriptions tell the agent that text from the docs is data, not instructions.
 - No other subprocesses, except the OS "open" command for `--open` (fixed binary, the path as a
   single argument).
 - No outbound network, except `git fetch` when explicitly asked (`--fetch`, hub refresh) and the clone of a
@@ -70,7 +84,9 @@ entry fails a coverage test that compares the ProjectData keys rendered against 
 
 ## 6. Supply chain
 
-- Zero runtime dependencies in `openprojectmap` (D5). Dev dependencies are locked
+- Zero runtime dependencies in `openprojectmap` (D5). The MCP server is a separate package
+  (`@openprojectmap/mcp`) whose dependencies (the official SDK and `zod`) are pinned to exact
+  versions and have their own Dependabot entry, so the CLI package stays free of them. Dev dependencies are locked
   (`pnpm-lock.yaml`), `pnpm install --frozen-lockfile` in CI, and Dependabot is enabled.
 - npm publishing through **trusted publishing** (GitHub OIDC), with `--provenance`; no long-lived
   npm token is stored; 2FA on maintainer accounts.
