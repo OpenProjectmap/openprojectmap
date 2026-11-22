@@ -17,9 +17,10 @@ function barSummary(v: Version): string {
   return `${v.id} ${v.title}: ${v.state}, ${v.progress.pct}% done, ${win}${ms}. Press Enter to open.`;
 }
 
-function open(id: string): void {
+function open(id: string, trackId: string | null): void {
   window.location.hash = formatHash({
-    view: 'versions',
+    view: trackId === null ? 'versions' : 'track',
+    trackId,
     versionId: id,
     status: [],
     q: '',
@@ -40,9 +41,9 @@ function barNode(row: Bar): Child {
       tabindex: 0,
       'aria-label': barSummary(v),
       'data-version': v.id,
-      onClick: () => open(v.id),
+      onClick: () => open(v.id, row.trackId),
       onKeydown: (e: Event) => {
-        if ((e as KeyboardEvent).key === 'Enter') open(v.id);
+        if ((e as KeyboardEvent).key === 'Enter') open(v.id, row.trackId);
       },
     },
     h('text', { x: 8, y: cy + 4, class: 'lbl' }, short(`${v.id} ${v.title}`)),
@@ -194,11 +195,25 @@ export function renderTimeline(data: ProjectData, state: State): Node {
           h(
             'ul',
             { class: 'plain' },
-            layout.unscheduled.map((v) =>
+            layout.unscheduled.map(({ version: v, trackId, trackTitle }) =>
               h(
                 'li',
                 null,
-                h('a', { href: `#/versions/${v.id}` }, `${v.id} · ${v.title}`),
+                h(
+                  'a',
+                  {
+                    href: formatHash({
+                      view: trackId === null ? 'versions' : 'track',
+                      trackId,
+                      versionId: v.id,
+                      status: [],
+                      q: '',
+                      zoom: 'month',
+                    }),
+                  },
+                  `${v.id} · ${v.title}`,
+                ),
+                trackTitle === null ? null : h('span', { class: 'muted' }, ` (${trackTitle})`),
                 ' ',
                 stateChip(v.state),
               ),

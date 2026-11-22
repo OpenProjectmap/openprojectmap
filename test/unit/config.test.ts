@@ -84,7 +84,7 @@ describe('validateConfig', () => {
           id: 'biz',
           title: 'Business',
           file: 'b.md',
-          blockPattern: '^### (?<id>BM\\d+)',
+          blockPattern: '^(?<id>BM\\d+) (?<title>.+)',
           idPattern: '^BM\\d+$',
         },
       ],

@@ -143,7 +143,7 @@ describe('schema/config.v1.json', () => {
           id: 'biz',
           title: 'Biz',
           file: 'b.md',
-          blockPattern: '^### (?<id>BM\\d+)',
+          blockPattern: '^(?<id>BM\\d+) (?<title>.+)',
           idPattern: '^BM\\d+$',
         },
       ],

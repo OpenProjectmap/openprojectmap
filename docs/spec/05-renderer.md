@@ -62,7 +62,10 @@ to `innerHTML`.
 ## 4. Views
 
 Tabs (ARIA tabs pattern): **Overview · Timeline · Versions · Decisions · History · Parked**.
-Tracks (v0.6) add one tab each.
+Each track (v0.6, spec 02 §10) adds one tab after Versions, at `#/track/<id>` (a single block at
+`#/track/<id>/<block>`). It is the Versions view of that track's blocks, with the same filters. A
+hash naming a track the page does not have shows the Overview. The Timeline draws the roadmap and
+then one lane per track, headed by the track's title.
 
 ### 4.1 Overview
 

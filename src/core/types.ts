@@ -196,6 +196,12 @@ export interface Derived {
 export interface Track {
   id: string;
   title: string;
+  /** Display path of the track file. */
+  file: string;
+  phases: Phase[];
+  /** The track's blocks (stages, sprints, versions), in document order. */
   versions: Version[];
   milestones: Milestone[];
+  progress: Progress;
+  timeline: { start: ISODate | null; end: ISODate | null };
 }

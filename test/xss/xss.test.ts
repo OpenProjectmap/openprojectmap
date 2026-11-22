@@ -142,6 +142,26 @@ function sample(): ProjectData {
     activity: { weekStarts: ['2026-11-16'], commits: [1], areas: { src: 1 } },
     shallow: false,
   };
+  // A track, so its fields (title, file, blocks, deliverables) are in the suite too.
+  const track = parseProject(
+    {
+      roadmap: { path: 'R.md', text: '# R\n' },
+      tracks: [
+        {
+          id: 'business',
+          title: 'Business',
+          source: {
+            path: 'BUSINESS.md',
+            text: readFileSync('examples/two-tracks/docs/project/BUSINESS.md', 'utf8'),
+          },
+          blockPattern: /^(?<id>BM\d+) +[—–-] +(?<title>.+)$/u,
+          idPattern: /^(?<version>BM\d+)-S\d+$/u,
+        },
+      ],
+    },
+    { now: '2026-11-25T00:00:00Z' },
+  ).tracks;
+  d.tracks = track;
   const first = d.versions[0]?.deliverables[0];
   if (first) first.extra = { Risk: 'low' };
   return d;
@@ -157,6 +177,8 @@ function pageAfter(data: ProjectData): HTMLElement[] {
     '#/timeline?zoom=quarter',
     '#/history',
     '#/parked',
+    '#/track/business',
+    '#/track/business/BM1?q=a&status=todo,doing',
     `#/versions/${data.versions[0]?.id}?q=a&status=todo,doing`,
   ];
   for (const hash of views) {

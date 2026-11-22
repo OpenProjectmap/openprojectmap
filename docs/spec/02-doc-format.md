@@ -271,10 +271,22 @@ Codes are stable: a retired code is never reused.
 ## 10. Tracks (v0.6)
 
 A track file uses the same grammar as ROADMAP.md (phases, versions or stages, deliverables,
-milestones), with three differences: (1) its heading grammar for blocks is configurable
-(`blockPattern`, default the version grammar; e.g. `^### +(?<id>BM\d+) +[—–-] +(?<title>.+)$`);
-(2) its `idPattern` is its own; (3) it has no Now block (the project has one Now). It is rendered
-as its own tab and as a lane in the timeline.
+milestones), with these differences:
+
+1. Its block headings (`###`) are found with `blockPattern`, a regular expression matched against
+   the heading text without the `###`. It needs the named groups `id` and `title`; the default is
+   the version grammar (`v0.1.0 — Title`). Example: `^(?<id>BM\d+) +[—–-] +(?<title>.+)$` reads
+   `### BM1 — Launch`. A block id is a short word (`[A-Za-z0-9][A-Za-z0-9._-]{0,63}`) because it
+   ends up in links; a heading with any other id is ignored.
+2. Its `idPattern` is its own. A `version` group in it must equal the block id, as in a roadmap.
+3. It has no Now block (the project has one Now), and `##` headings are optional.
+4. It has no changelog, so a block is `shipped` when its `State` field says so or when every
+   deliverable is `done`; `active` when any deliverable has started; otherwise `planned`.
+5. Deliverable ids must be unique across the roadmap and all tracks (OPM-W302).
+
+A track is rendered as its own tab after Versions and as lanes in the Timeline, and the Timeline
+spans the roadmap and every track. The track's progress is not added to the roadmap's overall
+progress: the Overview keeps showing the product.
 
 ## 11. Format versioning
 

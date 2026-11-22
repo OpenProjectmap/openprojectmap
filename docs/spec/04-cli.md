@@ -82,7 +82,7 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
   "theme": { "accent": "#2f6fed", "mode": "auto", "density": "comfortable" },
   "tracks": [
     { "id": "biz", "title": "Business & Marketing", "file": "docs/project/BUSINESS.md",
-      "blockPattern": "^### +(?<id>BM\\d+) +[—–-] +(?<title>.+)$", "idPattern": "^BM\\d+-[A-Z]\\d+$" }
+      "blockPattern": "^(?<id>BM\\d+) +[—–-] +(?<title>.+)$", "idPattern": "^BM\\d+-[A-Z]\\d+$" }
   ]
 }
 ```
@@ -106,7 +106,7 @@ Environment: `OPMAP_NOW`, `OPMAP_CONFIG`, `OPMAP_DEBUG=1` (stack traces), `NO_CO
 | `theme.accent` | `#rrggbb` | `#2f6fed` | regex-validated (CSS-injection guard) |
 | `theme.mode` | `auto\|light\|dark` | `auto` | |
 | `theme.density` | `comfortable\|compact` | `comfortable` | |
-| `tracks[]` | object[] | `[]` | ids unique, `^[a-z0-9-]{1,32}$` |
+| `tracks[]` | object[] | `[]` | ids unique, `^[a-z0-9-]{1,32}$`; `file` inside the repo; `blockPattern` has the named groups `id` and `title` |
 
 ### 3.1 Discovery
 

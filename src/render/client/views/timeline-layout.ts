@@ -25,6 +25,8 @@ export interface Tick {
 export interface Bar {
   kind: 'bar';
   version: Version;
+  /** The track this bar belongs to, or null for the roadmap's own versions. */
+  trackId: string | null;
   y: number;
   x: number;
   width: number;
@@ -50,7 +52,7 @@ export interface TimelineLayout {
   ticks: Tick[];
   rows: Row[];
   today: { x: number; date: ISODate } | null;
-  unscheduled: Version[];
+  unscheduled: { version: Version; trackId: string | null; trackTitle: string | null }[];
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -93,8 +95,16 @@ export function makeTicks(
 
 export function layoutTimeline(data: ProjectData, zoom: Zoom = 'month'): TimelineLayout {
   const { width, labelWidth, rightPad, headerHeight, rowHeight, groupHeight } = LAYOUT;
-  const scheduled = data.versions.filter((v) => v.window !== null);
-  const unscheduled = data.versions.filter((v) => v.window === null);
+  // Lanes: the roadmap's versions, then one lane per track (spec 02 §10).
+  const lanes: { trackId: string | null; title: string | null; versions: readonly Version[] }[] = [
+    { trackId: null, title: null, versions: data.versions },
+    ...data.tracks.map((t) => ({ trackId: t.id, title: t.title, versions: t.versions })),
+  ];
+  const unscheduled = lanes.flatMap((l) =>
+    l.versions
+      .filter((v) => v.window === null)
+      .map((version) => ({ version, trackId: l.trackId, trackTitle: l.title })),
+  );
   const { start, end } = data.derived.timeline;
 
   if (start === null || end === null) {
@@ -116,35 +126,43 @@ export function layoutTimeline(data: ProjectData, zoom: Zoom = 'month'): Timelin
   const x = (d: ISODate): number => labelWidth + (chart * (toDayNumber(d) - first)) / span;
   const xEnd = (d: ISODate): number => labelWidth + (chart * (toDayNumber(d) - first + 1)) / span;
 
-  const phaseOf = (v: Version): string => data.phases.find((p) => p.id === v.phaseId)?.title ?? '';
   const rows: Row[] = [];
   let y = headerHeight;
-  let lastGroup: string | null = null;
-  for (const v of scheduled) {
-    const win = v.window;
-    if (!win) continue;
-    const group = phaseOf(v);
-    if (group !== lastGroup && (group !== '' || lastGroup !== null)) {
-      if (group !== '') {
-        rows.push({ kind: 'group', label: group, y });
-        y += groupHeight;
+  for (const lane of lanes) {
+    const phases =
+      lane.trackId === null
+        ? data.phases
+        : (data.tracks.find((t) => t.id === lane.trackId)?.phases ?? []);
+    let lastGroup: string | null = null;
+    for (const v of lane.versions) {
+      const win = v.window;
+      if (!win) continue;
+      const phase = phases.find((p) => p.id === v.phaseId)?.title ?? '';
+      const group =
+        lane.title === null ? phase : phase === '' ? lane.title : `${lane.title}: ${phase}`;
+      if (group !== lastGroup && (group !== '' || lastGroup !== null)) {
+        if (group !== '') {
+          rows.push({ kind: 'group', label: group, y });
+          y += groupHeight;
+        }
+        lastGroup = group;
       }
-      lastGroup = group;
+      const lo = win.start < win.end ? win.start : win.end;
+      const hi = win.start < win.end ? win.end : win.start;
+      const bx = x(lo);
+      const width2 = Math.max(4, xEnd(hi) - bx);
+      rows.push({
+        kind: 'bar',
+        version: v,
+        trackId: lane.trackId,
+        y,
+        x: bx,
+        width: width2,
+        fill: (width2 * v.progress.pct) / 100,
+        milestone: v.milestoneId ? { id: v.milestoneId, x: bx + width2 } : null,
+      });
+      y += rowHeight;
     }
-    const lo = win.start < win.end ? win.start : win.end;
-    const hi = win.start < win.end ? win.end : win.start;
-    const bx = x(lo);
-    const width2 = Math.max(4, xEnd(hi) - bx);
-    rows.push({
-      kind: 'bar',
-      version: v,
-      y,
-      x: bx,
-      width: width2,
-      fill: (width2 * v.progress.pct) / 100,
-      milestone: v.milestoneId ? { id: v.milestoneId, x: bx + width2 } : null,
-    });
-    y += rowHeight;
   }
 
   const inRange = data.today >= start && data.today <= end;

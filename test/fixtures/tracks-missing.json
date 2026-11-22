@@ -1,0 +1,5 @@
+{
+  "format": 1,
+  "docs": { "roadmap": "../../examples/two-tracks/docs/project/ROADMAP.md" },
+  "tracks": [{ "id": "gone", "title": "Gone", "file": "../../examples/two-tracks/docs/project/NOPE.md" }]
+}
