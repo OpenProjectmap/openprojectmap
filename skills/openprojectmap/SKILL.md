@@ -70,6 +70,12 @@ this version completes it, then run check and build.
 Don't build it. Propose Parked (with "why" and "revisit when") or a future version (with the next
 free ID), then write it after the user agrees.
 
+If the MCP tools or the CLI are available, ask them instead of guessing: `propose` (or
+`opmap propose "<idea>"`) says which versions it could go in, the next free ID, what it touches and
+whether it is already Parked; check the drafted row with `check_proposal` (or
+`opmap propose --check "<row>"`) before showing it. Save a draft under `proposals/`, never
+straight into the roadmap.
+
 ## Workflow F: re-plan after a slip
 
 Show a proposal first: new windows for the slipped and following versions, deliverables to park

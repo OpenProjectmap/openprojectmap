@@ -28,6 +28,9 @@ offered at all.
 | `list` | Deliverables (roadmap and tracks), filtered by version or block, status or text | no |
 | `get` | One deliverable, version, track block, decision or risk by ID, with its file and line | no |
 | `check` | The format problems of the docs (what `opmap check` shows) | no |
+| `propose` | For an idea in plain words: where it could go, what it touches, what to settle first | no |
+| `check_proposal` | Check a drafted row (or a draft file): free ID, version not shipped, not a repeat of a Parked item | no |
+| `save_proposal` | Save a draft to `proposals/<slug>.md` for you to review; never edits the roadmap | yes, that file only |
 | `set_status` | Set a deliverable's status; for `done`, the date and the PR or commit | yes |
 | `log` | Add a dated status line to a version or track block | yes |
 | `decide` | Record the outcome of a decision (or that the default was used) | yes |
@@ -41,10 +44,19 @@ The ending of a working session (see the [weekly rhythm](03-weekly-rhythm.md)) i
 of what you touched, add a status line, update the Now block, and check that there are no warnings.
 An agent does all four with the tools above: `set_status`, `log`, `update_now`, `check`.
 
+## Adding a new idea without breaking the plan
+
+When you say "add dark mode", the agent should not just append a row. With these tools it asks
+`propose` where the idea fits (and whether it is already on the Parked list, or waits on an open
+decision), drafts the row with the next free ID, checks it with `check_proposal`, and saves the
+draft with `save_proposal` for you to read. Putting the row into the roadmap stays your decision.
+The same two steps work in a terminal: `opmap propose "dark mode"` and
+`opmap propose --check "| 0.7.0-D9 | **Dark mode** | todo | |"`.
+
 ## What it will and will not do
 
 - It only reads and writes the doc files named in `opmap.config.json` (the roadmap, decisions,
-  changelog and tracks). It does not run commands, open a network connection or touch other files.
+  changelog and tracks), and drafts in the `proposals` folder next to the roadmap. It does not run commands, open a network connection or touch other files.
 - It talks to the agent over standard input and output only: it opens no port.
 - The text it returns comes from your documents. The tool descriptions tell the agent that this is
   data, not instructions, to make it harder for a sentence in a document to steer the agent.

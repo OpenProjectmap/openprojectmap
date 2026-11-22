@@ -31,6 +31,8 @@ export {
   parseCsv,
 } from './import.js';
 export type { DraftInput, DraftResult, ImportItem, ImportVersion } from './import.js';
+export { checkRow, parseRow, propose, similarity, tokens } from './propose.js';
+export type { Candidate, CheckOptions, Finding, Proposal, RowCheck, RowDraft } from './propose.js';
 export { diffProjects, formatDiff, DIFF_MARKER } from './diff.js';
 export type { DiffFormat, ProjectDiff } from './diff.js';
 export {

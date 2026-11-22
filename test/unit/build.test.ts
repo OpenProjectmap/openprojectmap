@@ -94,17 +94,20 @@ describe('public API', () => {
       'VERSION',
       'buildData',
       'buildProject',
+      'checkProposal',
       'loadConfig',
       'opDecide',
       'opLog',
       'opSetStatus',
       'opUpdateNow',
       'parseProject',
+      'proposalFor',
       'queryCheck',
       'queryGet',
       'queryList',
       'queryNow',
       'renderMap',
+      'saveProposal',
     ]);
   });
 });

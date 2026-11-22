@@ -254,6 +254,9 @@ parser and editor). The server's working directory is the repo root (or `--cwd`)
 | `list` | `{ version?, status?: Status[], q?, limit≤200 }` | deliverables (compact) of the roadmap and every track | no |
 | `get` | `{ id }` | a deliverable, version or track block, decision or risk, with its source line | no |
 | `check` | — | diagnostics | no |
+| `propose` | `{ idea }` | candidate versions with next free IDs, related rows, decisions and Parked items, notes on conflicts (spec 04 §2.3) | no |
+| `check_proposal` | `{ row }` (a table row, or a draft file path) | errors and warnings for the drafted row(s) | no |
+| `save_proposal` | `{ slug, title, idea, rows?, version?, notes? }` | the path of `proposals/<slug>.md`; never edits the roadmap, never overwrites | yes (that one file) |
 | `set_status` | `{ id, status, date?, ref?, note? }` | unified diff + new diagnostics | yes |
 | `log` | `{ version, text, date? }` | diff | yes |
 | `decide` | `{ id, outcome, defaulted? }` | diff | yes |

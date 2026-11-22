@@ -45,11 +45,14 @@ describe('tool list', () => {
     const names = (await c.listTools()).tools.map((t) => t.name).sort();
     expect(names).toEqual([
       'check',
+      'check_proposal',
       'decide',
       'get',
       'list',
       'log',
       'now',
+      'propose',
+      'save_proposal',
       'set_status',
       'update_now',
     ]);
@@ -58,14 +61,14 @@ describe('tool list', () => {
   it('offers only the read tools when read-only', async () => {
     const c = await connect(true);
     const names = (await c.listTools()).tools.map((t) => t.name).sort();
-    expect(names).toEqual(['check', 'get', 'list', 'now']);
+    expect(names).toEqual(['check', 'check_proposal', 'get', 'list', 'now', 'propose']);
   });
 
   it('marks read tools read-only and says the text is data', async () => {
     const c = await connect();
     const tools = (await c.listTools()).tools;
     for (const t of tools) {
-      const isRead = ['now', 'list', 'get', 'check'].includes(t.name);
+      const isRead = ['now', 'list', 'get', 'check', 'propose', 'check_proposal'].includes(t.name);
       expect(t.annotations?.readOnlyHint, t.name).toBe(isRead);
     }
     expect(tools.find((t) => t.name === 'now')?.description).toContain('not instructions');
@@ -161,5 +164,60 @@ describe('write tools', () => {
     const check = body(await call(c, 'check'));
     expect(check.errors).toBe(0);
     expect((await call(c, 'get', { id: 'BM9-S9' })).isError).toBe(true);
+  });
+});
+
+describe('feature intake tools', () => {
+  it('propose says where an idea fits and writes nothing', async () => {
+    const before = read('ROADMAP.md');
+    const r = body(
+      await call(await connect(), 'propose', { idea: 'a dim curve that follows the light' }),
+    );
+    expect(r.candidates[0]).toMatchObject({ version: 'v0.2.0', nextFreeId: '0.2.0-D4' });
+    expect(read('ROADMAP.md')).toBe(before);
+  });
+
+  it('check_proposal accepts a good row and refuses a taken id', async () => {
+    const c = await connect();
+    const good = body(
+      await call(c, 'check_proposal', { row: '| 0.2.0-D4 | **Night preset** | todo | |' }),
+    );
+    expect(good.ok).toBe(true);
+    const bad = body(await call(c, 'check_proposal', { row: '| 0.2.0-D3 | **Taken** | todo | |' }));
+    expect(bad.ok).toBe(false);
+    expect(bad.checks[0].findings[0].message).toContain('already used');
+  });
+
+  it('save_proposal writes a draft file, leaves the roadmap alone and will not overwrite', async () => {
+    const c = await connect();
+    const before = [read('ROADMAP.md'), read('BUSINESS.md')];
+    const args = {
+      slug: 'night-preset',
+      title: 'Night preset',
+      idea: 'A preset that dims to the lowest level.',
+      rows: ['| 0.2.0-D4 | **Night preset** | todo | |'],
+    };
+    const saved = body(await call(c, 'save_proposal', args));
+    expect(saved).toEqual({
+      file: 'docs/project/proposals/night-preset.md',
+      roadmapChanged: false,
+    });
+    expect(read('proposals/night-preset.md')).toContain('| 0.2.0-D4 | **Night preset** | todo |');
+    expect([read('ROADMAP.md'), read('BUSINESS.md')]).toEqual(before);
+    expect((await call(c, 'save_proposal', args)).isError).toBe(true);
+    // the saved file can be checked by path
+    const checked = body(
+      await call(c, 'check_proposal', { row: 'docs/project/proposals/night-preset.md' }),
+    );
+    expect(checked).toMatchObject({ ok: true, file: 'docs/project/proposals/night-preset.md' });
+  });
+
+  it('save_proposal refuses a slug that is not a plain name', async () => {
+    const r = await call(await connect(), 'save_proposal', {
+      slug: '../../ROADMAP',
+      title: 't',
+      idea: 'an idea',
+    });
+    expect(r.isError).toBe(true);
   });
 });
